@@ -59,6 +59,10 @@ const app = new Elysia()
     timestamp: new Date().toISOString(),
   }))
   .get("/health", () => ({ status: "ok" }))
+  // Global request logger
+  .onRequest(({ request }) => {
+    console.log(`[REQ] ${request.method} ${new URL(request.url).pathname}`);
+  })
   // Routes
   .use(authRoutes)
   .use(catalogRoutes)

@@ -1,10 +1,6 @@
 {
   "name": "vendor-billing-system",
   "private": true,
-  "workspaces": [
-    "server",
-    "client"
-  ],
   "scripts": {
     "dev:server": "cd server && bun run dev",
     "dev:client": "cd client && bun run dev",
@@ -15,8 +11,8 @@
     "db:seed": "cd server && bunx prisma db seed",
     "db:studio": "cd server && bunx prisma studio"
   },
-  "dependencies": {
-    "exceljs": "^4.4.0",
-    "xlsx": "^0.18.5"
-  }
+  "workspaces": [
+    "server",
+    "client"
+  ]
 }

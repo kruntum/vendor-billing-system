@@ -21,18 +21,25 @@ services:
     build:
       context: .
       dockerfile: ./server/Dockerfile
+      # ARG นี้ไม่จำเป็นต้องมีสำหรับ Migrate Deploy แล้ว (เพราะย้ายไป Run Time)
+      # แต่คงไว้เผื่อ Prisma Generate ต้องการ
+      args:
+        DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
     container_name: vbs_server
     ports:
       - "8801:8801"
     environment:
       NODE_ENV: production
+      # DATABASE_URL สำหรับ Runtime (ใช้ชื่อ Host 'db' และ Port 5432 ภายใน)
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       JWT_SECRET: ${JWT_SECRET}
       PORT: 8801
     depends_on:
       db:
-        condition: service_healthy
-    command: sh -c "bunx prisma migrate deploy && bun run start"
+        condition: service_healthy # ยอดเยี่ยม: รอจนกว่า DB จะพร้อม
+
+    # 🔥 แก้ไขสำคัญ: ต้องรัน migrate deploy ก่อน start app
+    command: sh -c "bunx --bun prisma migrate deploy && bun run start"
 
   client:
     build:

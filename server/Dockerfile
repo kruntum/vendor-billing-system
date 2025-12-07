@@ -1,36 +1,61 @@
-# Stage 1: Build
+# ----------------------------------------------------
+# Stage 1: The Builder Stage
+# ใช้ Bun เป็น Base Image
+# ----------------------------------------------------
 FROM oven/bun:latest AS builder
 
+# ตั้งค่า Working Directory
 WORKDIR /app
+
+# 1. รับค่า DATABASE_URL เป็น Build Argument (คงไว้เผื่อต้องใช้ในอนาคต/กรณีพิเศษ แต่จะไม่ใช้ในการ migrate)
+ARG DATABASE_URL 
 
 # Copy package files
 COPY server/package.json server/bun.lockb* ./
-COPY server/prisma ./prisma/
 
-# Install dependencies
+# 🔥 CRITICAL 1: Copy Prisma files และ config
+COPY server/prisma ./prisma/
+COPY server/prisma.config.ts ./
+# ลบการ COPY server/.env ออกไป เพราะไม่ควรอยู่ใน Builder/Runner stage
+# และค่า DATABASE_URL จะถูกส่งผ่าน docker-compose.yml ใน Runtime
+
+# Install dependencies (รวมถึง Prisma CLI)
 RUN bun install --frozen-lockfile
 
-# Copy source code
+# Copy source code and config
 COPY server/src ./src/
 COPY server/tsconfig.json ./
 
-# Generate Prisma Client
-RUN bunx prisma generate
+# 2. Generate Prisma Client (ใช้ --bun เพื่อความเข้ากันได้ดีกับ Bun)
+# การ generate client เป็นการทำงานแบบ Offline (ไม่ต้องการ DB connection)
+RUN bunx --bun prisma generate
 
-# Stage 2: Production
-FROM oven/bun:latest
+# 🔥 CRITICAL 2: Deploy Migrations
+# ลบคำสั่งนี้ออกไป! การ migrate deploy ต้องทำใน Run Time เท่านั้น
+# เนื่องจาก DB service (db:5432) ยังไม่พร้อมใช้งานใน Build Time
+# (ย้ายคำสั่งนี้ไปที่ docker-compose.yml)
 
+# ----------------------------------------------------
+# Stage 2: The Runner Stage (Production)
+# ----------------------------------------------------
+FROM oven/bun:latest AS runner
+
+# ตั้งค่า Working Directory
 WORKDIR /app
 
-# Copy dependencies and generated files from builder
+# Copy dependencies และ generated files จาก Builder
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma/schema.prisma ./prisma/schema.prisma
 
-# Copy source code
+# 🔥 CRITICAL 3: Copy prisma.config.ts มาที่ Runner Stage (ยังจำเป็นสำหรับ Runtime)
+COPY server/prisma.config.ts ./
+# ลบการ COPY server/.env ออกไป (ค่า Environment Variables จะถูกส่งผ่าน docker-compose.yml)
+
+# Copy source code and package files
 COPY server/src ./src/
 COPY server/package.json ./
-
-# Create public directory for PDFs
+COPY server/fonts ./fonts/  
+# สร้าง public directory (ตามโครงสร้างไฟล์ของคุณ)
 RUN mkdir -p /app/public
 
 # Expose port
@@ -41,4 +66,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD bun run -e "fetch('http://localhost:8801/health').then(r => r.ok ? process.exit(0) : process.exit(1))" || exit 1
 
 # Start server
+# คำสั่งนี้จะถูก Override ด้วย command ใน docker-compose.yml (สำหรับ migrate deploy)
 CMD ["bun", "run", "start"]
