@@ -1,0 +1,241 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { catalogApi, JobDescriptionCatalog as JobDescriptionType } from "@/lib/api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// Icons
+const EditIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    <path d="m15 5 4 4" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 6h18" />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    <line x1="10" x2="10" y1="11" y2="17" />
+    <line x1="14" x2="14" y1="11" y2="17" />
+  </svg>
+);
+
+export function JobDescriptionCatalog() {
+  const [editingItem, setEditingItem] = useState<JobDescriptionType | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: descriptionsResponse, isLoading } = useQuery({
+    queryKey: ["job-descriptions"],
+    queryFn: () => catalogApi.getJobDescriptions().then((res) => res.data),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: catalogApi.deleteJobDescription,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["job-descriptions"] });
+    },
+  });
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this job description?")) {
+      await deleteMutation.mutateAsync(id);
+    }
+  };
+
+  const handleEdit = (item: JobDescriptionType) => {
+    setEditingItem(item);
+    setIsFormOpen(true);
+  };
+
+  const handleCreate = () => {
+    setEditingItem(null);
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingItem(null);
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  const descriptions = descriptionsResponse?.data || [];
+
+  return (
+    <TooltipProvider delayDuration={200}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-medium text-gray-900">รายละเอียดงาน (Job Descriptions)</h2>
+          <button
+            onClick={handleCreate}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
+          >
+            เพิ่มรายละเอียดงาน
+          </button>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ชื่อรายละเอียดงาน
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  จัดการ
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {descriptions.length === 0 ? (
+                <tr>
+                  <td colSpan={2} className="px-6 py-4 text-center text-sm text-gray-500">
+                    ไม่พบข้อมูลรายละเอียดงาน
+                  </td>
+                </tr>
+              ) : (
+                descriptions.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{item.title}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-colors"
+                            >
+                              <EditIcon />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>แก้ไข</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>ลบ</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {isFormOpen && (
+          <JobDescriptionForm
+            item={editingItem}
+            onClose={handleCloseForm}
+            onSuccess={() => {
+              queryClient.invalidateQueries({ queryKey: ["job-descriptions"] });
+              handleCloseForm();
+            }}
+          />
+        )}
+      </div>
+    </TooltipProvider>
+  );
+}
+
+interface JobDescriptionFormProps {
+  item?: JobDescriptionType | null;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function JobDescriptionForm({ item, onClose, onSuccess }: JobDescriptionFormProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<{ title: string }>({
+    defaultValues: {
+      title: item?.title || "",
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: catalogApi.createJobDescription,
+    onSuccess,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: { title: string }) =>
+      catalogApi.updateJobDescription(item!.id, data),
+    onSuccess,
+  });
+
+  const onSubmit = (data: { title: string }) => {
+    if (item) {
+      updateMutation.mutate(data);
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  const isLoading = createMutation.isPending || updateMutation.isPending;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">
+          {item ? "แก้ไขรายละเอียดงาน" : "เพิ่มรายละเอียดงาน"}
+        </h2>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">ชื่อรายละเอียดงาน</label>
+            <input
+              {...register("title", { required: "กรุณาระบุชื่อรายละเอียดงาน" })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2"
+            />
+            {errors.title && (
+              <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-2 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
+            >
+              {isLoading ? "กำลังบันทึก..." : "บันทึก"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

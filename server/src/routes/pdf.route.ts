@@ -1,0 +1,1015 @@
+import { Elysia, t } from "elysia";
+import PDFDocument from "pdfkit";
+import { createWriteStream, existsSync, mkdirSync, unlinkSync } from "fs";
+import path from "path";
+import { requireAuth } from "../plugins/auth.plugin";
+import { prisma } from "../lib/prisma";
+import { format } from "date-fns";
+import { BahtText } from "../lib/bahttext";
+
+const pdfDir = path.join(process.cwd(), "public", "pdfs");
+if (!existsSync(pdfDir)) {
+    mkdirSync(pdfDir, { recursive: true });
+}
+
+const thaiFontPath = path.join(process.cwd(), "fonts", "Sarabun-Regular.ttf");
+
+// ------------------------------------------------------------------
+// การตั้งค่าสี (Colors Configuration)
+// สามารถแก้ไขรหัสสี Hex ใช้งานได้ตามต้องการ
+// ------------------------------------------------------------------
+// const PRIMARY_COLOR = "#228B22"; // สีหลัก (หัวข้อ, เส้นขอบสำคัญ)
+const PRIMARY_COLOR = "#000000"; // สีหลัก (หัวข้อ, เส้นขอบสำคัญ)
+const COMPANY_NAME_COLOR = "#000000"; // สีชื่อบริษัท
+const TEXT_DARK = "#000000"; // สีตัวอักษรเข้ม (เนื้อหาหลัก)
+const TEXT_GRAY = "#4b5563"; // สีตัวอักษรเทา (ป้ายกำกับ, ข้อมูลรอง)
+const BORDER_COLOR = "#C0C0C0"; // สีเส้นขอบทั่วไป
+const BOX_BORDER_COLOR = "#C0C0C0"; // สีเส้นขอบกล่องข้อความ
+const BOX_BACKGROUND_COLOR = "#f9fafb"; // สีพื้นหลังกล่องข้อความ
+const TABLE_BORDER_WIDTH = 0.5; // ความหนาเส้นตาราง
+const ROW_BORDER_COLOR = "#DCDCDC"; // สีเส้นแบ่งบรรทัดในตาราง
+
+// ------------------------------------------------------------------
+// ฟังก์ชันช่วย: ทำความสะอาดชื่อไฟล์ (Sanitize Filename)
+// เปลี่ยนอักขระพิเศษเป็น _ เพื่อป้องกันปัญหาในการบันทึกไฟล์
+// ------------------------------------------------------------------
+function sanitizeFilename(name: string): string {
+    return name.replace(/[^a-z0-9]/gi, "_").replace(/_+/g, "_");
+}
+
+export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
+    .use(requireAuth)
+    .get(
+        "/billing/:id",
+        async ({ params, user, set }) => {
+            try {
+                const { id } = params;
+
+                // Build query based on role
+                const where: any = { id };
+
+                // Admin/User can access any billing, vendor can only access their own
+                if (user?.role !== "ADMIN" && user?.role !== "USER") {
+                    if (!user?.vendorId) {
+                        set.status = 403;
+                        return { success: false, error: "Vendor ID required" };
+                    }
+                    where.vendorId = user.vendorId;
+                }
+
+                const billing = await prisma.billingNote.findFirst({
+                    where,
+                    include: { jobs: { include: { items: true } }, vendor: true },
+                });
+
+                if (!billing) {
+                    set.status = 404;
+                    return { success: false, error: "Billing note not found" };
+                }
+
+                if (billing.pdfUrl) {
+                    const existingPath = path.join(process.cwd(), billing.pdfUrl);
+                    if (existsSync(existingPath)) {
+                        // หากมีไฟล์อยู่แล้ว ให้ส่ง URL กลับไปทันที (ไม่ต้องสร้างใหม่)
+                        return { success: true, data: { filename: path.basename(billing.pdfUrl), url: billing.pdfUrl } };
+                    }
+                    // หากมี URL แต่ไม่มีไฟล์จริง -> ให้สร้างใหม่
+                }
+
+                // ลบไฟล์เก่าทิ้งหากมีการสร้างใหม่ (เพื่อไม่ให้เปลืองพื้นที่ Server)
+                if (billing.pdfUrl) {
+                    const oldPath = path.join(process.cwd(), billing.pdfUrl);
+                    if (existsSync(oldPath)) {
+                        try {
+                            unlinkSync(oldPath);
+                        } catch (e) {
+                            console.error("Failed to delete old PDF:", e);
+                        }
+                    }
+                }
+
+                // สร้างไฟล์ PDF ใหม่
+                const companySettings = await prisma.companySettings.findFirst();
+                const sanitizedRef = sanitizeFilename(billing.billingRef || billing.id);
+                // ตั้งชื่อไฟล์โดยใส่ Timestamp (Date.now()) เพื่อไม่ให้ซ้ำ
+                const filename = `billing-${sanitizedRef}-${Date.now()}.pdf`;
+                const relativeUrl = `/public/pdfs/${filename}`;
+                const filepath = path.join(pdfDir, filename);
+
+                // ตั้งค่าขอบกระดาษ (Margin) และเปิด bufferPages เพื่อนับหน้า
+                const margin = 25;
+                const marginTop = 15;
+                const doc = new PDFDocument({
+                    size: "A4",
+                    margins: { top: marginTop, bottom: margin, left: margin, right: margin },
+                    bufferPages: true
+                });
+                doc.registerFont("Sarabun", thaiFontPath); // ลงทะเบียนฟอนต์ไทย
+                const writeStream = createWriteStream(filepath);
+                doc.pipe(writeStream);
+
+                const pageWidth = 595.28;
+                const pageHeight = 841.89;
+                const contentWidth = pageWidth - (margin * 2);
+
+                // ปรับความกว้างคอลัมน์สำหรับเนื้อหาที่กว้างขึ้น (รวม ~545)
+                // ใหม่: [30, 45, 180, 145, 80, 50] = 545
+                // กำหนดความกว้างและตำแหน่งของคอลัมน์ (รวม ~545)
+                const colW = [30, 45, 185, 145, 80, 60];
+                const colX = [
+                    margin,
+                    margin + colW[0],
+                    margin + colW[0] + colW[1],
+                    margin + colW[0] + colW[1] + colW[2],
+                    margin + colW[0] + colW[1] + colW[2] + colW[3],
+                    margin + colW[0] + colW[1] + colW[2] + colW[3] + colW[4]
+                ];
+
+                // หัวข้อตาราง 2 ภาษา (ไทย/อังกฤษ)
+                const headers = [
+                    { th: "#", en: "" },
+                    { th: "วันที่", en: "Date" },
+                    { th: "รายละเอียด", en: "Description" },
+                    { th: "เบอร์ตู้/ทะเบียนรถ", en: "Container / License Plate" },
+                    { th: "เลขที่อ้างอิง", en: "Ref No." },
+                    { th: "จำนวนเงิน", en: "Amount" }
+                ];
+                const cellPadding = 5;
+
+                // กำหนดตำแหน่งขอบล่างของตาราง (Fixed Table Bottom)
+                // Adjusted to fit ~20 items (pageHeight - 270)
+                // ปรับให้พอดีกับประมาณ 20 รายการ (pageHeight - 270)
+                const fixedTableBottomY = pageHeight - 280;
+
+                // ฟังก์ชันวาดส่วนหัวกระดาษ (Header) และคืนค่าตำแหน่งแกน Y ที่พร้อมเขียนเนื้อหาต่อ
+                const drawHeader = () => {
+                    // ========== แถวที่ 1: ข้อมูลบริษัท (ซ้าย) & หัวข้อ (ขวา) ==========
+                    const row1Y = marginTop;
+
+                    // ซ้าย: ข้อมูลบริษัท
+                    doc.font("Sarabun").fontSize(14).fillColor(COMPANY_NAME_COLOR);
+                    doc.text(billing.vendor.companyName || "Company Name", margin, row1Y);
+
+                    doc.fontSize(9).fillColor(TEXT_GRAY);
+                    let leftY = row1Y + 20;
+                    if (billing.vendor.companyAddress) {
+                        doc.text(billing.vendor.companyAddress, margin, leftY, { width: 300 });
+                        leftY = doc.y;
+                    }
+                    doc.text(`เลขประจำตัวผู้เสียภาษี: ${billing.vendor.taxId || "-"}`, margin, leftY);
+                    leftY = doc.y;
+
+                    // ขวา: หัวข้อ (ใบวางบิล)
+                    const titleW = 200;
+                    const titleX = pageWidth - margin - titleW;
+
+                    doc.fontSize(18).fillColor(PRIMARY_COLOR);
+                    doc.text("ใบวางบิล", titleX, row1Y, { width: titleW, align: "center" });
+                    doc.fontSize(10);
+                    doc.text("Billing Note", titleX, row1Y + 25, { width: titleW, align: "center" });
+
+                    // ========== แถวที่ 2: กล่องลูกค้า (ซ้าย) & กล่องข้อมูลเอกสาร (ขวา) ==========
+                    const row2Y = Math.max(leftY + 15, row1Y + 50);
+                    const gap = 10;
+                    const rightBoxW = 200;
+                    const leftBoxW = contentWidth - rightBoxW - gap;
+                    const leftBoxX = margin;
+                    const rightBoxX = margin + leftBoxW + gap;
+
+                    // --- 1. คำนวณความสูงของกล่อง (Calculate Box Heights) ---
+                    const padding = 10;
+
+                    // คำนวณความสูงกล่องซ้าย (ลูกค้า)
+                    let calcLeftH = padding; // เริ่มต้น padding บน
+                    calcLeftH += 18; // หัวข้อ "ลูกค้า / Customer"
+
+                    doc.fontSize(10); // ตั้งค่าฟอนต์สำหรับการคำนวณ
+                    if (companySettings) {
+                        calcLeftH += 14; // ชื่อบริษัท
+                        if (companySettings.companyAddress) {
+                            const addrH = doc.heightOfString(companySettings.companyAddress, { width: leftBoxW - (padding * 2) });
+                            calcLeftH += addrH + 4; // ที่อยู่ + เว้นบรรทัด
+                        }
+                        calcLeftH += 14; // เลขผู้เสียภาษี
+                    } else {
+                        calcLeftH += 14; // กรณีไม่มีข้อมูล
+                    }
+                    const leftBoxH = calcLeftH + 5; // บวก padding ล่างนิดหน่อย (+5 ตาม Code เดิม)
+
+                    // คำนวณความสูงกล่องขวา (เอกสาร)
+                    // Original: padding + 16(No) + 16(Date) + 5(Extra)
+                    const rightBoxH = padding + 16 + 16 + 5;
+
+                    const finalBoxH = Math.max(leftBoxH, rightBoxH);
+
+                    // --- 2. วาดกล่องพื้นหลังก่อน (Draw Background Boxes First) ---
+                    doc.roundedRect(leftBoxX, row2Y, leftBoxW, finalBoxH, 5).stroke(BOX_BORDER_COLOR);
+                    doc.roundedRect(rightBoxX, row2Y, rightBoxW, finalBoxH, 5).stroke(BOX_BORDER_COLOR);
+
+                    // --- 3. วาดข้อความทับลงไป (Draw Text Content) ---
+
+                    // --- Left Box Content ---
+                    let custContentY = row2Y + padding;
+                    doc.fontSize(11).fillColor(PRIMARY_COLOR);
+                    doc.text("ลูกค้า / Customer", leftBoxX + padding, custContentY);
+                    custContentY += 18;
+
+                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    if (companySettings) {
+                        doc.text(companySettings.companyName || "-", leftBoxX + padding, custContentY);
+                        custContentY += 14;
+                        if (companySettings.companyAddress) {
+                            doc.text(companySettings.companyAddress, leftBoxX + padding, custContentY, { width: leftBoxW - (padding * 2) });
+                            custContentY = doc.y + 4;
+                        }
+                        doc.fontSize(9).fillColor(TEXT_GRAY);
+                        doc.text(`เลขประจำตัวผู้เสียภาษี: ${companySettings.taxId || "-"}`, leftBoxX + padding, custContentY);
+                        // custContentY += 14; // ไม่ต้องบวกต่อแล้วสำหรับการวาดจริง แต่ Code เดิมบวกไว้เพื่อนับความสูง
+                    } else {
+                        doc.text("(ยังไม่ได้ตั้งค่าข้อมูลบริษัท)", leftBoxX + padding, custContentY);
+                    }
+
+                    // --- Right Box Content ---
+                    let docContentY = row2Y + padding;
+
+                    const labelX = rightBoxX + padding;
+                    const valueX = rightBoxX + 60;
+                    const valueW = rightBoxW - 60 - padding;
+
+                    doc.fontSize(9).fillColor(PRIMARY_COLOR);
+                    doc.text("เลขที่ / No:", labelX, docContentY);
+                    doc.fontSize(9).fillColor(TEXT_GRAY);
+                    doc.text(billing.billingRef || "-", valueX, docContentY, { width: valueW, align: "right" });
+                    docContentY += 16;
+
+                    doc.fontSize(9).fillColor(PRIMARY_COLOR);
+                    doc.text("วันที่ / Date:", labelX, docContentY);
+                    doc.fontSize(9).fillColor(TEXT_GRAY);
+                    doc.text(format(new Date(billing.billingDate), "dd/MM/yyyy"), valueX, docContentY, { width: valueW, align: "right" });
+                    // docContentY += 16;
+
+                    // ========== ส่วนหัวตาราง ==========
+                    const tableY = row2Y + finalBoxH + 15;
+                    const headerHeight = 35; // เพิ่มความสูงสำหรับ 2 บรรทัด
+
+                    // พื้นหลังและเส้นขอบหัวตาราง
+                    doc.rect(margin, tableY, contentWidth, headerHeight).fillAndStroke(BOX_BACKGROUND_COLOR, BORDER_COLOR);
+
+                    // วาดเส้นแนวตั้งยาวลงไปจนถึง fixedTableBottomY เลย
+                    const startVertY = tableY + headerHeight;
+                    colX.forEach((x, i) => {
+                        if (i > 0) {
+                            doc.moveTo(x, tableY).lineTo(x, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        }
+                    });
+                    // ขอบซ้ายขวา
+                    doc.moveTo(margin, tableY).lineTo(margin, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                    doc.moveTo(margin + contentWidth, tableY).lineTo(margin + contentWidth, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+                    // ลบแล้ว: การวาดเส้นขอบล่างแบบคงที่ (จะวาดแบบไดนามิกแทน)
+
+
+                    doc.font("Sarabun");
+                    headers.forEach((h, i) => {
+                        // Center align for ALL headers
+                        const align = "center";
+                        const cellY = tableY + 5;
+
+                        // Thai Line
+                        doc.fontSize(9).fillColor(TEXT_DARK).text(h.th, colX[i] + 2, cellY, { width: colW[i] - 4, align });
+
+                        // English Line
+                        if (h.en) {
+                            doc.fontSize(8).fillColor(TEXT_GRAY).text(h.en, colX[i] + 2, cellY + 12, { width: colW[i] - 4, align });
+                        }
+                    });
+
+                    // เริ่มวาดตาราง
+                    return tableY + headerHeight;
+                };
+
+                // เรียกใช้วาดส่วนหัวครั้งแรก
+                let rowY = drawHeader();
+                doc.fontSize(8);
+
+                // (fixedTableBottomY moved to top)
+
+                const fullPageBottom = pageHeight - margin - 30;
+                let isExtended = false;
+
+                // วนลูปวาดรายการงาน (Jobs)
+                billing.jobs.forEach((job, index) => {
+                    const amt = job.items.reduce((s, it) => s + Number(it.amount), 0);
+
+                    // รวมข้อมูลตู้คอนเทนเนอร์และทะเบียนรถ
+                    const parts = [];
+                    if (job.containerNo) parts.push(job.containerNo);
+                    if (job.truckPlate) parts.push(job.truckPlate);
+                    const itemsInfo = parts.join(" / ");
+
+                    const rowHeight = 18;
+
+                    // 1. ตรวจสอบการขยาย: หากเกินพื้นที่ส่วนท้ายที่กำหนด
+                    if (rowY + rowHeight > fixedTableBottomY && !isExtended) {
+                        // ลากเส้นแนวตั้งยาวลงไปจนสุดขอบล่างของหน้ากระดาษสำหรับหน้าระหว่างทางนี้
+                        colX.forEach((x, i) => {
+                            if (i > 0) doc.moveTo(x, fixedTableBottomY).lineTo(x, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        });
+                        doc.moveTo(margin, fixedTableBottomY).lineTo(margin, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        doc.moveTo(margin + contentWidth, fixedTableBottomY).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        isExtended = true;
+                    }
+
+                    // 2. ตรวจสอบการขึ้นหน้าใหม่: หากถึงขอบล่างของหน้ากระดาษ
+                    if (rowY + rowHeight > fullPageBottom) {
+                        // ปิดหน้าปัจจุบัน
+                        doc.moveTo(margin, fullPageBottom).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        doc.addPage();
+                        doc.font("Sarabun");
+                        rowY = drawHeader();
+                        doc.fontSize(8);
+                        isExtended = false; // รีเซ็ตสถานะสำหรับหน้าใหม่
+                    }
+
+                    // เส้นขอบล่าง (เส้นประ) สำหรับแต่ละแถว
+                    doc.moveTo(margin, rowY + rowHeight).lineTo(margin + contentWidth, rowY + rowHeight)
+                        .lineWidth(TABLE_BORDER_WIDTH).dash(2, { space: 2 }).stroke(ROW_BORDER_COLOR).undash();
+
+                    // NOTE: เราจะไม่วาดเส้นแนวตั้ง (Vertical Lines) ในลูปแล้ว จะวาดทีเดียวตอนจบ เพื่อให้เส้นยาวลงไปสุดตาราง
+
+                    doc.fillColor(TEXT_GRAY);
+                    doc.text(String(index + 1), colX[0] + cellPadding, rowY + 6, { width: colW[0] - (cellPadding * 2), align: "center" });
+                    doc.text(format(new Date(job.clearanceDate), "dd/MM/yy"), colX[1] + cellPadding, rowY + 6, { width: colW[1] - (cellPadding * 2) });
+                    doc.text(job.description || "-", colX[2] + cellPadding, rowY + 6, { width: colW[2] - (cellPadding * 2) });
+                    doc.text(itemsInfo || "-", colX[3] + cellPadding, rowY + 6, { width: colW[3] - (cellPadding * 2) });
+                    doc.text(job.refInvoiceNo || "-", colX[4] + cellPadding, rowY + 6, { width: colW[4] - (cellPadding * 2) });
+                    doc.text(amt.toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[5] + cellPadding, rowY + 6, { width: colW[5] - (cellPadding * 2), align: "right" });
+
+                    rowY += rowHeight;
+                });
+
+                // --- จบลูป ---
+                // จัดการกรณีเนื้อหาเกินส่วนท้ายและปิดตาราง
+                if (rowY > fixedTableBottomY) {
+                    // เนื้อหาเกินพื้นที่ส่วนท้าย
+                    // ตรวจสอบว่าได้ลากเส้นขยายลงมาหรือยัง (เช่น กรณีเกินพื้นที่มาเล็กน้อย)
+                    if (!isExtended) {
+                        colX.forEach((x, i) => { if (i > 0) doc.moveTo(x, fixedTableBottomY).lineTo(x, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR); });
+                        doc.moveTo(margin, fixedTableBottomY).lineTo(margin, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        doc.moveTo(margin + contentWidth, fixedTableBottomY).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                    }
+                    // ปิดหน้านี้ให้สมบูรณ์
+                    doc.moveTo(margin, fullPageBottom).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+                    // เพิ่มหน้าใหม่สำหรับส่วนท้าย
+                    doc.addPage();
+                    rowY = drawHeader();
+                }
+
+                // ปิดกรอบตารางที่ fixedTableBottomY (การจบแบบปกติ)
+                doc.moveTo(margin, fixedTableBottomY).lineTo(margin + contentWidth, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+                // พื้นที่เริ่มจากใต้ตาราง (Fixed Bottom)
+                const footerY = fixedTableBottomY + 10;
+                // const splitX = (colX[3] + colX[4]) / 2; // ใช้แนวเดียวกับเลขที่อ้างอิงเป็นจุดแบ่ง (ประมาณ 50/50)
+                const splitX = 300;
+
+                // --- LEFT: Payment Info ---
+                const paymentW = splitX - margin - 10; // เว้นระยะ 10
+                const paymentH = 110;
+
+                // Background Box
+                doc.roundedRect(margin, footerY, paymentW, paymentH, 5).stroke(BORDER_COLOR);
+
+                doc.fillColor(PRIMARY_COLOR).fontSize(10);
+                doc.text("ข้อมูลการชำระเงิน", margin + 10, footerY + 10);
+
+                doc.fillColor(TEXT_GRAY).fontSize(9);
+                doc.text(`ธนาคาร: ${billing.vendor.bankName || "-"}`, margin + 10, footerY + 30);
+                doc.text(`สาขา: ${billing.vendor.bankBranch || "-"}`, margin + 10, footerY + 45);
+                doc.text(`เลขที่บัญชี: ${billing.vendor.bankAccount || "-"}`, margin + 10, footerY + 60);
+                doc.text(`ชื่อบัญชี: ${billing.vendor.companyName || "-"}`, margin + 10, footerY + 75);
+
+                // Show Remark here if exists
+                if (billing.remark) {
+                    doc.fillColor(PRIMARY_COLOR).fontSize(9);
+                    doc.text("หมายเหตุ: " + billing.remark, margin + 10, footerY + 95, { width: paymentW - 20 });
+                }
+
+                // --- RIGHT: Summary ---
+                // ใช้พื้นที่จาก splitX ไปจนสุดขอบขวา
+                const rightColX = splitX + 10; // ขยับเข้ามานิดนึง
+                const rightColW = (margin + contentWidth) - rightColX;
+                let sY = footerY;
+
+                doc.fontSize(9).fillColor(TEXT_GRAY);
+
+                const drawSummaryRow = (label: string, value: string, isBold: boolean = false) => {
+                    const y = sY;
+                    doc.fillColor(TEXT_GRAY);
+                    if (isBold) doc.font("Sarabun-Bold").fontSize(11).fillColor("#166534");
+                    else doc.font("Sarabun").fontSize(9);
+
+                    doc.text(label, rightColX, y);
+                    doc.text(value, rightColX, y, { width: rightColW, align: "right" });
+
+                    if (isBold) doc.font("Sarabun").fontSize(9); // Reset
+                    sY += 20;
+                };
+
+                // รวมเป็นเงิน
+                drawSummaryRow("รวมเป็นเงิน:", `${Number(billing.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+
+                // มูลค่าก่อนภาษีมูลค่าเพิ่ม
+                if (billing.priceBeforeVat) {
+                    drawSummaryRow("มูลค่าก่อนภาษีมูลค่าเพิ่ม:", `${Number(billing.priceBeforeVat).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+                }
+
+                // ภาษีมูลค่าเพิ่ม
+                const vatRate = billing.vatRateText || "7";
+                drawSummaryRow(`ภาษีมูลค่าเพิ่ม ${vatRate}%:`, `${Number(billing.vatAmount).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+
+                // หัก ณ ที่จ่าย
+                const whtRate = billing.whtRateText || "3";
+                drawSummaryRow(`หัก ณ ที่จ่าย ${whtRate}%:`, `-${Number(billing.whtAmount).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+
+                // เส้นขีดคั่น
+                sY -= 5;
+                doc.moveTo(rightColX, sY).lineTo(margin + contentWidth, sY).lineWidth(0.5).stroke(BORDER_COLOR);
+                sY += 8;
+
+                // ยอดสุทธิพร้อมพื้นหลัง
+                // วาดพื้นหลังก่อน
+                doc.roundedRect(rightColX - 5, sY - 5, rightColW + 5, 17, 5).fill("#f0fdf4");
+                doc.fillColor("#166534"); // Green text works better on light green bg
+
+                // วางตำแหน่งข้อความเองเพื่อทำตัวหนาโดยไม่ต้องใช้ helper
+                doc.fontSize(11).text("ยอดสุทธิ:", rightColX, sY - 5);
+                doc.text(`${Number(billing.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`, rightColX, sY - 5, { width: rightColW, align: "right" });
+
+                // เพิ่มคำอ่านภาษาไทย (เช่น หนึ่งร้อยบาทถ้วน)
+                const thaiText = BahtText(Number(billing.netTotal));
+                doc.fontSize(9).fillColor(TEXT_GRAY);
+                doc.text(thaiText, rightColX, sY + 17, { width: rightColW, align: "right" });
+
+                // ========== ส่วนลงลายมือชื่อ (SIGNATURE SECTION) ==========
+                const sigY = pageHeight - 140;
+                const sigWidth = 180;
+
+                // ลายเซ็นฝั่งซ้าย (ผู้วางบิล)
+                doc.fontSize(9).fillColor(TEXT_GRAY);
+                doc.text("ในนาม " + (billing.vendor.companyName || ""), margin, sigY, { width: sigWidth, align: "center" });
+                // doc.text("", margin, sigY + 45, { width: sigWidth, align: "center" });
+                doc.moveTo(margin, sigY + 60).lineTo(margin + sigWidth, sigY + 60).stroke(BORDER_COLOR);
+                doc.text("ผู้วางบิล", margin, sigY + 65, { width: sigWidth, align: "center" });
+                doc.text("วันที่ ______/______/______", margin, sigY + 80, { width: sigWidth, align: "center" });
+
+                // ลายเซ็นฝั่งขวา (ผู้รับวางบิล - ลูกค้า)
+                const rightSigX = pageWidth - margin - sigWidth;
+                doc.text("ในนาม " + (companySettings?.companyName || "บริษัท"), rightSigX, sigY, { width: sigWidth, align: "center" });
+                // doc.text("", rightSigX, sigY + 45, { width: sigWidth, align: "center" });
+                doc.moveTo(rightSigX, sigY + 60).lineTo(rightSigX + sigWidth, sigY + 60).stroke(BORDER_COLOR);
+                doc.text("ผู้รับวางบิล", rightSigX, sigY + 65, { width: sigWidth, align: "center" });
+                doc.text("วันที่ ______/______/______", rightSigX, sigY + 80, { width: sigWidth, align: "center" });
+
+                // ========== ส่วนท้ายกระดาษรวม (เลขหน้า & วันที่) ==========
+                const range = doc.bufferedPageRange();
+                for (let i = range.start; i < range.start + range.count; i++) {
+                    doc.switchToPage(i);
+
+                    // Temporarily disable bottom margin to prevent auto-page-add
+                    const oldBottomMargin = doc.page.margins.bottom;
+                    doc.page.margins.bottom = 0;
+
+                    doc.fontSize(6).fillColor(TEXT_GRAY);
+
+                    // ล่างซ้าย: วันที่พิมพ์
+                    doc.text(
+                        `พิมพ์เมื่อ: ${format(new Date(), "dd/MM/yyyy HH:mm")}`,
+                        margin,
+                        pageHeight - 20,
+                        { align: "left" }
+                    );
+
+                    // ล่างขวา: เลขหน้า
+                    doc.text(
+                        `หน้า ${i + 1} / ${range.count}`,
+                        pageWidth - margin - 100,
+                        pageHeight - 20,
+                        { width: 100, align: "right" }
+                    );
+
+                    // คืนค่าระยะขอบล่าง
+                    doc.page.margins.bottom = oldBottomMargin;
+                }
+
+                doc.end();
+
+                await new Promise<void>((resolve, reject) => {
+                    writeStream.on("finish", resolve);
+                    writeStream.on("error", reject);
+                });
+
+                // อัปเดต BillingNote ด้วย pdfUrl
+                await prisma.billingNote.update({
+                    where: { id: billing.id },
+                    data: { pdfUrl: relativeUrl }
+                });
+
+                return { success: true, data: { filename, url: relativeUrl } };
+            } catch (error: any) {
+                console.error("PDF generation error:", error);
+                set.status = 500;
+                return { success: false, error: error.message || "Failed to generate PDF" };
+            }
+        },
+        {
+            params: t.Object({ id: t.String() }),
+            detail: { summary: "สร้างไฟล์ PDF ใบวางบิล", description: "สร้างไฟล์ PDF แบบมืออาชีพรองรับฟอนต์ไทย" },
+        }
+    )
+    .get(
+        "/receipt/:id",
+        async ({ params, user, set }) => {
+            try {
+                const { id } = params;
+
+                // Build query based on role
+                const where: any = { id };
+
+                // Admin/User can access any receipt, vendor can only access their own
+                if (user?.role !== "ADMIN" && user?.role !== "USER") {
+                    if (!user?.vendorId) {
+                        set.status = 403;
+                        return { success: false, error: "Vendor ID required" };
+                    }
+                    where.vendorId = user.vendorId;
+                }
+
+                const receipt = await prisma.receipt.findFirst({
+                    where,
+                    include: {
+                        billingNote: {
+                            include: {
+                                jobs: { include: { items: true } },
+                                vendor: true
+                            }
+                        },
+                        vendor: true
+                    },
+                });
+
+                if (!receipt) {
+                    set.status = 404;
+                    return { success: false, error: "Receipt not found" };
+                }
+
+                const billing = receipt.billingNote;
+
+                if (receipt.receiptFile) {
+                    const existingPath = path.join(process.cwd(), receipt.receiptFile);
+                    if (existsSync(existingPath)) {
+                        return { success: true, data: { filename: path.basename(receipt.receiptFile), url: receipt.receiptFile } };
+                    }
+                }
+
+                // ลบไฟล์เก่าหากมี (การล้างข้อมูล)
+                if (receipt.receiptFile) {
+                    const oldPath = path.join(process.cwd(), receipt.receiptFile);
+                    if (existsSync(oldPath)) {
+                        try {
+                            unlinkSync(oldPath);
+                        } catch (e) {
+                            console.error("Failed to delete old PDF:", e);
+                        }
+                    }
+                }
+
+                const companySettings = await prisma.companySettings.findFirst();
+                const sanitizedRef = sanitizeFilename(receipt.receiptRef || receipt.id);
+                const filename = `receipt-${sanitizedRef}-${Date.now()}.pdf`;
+                const relativeUrl = `/public/pdfs/${filename}`;
+                const filepath = path.join(pdfDir, filename);
+
+                // ลดขอบกระดาษด้านบนเหลือ 15, ด้านข้าง 25
+                const margin = 25;
+                const marginTop = 15;
+                const doc = new PDFDocument({
+                    size: "A4",
+                    margins: { top: marginTop, bottom: margin, left: margin, right: margin },
+                    bufferPages: true
+                });
+                doc.registerFont("Sarabun", thaiFontPath);
+                const writeStream = createWriteStream(filepath);
+                doc.pipe(writeStream);
+
+                const pageWidth = 595.28;
+                const pageHeight = 841.89;
+                const contentWidth = pageWidth - (margin * 2);
+
+                // Adjusted column widths for wider content (Total ~545)
+                // New: [30, 45, 180, 125, 80, 85] = 545
+                const colW = [30, 45, 185, 145, 80, 60];
+                const colX = [
+                    margin,
+                    margin + colW[0],
+                    margin + colW[0] + colW[1],
+                    margin + colW[0] + colW[1] + colW[2],
+                    margin + colW[0] + colW[1] + colW[2] + colW[3],
+                    margin + colW[0] + colW[1] + colW[2] + colW[3] + colW[4]
+                ];
+
+                // หัวตารางสองภาษา
+                const headers = [
+                    { th: "#", en: "" },
+                    { th: "วันที่", en: "Date" },
+                    { th: "รายละเอียด", en: "Description" },
+                    { th: "เบอร์ตู้/ทะเบียนรถ", en: "Container / License Plate" },
+                    { th: "เลขที่อ้างอิง", en: "Ref No." },
+                    { th: "จำนวนเงิน", en: "Amount" }
+                ];
+                const cellPadding = 5;
+
+                // กำหนดตำแหน่งขอบล่างของตาราง (Fixed Table Bottom)
+                const fixedTableBottomY = pageHeight - 280;
+
+                // ฟังก์ชันวาดส่วนหัวกระดาษและคืนค่าตำแหน่ง Y เริ่มต้นสำหรับเนื้อหา
+                const drawHeader = () => {
+                    // ========== แถวที่ 1: ข้อมูลบริษัท (ซ้าย) & หัวข้อ (ขวา) ==========
+                    const row1Y = marginTop;
+
+                    // ซ้าย: ข้อมูลบริษัท
+                    doc.font("Sarabun").fontSize(14).fillColor(PRIMARY_COLOR);
+                    doc.text(billing.vendor.companyName || "Company Name", margin, row1Y);
+
+                    doc.fontSize(9).fillColor(TEXT_GRAY);
+                    let leftY = row1Y + 20;
+                    if (billing.vendor.companyAddress) {
+                        doc.text(billing.vendor.companyAddress, margin, leftY, { width: 300 });
+                        leftY = doc.y;
+                    }
+                    doc.text(`เลขประจำตัวผู้เสียภาษี: ${billing.vendor.taxId || "-"}`, margin, leftY);
+                    leftY = doc.y;
+
+                    // ขวา: หัวข้อ (ใบเสร็จรับเงิน)
+                    const titleW = 200;
+                    const titleX = pageWidth - margin - titleW;
+
+                    doc.fontSize(18).fillColor(PRIMARY_COLOR);
+                    doc.text("ใบเสร็จรับเงิน", titleX, row1Y, { width: titleW, align: "center" });
+                    doc.fontSize(10);
+                    doc.text("Receipt", titleX, row1Y + 25, { width: titleW, align: "center" });
+
+                    // ========== ROW 2: Customer Box (Left) & Doc Info Box (Right) ==========
+                    const row2Y = Math.max(leftY + 15, row1Y + 50);
+                    const gap = 10;
+                    const rightBoxW = 200;
+                    const leftBoxW = contentWidth - rightBoxW - gap;
+                    const leftBoxX = margin;
+                    const rightBoxX = margin + leftBoxW + gap;
+
+                    // --- Left Box: Customer Info ---
+                    const padding = 10;
+                    let custContentY = row2Y + padding;
+
+                    doc.fontSize(11).fillColor(PRIMARY_COLOR);
+                    doc.text("ลูกค้า / Customer", leftBoxX + padding, custContentY);
+                    custContentY += 18;
+
+                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    if (companySettings) {
+                        doc.text(companySettings.companyName || "-", leftBoxX + padding, custContentY);
+                        custContentY += 14;
+                        if (companySettings.companyAddress) {
+                            doc.text(companySettings.companyAddress, leftBoxX + padding, custContentY, { width: leftBoxW - (padding * 2) });
+                            custContentY = doc.y + 4;
+                        }
+                        doc.fontSize(9).fillColor(TEXT_GRAY);
+                        doc.text(`เลขประจำตัวผู้เสียภาษี: ${companySettings.taxId || "-"}`, leftBoxX + padding, custContentY);
+                        custContentY += 14;
+                    } else {
+                        doc.text("(ยังไม่ได้ตั้งค่าข้อมูลบริษัท)", leftBoxX + padding, custContentY);
+                        custContentY += 14;
+                    }
+
+                    const leftBoxH = (custContentY - row2Y) + 5;
+
+                    // --- Right Box: Document Info ---
+                    let docContentY = row2Y + padding;
+
+
+                    const labelX = rightBoxX + padding;
+                    const valueX = rightBoxX + 60;
+                    const valueW = rightBoxW - 60 - padding;
+
+                    doc.fontSize(10).fillColor(PRIMARY_COLOR);
+                    doc.text("เลขที่ / No:", labelX, docContentY);
+                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    doc.text(receipt.receiptRef || "-", valueX, docContentY, { width: valueW, align: "right" });
+                    docContentY += 16;
+
+                    doc.fontSize(10).fillColor(PRIMARY_COLOR);
+                    doc.text("วันที่ / Date:", labelX, docContentY);
+                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    doc.text(format(new Date(receipt.receiptDate), "dd/MM/yyyy"), valueX, docContentY, { width: valueW, align: "right" });
+                    docContentY += 16;
+
+                    doc.fontSize(10).fillColor(PRIMARY_COLOR);
+                    doc.text("วันที่รับเงิน / Receipt Date:", labelX, docContentY);
+                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    doc.text(format(new Date(receipt.receiptDate), "dd/MM/yyyy"), valueX, docContentY, { width: valueW, align: "right" });
+                    docContentY += 16;
+
+                    // Add Billing Ref reference
+                    doc.fontSize(10).fillColor(PRIMARY_COLOR);
+                    doc.text("อ้างอิง / Ref:", labelX, docContentY);
+                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    doc.text(billing.billingRef || "-", valueX, docContentY, { width: valueW, align: "right" });
+                    docContentY += 16;
+
+
+                    const rightBoxH = (docContentY - row2Y) + 5;
+                    const finalBoxH = Math.max(leftBoxH, rightBoxH);
+
+                    // Draw Rounded Boxes
+                    doc.roundedRect(leftBoxX, row2Y, leftBoxW, finalBoxH, 5).lineWidth(0.5).stroke(BOX_BORDER_COLOR);
+                    doc.roundedRect(rightBoxX, row2Y, rightBoxW, finalBoxH, 5).lineWidth(0.5).stroke(BOX_BORDER_COLOR);
+
+                    // ========== TABLE HEADER ==========
+                    const tableY = row2Y + finalBoxH + 15;
+                    const headerHeight = 35; // Increased height for two lines
+
+                    // Table header background & border
+                    doc.rect(margin, tableY, contentWidth, headerHeight).fillAndStroke(BOX_BACKGROUND_COLOR, BORDER_COLOR);
+
+                    // Vertical lines for header (Solid) -> AND BODY (Fixed Height)
+                    // วาดเส้นแนวตั้งยาวลงไปจนถึง fixedTableBottomY เลย
+                    const startVertY = tableY + headerHeight;
+                    colX.forEach((x, i) => {
+                        if (i > 0) {
+                            doc.moveTo(x, tableY).lineTo(x, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        }
+                    });
+                    // ขอบซ้ายขวา
+                    doc.moveTo(margin, tableY).lineTo(margin, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                    doc.moveTo(margin + contentWidth, tableY).lineTo(margin + contentWidth, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+                    // REMOVED: Fixed Bottom Border drawing (Will be drawn dynamically)
+
+                    doc.font("Sarabun");
+
+                    headers.forEach((h, i) => {
+                        // Center align for ALL headers
+                        const align = "center";
+                        const cellY = tableY + 5;
+
+                        // Thai Line
+                        doc.fontSize(9).fillColor(TEXT_DARK).text(h.th, colX[i] + 2, cellY, { width: colW[i] - 4, align });
+
+                        // English Line
+                        if (h.en) {
+                            doc.fontSize(8).fillColor(TEXT_GRAY).text(h.en, colX[i] + 2, cellY + 12, { width: colW[i] - 4, align });
+                        }
+                    });
+
+                    return tableY + headerHeight;
+                };
+
+                // Initial Header Draw
+                let rowY = drawHeader();
+                doc.fontSize(8);
+
+                const fullPageBottom = pageHeight - margin;
+                let isExtended = false;
+
+                billing.jobs.forEach((job, index) => {
+                    const amt = job.items.reduce((s, it) => s + Number(it.amount), 0);
+
+                    // Get container and license plate info from JOB
+                    const parts = [];
+                    if (job.containerNo) parts.push(job.containerNo);
+                    if (job.truckPlate) parts.push(job.truckPlate);
+                    const itemsInfo = parts.join(" / ");
+
+                    const rowHeight = 18;
+
+                    // 1. ตรวจสอบการขยาย: หากเกินพื้นที่ส่วนท้ายที่กำหนด
+                    if (rowY + rowHeight > fixedTableBottomY && !isExtended) {
+                        // ลากเส้นแนวตั้งยาวลงไปจนสุดขอบล่างของหน้ากระดาษสำหรับหน้าระหว่างทางนี้
+                        colX.forEach((x, i) => {
+                            if (i > 0) doc.moveTo(x, fixedTableBottomY).lineTo(x, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        });
+                        doc.moveTo(margin, fixedTableBottomY).lineTo(margin, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        doc.moveTo(margin + contentWidth, fixedTableBottomY).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        isExtended = true;
+                    }
+
+                    // 2. PAGE BREAK CHECK: If we hit physical page limit
+                    if (rowY + rowHeight > fullPageBottom) {
+                        // ปิดหน้าปัจจุบัน
+                        doc.moveTo(margin, fullPageBottom).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        doc.addPage();
+                        doc.font("Sarabun");
+                        rowY = drawHeader();
+                        doc.fontSize(8);
+                        isExtended = false; // รีเซ็ตสถานะสำหรับหน้าใหม่
+                    }
+
+                    // Bottom border (Dashed)
+                    doc.moveTo(margin, rowY + rowHeight).lineTo(margin + contentWidth, rowY + rowHeight)
+                        .lineWidth(TABLE_BORDER_WIDTH).dash(2, { space: 2 }).stroke(ROW_BORDER_COLOR).undash();
+
+                    doc.fillColor(TEXT_GRAY);
+                    doc.text(String(index + 1), colX[0] + cellPadding, rowY + 6, { width: colW[0] - (cellPadding * 2), align: "center" });
+                    doc.text(format(new Date(job.clearanceDate), "dd/MM/yy"), colX[1] + cellPadding, rowY + 6, { width: colW[1] - (cellPadding * 2) });
+                    doc.text(job.description || "-", colX[2] + cellPadding, rowY + 6, { width: colW[2] - (cellPadding * 2) });
+                    doc.text(itemsInfo || "-", colX[3] + cellPadding, rowY + 6, { width: colW[3] - (cellPadding * 2) });
+                    doc.text(job.refInvoiceNo || "-", colX[4] + cellPadding, rowY + 6, { width: colW[4] - (cellPadding * 2) });
+                    doc.text(amt.toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[5] + cellPadding, rowY + 6, { width: colW[5] - (cellPadding * 2), align: "right" });
+
+                    rowY += rowHeight;
+                });
+
+                // --- End of Loop ---
+                // Handle Footer Overflow & Table Closure
+                if (rowY > fixedTableBottomY) {
+                    // เนื้อหาเกินพื้นที่ส่วนท้าย
+                    // Ensure lines extended if not already
+                    if (!isExtended) {
+                        colX.forEach((x, i) => { if (i > 0) doc.moveTo(x, fixedTableBottomY).lineTo(x, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR); });
+                        doc.moveTo(margin, fixedTableBottomY).lineTo(margin, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                        doc.moveTo(margin + contentWidth, fixedTableBottomY).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                    }
+                    // ปิดหน้านี้ให้สมบูรณ์
+                    doc.moveTo(margin, fullPageBottom).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+                    // เพิ่มหน้าใหม่สำหรับส่วนท้าย
+                    doc.addPage();
+                    rowY = drawHeader();
+                }
+
+                // Close table frame at fixedTableBottomY (Standard termination)
+                doc.moveTo(margin, fixedTableBottomY).lineTo(margin + contentWidth, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+                // พื้นที่เริ่มจากใต้ตาราง (Fixed Bottom)
+                const footerY = fixedTableBottomY + 10;
+                const splitX = 300; // ใช้แนวเดียวกับเลขที่อ้างอิงเป็นจุดแบ่ง (ประมาณ 50/50)
+
+                // ========== คอลัมน์ซ้าย (ข้อมูลการชำระเงิน & หมายเหตุ) ==========
+                // หมายเหตุ
+                const paymentW = splitX - margin - 10; // เว้นระยะ 10
+                const paymentH = 110;
+
+                // กล่องข้อมูลการชำระเงิน (Background Box)
+                doc.roundedRect(margin, footerY, paymentW, paymentH, 5).stroke(BORDER_COLOR);
+
+                doc.fillColor(PRIMARY_COLOR).fontSize(10);
+                doc.text("หมายเหตุ / Note", margin + 10, footerY + 10);
+
+                doc.fillColor(TEXT_GRAY).fontSize(9);
+                doc.text(`ธนาคาร: ${billing.vendor.bankName || "-"}`, margin + 10, footerY + 30);
+                doc.text(`สาขา: ${billing.vendor.bankBranch || "-"}`, margin + 10, footerY + 45);
+                doc.text(`เลขที่บัญชี: ${billing.vendor.bankAccount || "-"}`, margin + 10, footerY + 60);
+                doc.text(`ชื่อบัญชี: ${billing.vendor.companyName || "-"}`, margin + 10, footerY + 75);
+
+                // แสดงหมายเหตุที่นี่ถ้ามี (ภายในกล่อง)
+                if (billing.remark) {
+                    doc.fillColor(PRIMARY_COLOR).fontSize(9);
+                    doc.text("หมายเหตุ: " + billing.remark, margin + 10, footerY + 95, { width: paymentW - 20 });
+                }
+
+
+                // ========== คอลัมน์ขวา (สรุปยอดเงิน) ==========
+                // ใช้พื้นที่จาก splitX ไปจนสุดขอบขวา
+                const rightColX = splitX + 10; // ขยับเข้ามานิดนึง
+                const rightColW = (margin + contentWidth) - rightColX;
+                let sY = footerY;
+
+                doc.fontSize(9).fillColor(TEXT_GRAY);
+
+                const drawSummaryRow = (label: string, value: string, isBold: boolean = false) => {
+                    const y = sY;
+                    doc.fillColor(TEXT_GRAY);
+                    if (isBold) doc.font("Sarabun-Bold").fontSize(11).fillColor("#166534");
+                    else doc.font("Sarabun").fontSize(9);
+
+                    doc.text(label, rightColX, y);
+                    doc.text(value, rightColX, y, { width: rightColW, align: "right" });
+
+                    if (isBold) doc.font("Sarabun").fontSize(9); // Reset
+                    sY += 20;
+                };
+
+                // รวมเป็นเงิน
+                drawSummaryRow("รวมเป็นเงิน:", `${Number(billing.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+
+                // มูลค่าก่อนภาษีมูลค่าเพิ่ม
+                if (billing.priceBeforeVat) {
+                    drawSummaryRow("มูลค่าก่อนภาษีมูลค่าเพิ่ม:", `${Number(billing.priceBeforeVat).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+                }
+
+                // ภาษีมูลค่าเพิ่ม
+                const vatRate = billing.vatRateText || "7";
+                drawSummaryRow(`ภาษีมูลค่าเพิ่ม ${vatRate}%:`, `${Number(billing.vatAmount).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+
+                // หัก ณ ที่จ่าย
+                const whtRate = billing.whtRateText || "3";
+                drawSummaryRow(`หัก ณ ที่จ่าย ${whtRate}%:`, `-${Number(billing.whtAmount).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`);
+
+                // เส้นขีดคั่น
+                sY -= 5;
+                doc.moveTo(rightColX, sY).lineTo(margin + contentWidth, sY).lineWidth(0.5).stroke(BORDER_COLOR);
+                sY += 8;
+
+                // ยอดสุทธิพร้อมพื้นหลัง
+                // วาดพื้นหลังก่อน
+                doc.roundedRect(rightColX - 5, sY - 5, rightColW + 5, 17, 5).fill("#f0fdf4");
+                doc.fillColor("#166534"); // Green text works better on light green bg
+
+                // วางตำแหน่งข้อความเองเพื่อทำตัวหนาโดยไม่ต้องใช้ helper
+                doc.fontSize(11).text("ยอดสุทธิ:", rightColX, sY - 5);
+                doc.text(`${Number(billing.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })} บาท`, rightColX, sY - 5, { width: rightColW, align: "right" });
+                // เพิ่มคำอ่านภาษาไทย (เช่น หนึ่งร้อยบาทถ้วน)
+                const thaiText = BahtText(Number(billing.netTotal));
+                doc.fontSize(9).fillColor(TEXT_GRAY);
+                doc.text(thaiText, rightColX, sY + 17, { width: rightColW, align: "right" });
+
+
+
+                // ========== SIGNATURE SECTION ==========
+                // จัดตำแหน่งลายเซ็นไว้ที่ด้านล่างของหน้า
+                const sigY = pageHeight - 140;
+                const sigWidth = 180;
+
+                // ลายเซ็นฝั่งซ้าย (ผู้รับเงิน)
+                doc.fontSize(9).fillColor(TEXT_GRAY);
+                doc.text("ในนาม " + (billing.vendor.companyName || ""), margin, sigY, { width: sigWidth, align: "center" });
+                doc.moveTo(margin, sigY + 60).lineTo(margin + sigWidth, sigY + 60).stroke(BORDER_COLOR);
+                doc.text("ผู้รับเงิน", margin, sigY + 65, { width: sigWidth, align: "center" });
+                doc.text("วันที่ ______/______/______", margin, sigY + 80, { width: sigWidth, align: "center" });
+
+                // ลายเซ็นฝั่งขวา (ผู้จ่ายเงิน)
+                const rightSigX = pageWidth - margin - sigWidth;
+                doc.text("ในนาม " + (companySettings?.companyName || "บริษัท"), rightSigX, sigY, { width: sigWidth, align: "center" });
+                doc.moveTo(rightSigX, sigY + 60).lineTo(rightSigX + sigWidth, sigY + 60).stroke(BORDER_COLOR);
+                doc.text("ผู้จ่ายเงิน", rightSigX, sigY + 65, { width: sigWidth, align: "center" });
+                doc.text("วันที่ ______/______/______", rightSigX, sigY + 80, { width: sigWidth, align: "center" });
+
+
+                // ========== ส่วนท้ายกระดาษรวม (เลขหน้า & วันที่) ==========
+                const range = doc.bufferedPageRange();
+                for (let i = range.start; i < range.start + range.count; i++) {
+                    doc.switchToPage(i);
+
+                    // ปิดระยะขอบล่างชั่วคราวเพื่อป้องกันการขึ้นหน้าใหม่โดยอัตโนมัติ
+                    const oldBottomMargin = doc.page.margins.bottom;
+                    doc.page.margins.bottom = 0;
+
+                    doc.fontSize(6).fillColor(TEXT_GRAY);
+
+                    // ล่างซ้าย: วันที่พิมพ์
+                    doc.text(
+                        `พิมพ์เมื่อ: ${format(new Date(), "dd/MM/yyyy HH:mm")}`,
+                        margin,
+                        pageHeight - 20,
+                        { align: "left" }
+                    );
+
+                    // ล่างขวา: เลขหน้า
+                    doc.text(
+                        `หน้า ${i + 1} / ${range.count}`,
+                        pageWidth - margin - 100,
+                        pageHeight - 20,
+                        { width: 100, align: "right" }
+                    );
+
+                    // คืนค่าระยะขอบล่าง
+                    doc.page.margins.bottom = oldBottomMargin;
+                }
+
+                doc.end();
+
+
+                await new Promise<void>((resolve, reject) => {
+                    writeStream.on("finish", resolve);
+                    writeStream.on("error", reject);
+                });
+
+                // อัปเดต Receipt ด้วย receiptFile
+                await prisma.receipt.update({
+                    where: { id: receipt.id },
+                    data: { receiptFile: relativeUrl }
+                });
+
+                return { success: true, data: { filename, url: relativeUrl } };
+            } catch (error: any) {
+                console.error("PDF generation error:", error);
+                set.status = 500;
+                return { success: false, error: error.message || "Failed to generate PDF" };
+            }
+        },
+        {
+            params: t.Object({ id: t.String() }),
+            detail: { summary: "สร้างไฟล์ PDF ใบเสร็จรับเงิน", description: "สร้างไฟล์ PDF ใบเสร็จรับเงินแบบมืออาชีพ" },
+        }
+    );

@@ -1,0 +1,303 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum StatusJob {
+  PENDING
+  BILLED
+}
+
+enum StatusBillingNote {
+  PENDING
+  SUBMITTED
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum StatusReceipt {
+  PENDING
+  PAID
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+// 1. Role: กำหนดสิทธิ์การเข้าถึง
+model Role {
+  id    String @id @default(uuid())
+  name  String @unique @db.VarChar(10) // 'ADMIN', 'VENDOR', 'USER'
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 2. Vendor: ข้อมูลบริษัทผู้รับเหมา
+model Vendor {
+  id             String @id @default(uuid())
+  companyName    String @map("company_name")
+  companyAddress String @map("company_address")
+  taxId          String @unique @map("tax_id")
+  bankAccount    String @map("bank_account")
+  bankName       String @map("bank_name")
+  bankBranch     String @map("bank_branch")
+
+  // Relationships
+  users           User[]
+  jobs            Job[]
+  billingNotes    BillingNote[]
+  receipts        Receipt[]
+  vatConfig       VatConfigByVendor?
+  serviceCatalog  ServiceCatalog[]
+  jobDescriptions JobDescriptionCatalog[]
+
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  documentNumberConfig DocumentNumberConfig?
+
+  @@map("vendors")
+}
+
+// 3. User: ผู้ใช้งานระบบ
+model User {
+  id           String  @id @default(uuid())
+  email        String  @unique
+  passwordHash String  @map("password_hash")
+  name         String?
+
+  roleId String @map("role_id")
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  vendorId String? @map("vendor_id")
+  vendor   Vendor? @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// 4. Job: ข้อมูลงาน/รายการสินค้าต่อ 1 เที่ยว (Header)
+model Job {
+  id            String    @id @default(uuid())
+  vendorId      String    @map("vendor_id")
+  description   String // ชื่อรายละเอียดงานหลัก
+  refInvoiceNo  String    @map("ref_invoice_no")
+  containerNo   String    @map("container_no")
+  truckPlate    String    @map("truck_plate")
+  clearanceDate DateTime  @map("clearance_date")
+  declarationNo String    @map("declaration_no")
+  statusJob     StatusJob @default(PENDING) @map("status_job")
+
+  billingNoteId String?      @map("billing_note_id")
+  billingNote   BillingNote? @relation(fields: [billingNoteId], references: [id])
+
+  // Relationships
+  items  JobItem[]
+  vendor Vendor    @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jobs")
+}
+
+// 4.1 JobItem: รายการค่าใช้จ่ายย่อยในแต่ละงาน
+model JobItem {
+  id          String  @id @default(uuid())
+  jobId       String  @map("job_id")
+  description String // ชื่อค่าใช้จ่าย
+  amount      Decimal @db.Decimal(12, 2)
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("job_items")
+}
+
+// 4.2 ServiceCatalog: รายการค่าใช้จ่ายมาตรฐาน (สำหรับ Autocomplete)
+model ServiceCatalog {
+  id       String   @id @default(uuid())
+  vendorId String   @map("vendor_id")
+  name     String
+  price    Decimal? @db.Decimal(12, 2)
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("service_catalogs")
+}
+
+// 4.3 JobDescriptionCatalog: ชื่อรายละเอียดงานมาตรฐาน
+model JobDescriptionCatalog {
+  id       String @id @default(uuid())
+  vendorId String @map("vendor_id")
+  title    String
+
+  vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("job_description_catalogs")
+}
+
+// 5. BillingNote: ข้อมูลใบวางบิล (Header)
+model BillingNote {
+  id          String   @id @default(uuid())
+  billingRef  String   @unique @map("billing_ref") @db.VarChar(20)
+  vendorId    String   @map("vendor_id")
+  billingDate DateTime @map("billing_date")
+
+  subtotal          Decimal           @db.Decimal(12, 2)
+  priceBeforeVat    Decimal?          @map("price_before_vat") @db.Decimal(12, 2)
+  vatAmount         Decimal           @map("vat_amount") @db.Decimal(12, 2)
+  whtAmount         Decimal           @map("wht_amount") @db.Decimal(12, 2)
+  netTotal          Decimal           @map("net_total") @db.Decimal(12, 2)
+  remark            String?           @map("remark") // หมายเหตุเพิ่มเติม
+  vatRateText       String?           @map("vat_rate_text") // กำหนดค่าภาษีตามบริษัท
+  whtRateText       String?           @map("wht_rate_text") // กำหนดค่าภาษีตามบริษัท
+  pdfUrl            String?           @map("pdf_url")
+  statusBillingNote StatusBillingNote @default(PENDING) @map("status_billing_note")
+
+  // Relationships
+  jobs    Job[]
+  receipt Receipt?
+  vendor  Vendor   @relation(fields: [vendorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("billing_notes")
+}
+
+// 6. VatConfigByVendor: กำหนดค่าภาษีตามบริษัท
+model VatConfigByVendor {
+  id                 String  @id @default(uuid())
+  vatRate            Decimal @map("vat_rate") @db.Decimal(5, 2)
+  whtRate            Decimal @map("wht_rate") @db.Decimal(5, 2)
+  calculateBeforeVat Boolean @default(false) @map("calculate_before_vat")
+
+  vendorId String @unique @map("vendor_id")
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("vat_config_by_vendor")
+}
+
+// 7. Receipt: ใบเสร็จรับเงิน
+model Receipt {
+  id            String        @id @default(uuid())
+  receiptRef    String        @unique @map("receipt_ref") @db.VarChar(20)
+  billingNoteId String        @unique @map("billing_note_id")
+  receiptFile   String?       @map("receipt_file")
+  receiptDate   DateTime      @map("receipt_date")
+  statusReceipt StatusReceipt @default(PENDING) @map("status_receipt")
+
+  billingNote BillingNote @relation(fields: [billingNoteId], references: [id])
+  vendor      Vendor      @relation(fields: [vendorId], references: [id])
+  vendorId    String      @map("vendor_id")
+  pdfUrl      String?     @map("pdf_url")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("receipts")
+}
+
+// 8. CompanySettings: ข้อมูลบริษัทที่จ่ายเงิน (Admin Company)
+model CompanySettings {
+  id             String  @id @default(uuid())
+  companyName    String  @map("company_name")
+  companyAddress String  @map("company_address")
+  taxId          String  @map("tax_id")
+  phone          String?
+  email          String?
+  logoUrl        String? @map("logo_url")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("company_settings")
+}
+
+// ============================================
+// DOCUMENT NUMBERING SYSTEM
+// ============================================
+
+enum DateFormat {
+  YYYYMMDD // ปีเดือนวัน: 20251205
+  YYYYMM // ปีเดือน: 202512
+  YYMM // ปีเดือนย่อ: 2512
+}
+
+enum ResetPeriod {
+  DAILY // รีเซ็ตทุกวัน
+  MONTHLY // รีเซ็ตทุกเดือน
+  YEARLY // รีเซ็ตทุกปี
+  NEVER // ไม่รีเซ็ต (เลขต่อเนื่อง)
+}
+
+// 9. DocumentNumberConfig: กำหนดรูปแบบเลขที่เอกสาร
+model DocumentNumberConfig {
+  id String @id @default(uuid())
+
+  vendorId String @unique @map("vendor_id")
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  // Billing Note Config
+  billingEnabled Boolean @default(false) @map("billing_enabled")
+  billingPrefix  String  @default("B") @map("billing_prefix") @db.VarChar(10)
+
+  // Receipt Config
+  receiptEnabled Boolean @default(false) @map("receipt_enabled")
+  receiptPrefix  String  @default("R") @map("receipt_prefix") @db.VarChar(10)
+
+  // Shared Settings
+  dateFormat    DateFormat  @default(YYYYMMDD) @map("date_format")
+  runningDigits Int         @default(3) @map("running_digits")
+  resetPeriod   ResetPeriod @default(DAILY) @map("reset_period")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("document_number_configs")
+}
+
+// 10. DocumentNumberSequence: เก็บเลขรันปัจจุบัน
+model DocumentNumberSequence {
+  id           String @id @default(uuid())
+  vendorId     String @map("vendor_id")
+  documentType String @map("document_type") // "BILLING" or "RECEIPT"
+  periodKey    String @map("period_key") // e.g., "20251205" or "202512"
+  lastNumber   Int    @default(0) @map("last_number")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([vendorId, documentType, periodKey])
+  @@map("document_number_sequences")
+}

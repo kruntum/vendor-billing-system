@@ -1,0 +1,22 @@
+{
+  "name": "vendor-billing-system",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "cd server && bun run dev",
+    "dev:client": "cd client && bun run dev",
+    "dev": "bun run dev:server & bun run dev:client",
+    "build:server": "cd server && bun run build",
+    "build:client": "cd client && bun run build",
+    "db:migrate": "cd server && bunx prisma migrate dev",
+    "db:seed": "cd server && bunx prisma db seed",
+    "db:studio": "cd server && bunx prisma studio"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "xlsx": "^0.18.5"
+  }
+}
