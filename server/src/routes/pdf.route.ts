@@ -42,9 +42,6 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
     .get(
         "/billing/:id",
         async ({ params, user, set }) => {
-            console.log("========= PDF ROUTE HIT =========");
-            console.log("params.id:", params.id);
-            console.log("user:", user);
             try {
                 const { id } = params;
 
@@ -70,24 +67,13 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                     return { success: false, error: "Billing note not found" };
                 }
 
-                console.log("=== PDF Request Received ===");
-                console.log("Billing ID:", params.id);
-                console.log("Billing found:", !!billing);
-                console.log("Current pdfUrl:", billing.pdfUrl);
-
                 if (billing.pdfUrl) {
                     const existingPath = path.join(process.cwd(), billing.pdfUrl);
-                    console.log("=== PDF Debug ===");
-                    console.log("pdfUrl from DB:", billing.pdfUrl);
-                    console.log("Full path:", existingPath);
-                    console.log("File exists:", existsSync(existingPath));
                     if (existsSync(existingPath)) {
                         // หากมีไฟล์อยู่แล้ว ให้ส่ง URL กลับไปทันที (ไม่ต้องสร้างใหม่)
-                        console.log("Returning existing file");
                         return { success: true, data: { filename: path.basename(billing.pdfUrl), url: billing.pdfUrl } };
                     }
                     // หากมี URL แต่ไม่มีไฟล์จริง -> ให้สร้างใหม่
-                    console.log("File not found, will regenerate");
                 }
 
                 // ลบไฟล์เก่าทิ้งหากมีการสร้างใหม่ (เพื่อไม่ให้เปลืองพื้นที่ Server)

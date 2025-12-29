@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { staticPlugin } from "@elysiajs/static";
+import path from "path";
 import { authRoutes } from "./routes/auth.route";
 import { catalogRoutes } from "./routes/catalog.route";
 import { jobRoutes } from "./routes/job.route";
@@ -23,11 +24,13 @@ const app = new Elysia()
       credentials: true,
     })
   )
-  // Static file serving for PDFs
-  .use(staticPlugin({
-    assets: "public",
-    prefix: "/public",
-  }))
+  .use(
+    staticPlugin({
+      // serve the whole public folder (default)  
+      assets: path.join(process.cwd(), 'public'),   // "./public"
+      prefix: '/public',                            // keep the /public prefix
+    })
+  )
   // Swagger Documentation
   .use(
     swagger({
@@ -59,10 +62,6 @@ const app = new Elysia()
     timestamp: new Date().toISOString(),
   }))
   .get("/health", () => ({ status: "ok" }))
-  // Global request logger
-  .onRequest(({ request }) => {
-    console.log(`[REQ] ${request.method} ${new URL(request.url).pathname}`);
-  })
   // Routes
   .use(authRoutes)
   .use(catalogRoutes)

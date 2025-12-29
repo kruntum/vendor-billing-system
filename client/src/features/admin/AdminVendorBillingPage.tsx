@@ -25,9 +25,10 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+// PDF files: in dev use backend directly, in Docker use Nginx (empty prefix)
+const PDF_BASE_URL = import.meta.env.VITE_PDF_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8801" : "");
 
 // Helpers
 const safeFormatDate = (dateString: string | undefined | null, formatStr: string) => {
@@ -126,7 +127,7 @@ export default function AdminVendorBillingPage() {
         try {
             const response = await pdfApi.generateBilling(billingId);
             if (response.data.success && response.data.data) {
-                window.open(`${API_BASE_URL}${response.data.data.url}`, "_blank");
+                window.open(`${PDF_BASE_URL}${response.data.data.url}`, "_blank");
                 toast.success("เปิด PDF สำเร็จ");
             } else {
                 toast.error("ไม่สามารถสร้าง PDF ได้");
@@ -290,7 +291,6 @@ export default function AdminVendorBillingPage() {
                     showIndex={true}
                 />
 
-                <Toaster richColors position="top-right" />
             </div>
         </TooltipProvider>
     );

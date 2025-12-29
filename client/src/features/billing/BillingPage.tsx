@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { SearchToolbar } from "@/components/ui/search-toolbar";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -26,9 +26,8 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
-// PDF files are served directly from backend, not through API proxy
-const PDF_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8801";
+// PDF files: in dev use backend directly, in Docker use Nginx (empty prefix)
+const PDF_BASE_URL = import.meta.env.VITE_PDF_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8801" : "");
 
 // Icons
 const EditIcon = () => (
@@ -201,7 +200,6 @@ export default function BillingPage() {
         setIsPdfGenerating(true);
         try {
             const response = await pdfApi.generateBilling(selectedBilling.id);
-            console.log(response.data.data);
             if (response.data.success && response.data.data) {
                 const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
                 window.open(pdfUrl, "_blank");
@@ -218,18 +216,10 @@ export default function BillingPage() {
 
     const handlePrintDirect = async (note: BillingNote) => {
         setIsPdfGenerating(true);
-        console.log("=== handlePrintDirect called ===");
-        console.log("Billing ID:", note.id);
         try {
             const response = await pdfApi.generateBilling(note.id);
-            console.log("=== API Response ===");
-            console.log("Full response.data:", response.data);
-            console.log("success:", response.data.success);
-            console.log("data:", response.data.data);
-            console.log("error:", response.data.error);
             if (response.data.success && response.data.data) {
                 const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
-                console.log("Opening PDF URL:", pdfUrl);
                 window.open(pdfUrl, "_blank");
             } else {
                 console.error("API returned error:", response.data.error);
@@ -556,7 +546,6 @@ export default function BillingPage() {
                     billingRef={selectedBilling?.billingRef || ""}
                 />
 
-                <Toaster richColors position="top-right" />
             </div>
         </TooltipProvider>
     );

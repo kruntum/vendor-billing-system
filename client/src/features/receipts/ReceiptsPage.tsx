@@ -15,7 +15,8 @@ import { ReceiptForm } from "./ReceiptForm";
 import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { SearchToolbar } from "@/components/ui/search-toolbar";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+// PDF files: in dev use backend directly, in Docker use Nginx (empty prefix)
+const PDF_BASE_URL = import.meta.env.VITE_PDF_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8801" : "");
 
 // Helper for safe date formatting
 const safeFormatDate = (dateString: string | undefined | null, formatStr: string) => {
@@ -122,7 +123,7 @@ export default function ReceiptsPage() {
         try {
             const response = await pdfApi.generateReceipt(receipt.id);
             if (response.data.success && response.data.data) {
-                const pdfUrl = `${API_BASE_URL}${response.data.data.url}`;
+                const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
                 window.open(pdfUrl, "_blank");
             }
         } catch (error) {

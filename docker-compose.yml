@@ -37,6 +37,9 @@ services:
     depends_on:
       db:
         condition: service_healthy # ยอดเยี่ยม: รอจนกว่า DB จะพร้อม
+    volumes:
+      # - pdf_data:/app/public/pdfs
+      - ./pdf_data:/app/public/pdfs
 
     # 🔥 แก้ไขสำคัญ: ต้องรัน migrate deploy ก่อน start app
     command: sh -c "bunx --bun prisma migrate deploy && bun run start"
@@ -48,8 +51,12 @@ services:
     container_name: vbs_client
     ports:
       - "8802:80"
+    volumes:
+      # Mount PDF data for Nginx to serve static files directly
+      - ./pdf_data:/usr/share/nginx/html/public/pdfs:ro
     depends_on:
       - server
 
 volumes:
   postgres_data:
+  pdf_data:

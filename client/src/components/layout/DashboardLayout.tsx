@@ -145,7 +145,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Page Content */}
         <main className="px-4 pt-4">{children}</main>
       </div>
-      <Toaster />
+      <Toaster richColors position="top-right" />
     </div >
   );
 }
