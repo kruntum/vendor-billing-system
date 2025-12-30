@@ -136,10 +136,9 @@ model JobItem {
 
 // 4.2 ServiceCatalog: รายการค่าใช้จ่ายมาตรฐาน (สำหรับ Autocomplete)
 model ServiceCatalog {
-  id       String   @id @default(uuid())
-  vendorId String   @map("vendor_id")
+  id       String @id @default(uuid())
+  vendorId String @map("vendor_id")
   name     String
-  price    Decimal? @db.Decimal(12, 2)
 
   vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
@@ -151,9 +150,10 @@ model ServiceCatalog {
 
 // 4.3 JobDescriptionCatalog: ชื่อรายละเอียดงานมาตรฐาน
 model JobDescriptionCatalog {
-  id       String @id @default(uuid())
-  vendorId String @map("vendor_id")
+  id       String   @id @default(uuid())
+  vendorId String   @map("vendor_id")
   title    String
+  price    Decimal? @db.Decimal(12, 2)
 
   vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 

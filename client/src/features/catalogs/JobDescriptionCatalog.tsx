@@ -91,6 +91,9 @@ export function JobDescriptionCatalog() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ชื่อรายละเอียดงาน
                 </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ราคามาตรฐาน
+                </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   จัดการ
                 </th>
@@ -99,7 +102,7 @@ export function JobDescriptionCatalog() {
             <tbody className="bg-white divide-y divide-gray-200">
               {descriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">
                     ไม่พบข้อมูลรายละเอียดงาน
                   </td>
                 </tr>
@@ -108,6 +111,11 @@ export function JobDescriptionCatalog() {
                   <tr key={item.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{item.title}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="text-sm text-gray-500">
+                        {item.price ? item.price.toLocaleString() : "-"}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1">
@@ -172,9 +180,10 @@ function JobDescriptionForm({ item, onClose, onSuccess }: JobDescriptionFormProp
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<{ title: string }>({
+  } = useForm<{ title: string; price?: number }>({
     defaultValues: {
       title: item?.title || "",
+      price: item?.price || undefined,
     },
   });
 
@@ -184,16 +193,21 @@ function JobDescriptionForm({ item, onClose, onSuccess }: JobDescriptionFormProp
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: { title: string }) =>
+    mutationFn: (data: { title: string; price?: number }) =>
       catalogApi.updateJobDescription(item!.id, data),
     onSuccess,
   });
 
-  const onSubmit = (data: { title: string }) => {
+  const onSubmit = (data: { title: string; price?: number }) => {
+    const payload = {
+      ...data,
+      price: data.price ? Number(data.price) : undefined,
+    };
+
     if (item) {
-      updateMutation.mutate(data);
+      updateMutation.mutate(payload);
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(payload);
     }
   };
 
@@ -216,6 +230,16 @@ function JobDescriptionForm({ item, onClose, onSuccess }: JobDescriptionFormProp
             {errors.title && (
               <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
             )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">ราคามาตรฐาน (บาท)</label>
+            <input
+              {...register("price", { min: 0 })}
+              type="number"
+              step="0.01"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2"
+            />
           </div>
 
           <div className="flex justify-end gap-2 mt-6">

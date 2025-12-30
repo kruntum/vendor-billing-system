@@ -155,7 +155,6 @@ export const ServiceCatalogScalarFieldEnum = {
   id: 'id',
   vendorId: 'vendorId',
   name: 'name',
-  price: 'price',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -167,6 +166,7 @@ export const JobDescriptionCatalogScalarFieldEnum = {
   id: 'id',
   vendorId: 'vendorId',
   title: 'title',
+  price: 'price',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

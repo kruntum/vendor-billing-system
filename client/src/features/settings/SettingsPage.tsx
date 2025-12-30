@@ -85,6 +85,33 @@ export default function SettingsPage() {
     );
   }
 
+  // For VENDOR without company setup - show company creation form
+  const isVendor = roleName === "VENDOR";
+  if (isVendor && !hasVendor) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">ตั้งค่า</h1>
+          <p className="text-sm text-gray-500">กรุณาตั้งค่าข้อมูลบริษัทของคุณเพื่อเริ่มใช้งาน</p>
+        </div>
+
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              className="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-primary text-primary"
+            >
+              ข้อมูลบริษัท (Vendor)
+            </button>
+          </nav>
+        </div>
+
+        <div className="mt-6">
+          <CompanyForm vendor={null} />
+        </div>
+      </div>
+    );
+  }
+
   // Normal vendor flow
   if (!settings) {
     return (
@@ -183,6 +210,7 @@ interface CompanyFormProps {
 
 function CompanyForm({ vendor }: CompanyFormProps) {
   const queryClient = useQueryClient();
+  const { refreshUser } = useAuthStore();
   const isNewVendor = !vendor;
 
   const {
@@ -217,7 +245,10 @@ function CompanyForm({ vendor }: CompanyFormProps) {
 
   const createMutation = useMutation({
     mutationFn: settingsApi.createVendor,
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Refresh user data to get updated vendor info
+      await refreshUser();
+      // Invalidate settings query to refetch
       queryClient.invalidateQueries({ queryKey: ["settings"] });
       alert("สร้างข้อมูลบริษัทสำเร็จ");
     },

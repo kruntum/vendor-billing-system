@@ -125,28 +125,28 @@ export const userApi = {
 export interface ServiceCatalog {
   id: string;
   name: string;
-  price: number | null;
 }
 
 export interface JobDescriptionCatalog {
   id: string;
   title: string;
+  price: number | null;
 }
 
 export const catalogApi = {
   getServices: () => api.get<ApiResponse<ServiceCatalog[]>>("/catalogs/services"),
-  createService: (data: { name: string; price?: number }) =>
+  createService: (data: { name: string }) =>
     api.post<ApiResponse<ServiceCatalog>>("/catalogs/services", data),
-  updateService: (id: string, data: { name: string; price?: number }) =>
+  updateService: (id: string, data: { name: string }) =>
     api.put<ApiResponse<ServiceCatalog>>(`/catalogs/services/${id}`, data),
   deleteService: (id: string) =>
     api.delete<ApiResponse<void>>(`/catalogs/services/${id}`),
 
   getJobDescriptions: () =>
     api.get<ApiResponse<JobDescriptionCatalog[]>>("/catalogs/job-descriptions"),
-  createJobDescription: (data: { title: string }) =>
+  createJobDescription: (data: { title: string; price?: number }) =>
     api.post<ApiResponse<JobDescriptionCatalog>>("/catalogs/job-descriptions", data),
-  updateJobDescription: (id: string, data: { title: string }) =>
+  updateJobDescription: (id: string, data: { title: string; price?: number }) =>
     api.put<ApiResponse<JobDescriptionCatalog>>(`/catalogs/job-descriptions/${id}`, data),
   deleteJobDescription: (id: string) =>
     api.delete<ApiResponse<void>>(`/catalogs/job-descriptions/${id}`),

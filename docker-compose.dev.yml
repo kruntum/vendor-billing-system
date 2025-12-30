@@ -1,0 +1,23 @@
+# Database only for local development
+# Use: docker-compose -f docker-compose.dev.yml up -d
+services:
+  db-local:
+    image: postgres:16-alpine
+    container_name: vbs_postgres_local
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vbs_admin
+      POSTGRES_PASSWORD: VbSPr0d@Sec7r3
+      POSTGRES_DB: vendor_billing_db
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+    ports:
+      - "5533:5432" # Different port for local dev (5533 instead of 5532)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vbs_admin -d vendor_billing_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_local_data:

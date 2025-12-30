@@ -10,6 +10,7 @@ interface AuthState {
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
     initialize: () => void;
+    refreshUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -61,5 +62,20 @@ export const useAuthStore = create<AuthState>((set) => ({
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         set({ token: null, user: null });
+    },
+
+    refreshUser: async () => {
+        try {
+            const response = await authApi.me();
+            if (response.data.success && response.data.data) {
+                const updatedUser = response.data.data;
+                // Update localStorage
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+                // Update state
+                set({ user: updatedUser });
+            }
+        } catch (error) {
+            console.error('Failed to refresh user:', error);
+        }
     },
 }));

@@ -37,7 +37,6 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
         data: {
           vendorId: user!.vendorId!,
           name: body.name,
-          price: body.price,
         },
       });
 
@@ -46,7 +45,6 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
     {
       body: t.Object({
         name: t.String({ minLength: 1 }),
-        price: t.Optional(t.Number({ minimum: 0 })),
       }),
       detail: {
         summary: "Create service catalog item",
@@ -73,7 +71,6 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
         where: { id: params.id },
         data: {
           name: body.name,
-          price: body.price,
         },
       });
 
@@ -83,7 +80,6 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
       params: t.Object({ id: t.String() }),
       body: t.Object({
         name: t.String({ minLength: 1 }),
-        price: t.Optional(t.Number({ minimum: 0 })),
       }),
       detail: {
         summary: "Update service catalog item",
@@ -146,6 +142,7 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
         data: {
           vendorId: user!.vendorId!,
           title: body.title,
+          price: body.price,
         },
       });
 
@@ -154,6 +151,7 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
     {
       body: t.Object({
         title: t.String({ minLength: 1 }),
+        price: t.Optional(t.Number({ minimum: 0 })),
       }),
       detail: {
         summary: "Create job description",
@@ -176,14 +174,20 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
 
       const item = await prisma.jobDescriptionCatalog.update({
         where: { id: params.id },
-        data: { title: body.title },
+        data: {
+          title: body.title,
+          price: body.price,
+        },
       });
 
       return { success: true, data: item };
     },
     {
       params: t.Object({ id: t.String() }),
-      body: t.Object({ title: t.String({ minLength: 1 }) }),
+      body: t.Object({
+        title: t.String({ minLength: 1 }),
+        price: t.Optional(t.Number({ minimum: 0 })),
+      }),
       detail: {
         summary: "Update job description",
       },

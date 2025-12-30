@@ -20,25 +20,14 @@ export type ServiceCatalogModel = runtime.Types.Result.DefaultSelection<Prisma.$
 
 export type AggregateServiceCatalog = {
   _count: ServiceCatalogCountAggregateOutputType | null
-  _avg: ServiceCatalogAvgAggregateOutputType | null
-  _sum: ServiceCatalogSumAggregateOutputType | null
   _min: ServiceCatalogMinAggregateOutputType | null
   _max: ServiceCatalogMaxAggregateOutputType | null
-}
-
-export type ServiceCatalogAvgAggregateOutputType = {
-  price: runtime.Decimal | null
-}
-
-export type ServiceCatalogSumAggregateOutputType = {
-  price: runtime.Decimal | null
 }
 
 export type ServiceCatalogMinAggregateOutputType = {
   id: string | null
   vendorId: string | null
   name: string | null
-  price: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,7 +36,6 @@ export type ServiceCatalogMaxAggregateOutputType = {
   id: string | null
   vendorId: string | null
   name: string | null
-  price: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,26 +44,16 @@ export type ServiceCatalogCountAggregateOutputType = {
   id: number
   vendorId: number
   name: number
-  price: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
-export type ServiceCatalogAvgAggregateInputType = {
-  price?: true
-}
-
-export type ServiceCatalogSumAggregateInputType = {
-  price?: true
-}
-
 export type ServiceCatalogMinAggregateInputType = {
   id?: true
   vendorId?: true
   name?: true
-  price?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -84,7 +62,6 @@ export type ServiceCatalogMaxAggregateInputType = {
   id?: true
   vendorId?: true
   name?: true
-  price?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -93,7 +70,6 @@ export type ServiceCatalogCountAggregateInputType = {
   id?: true
   vendorId?: true
   name?: true
-  price?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -137,18 +113,6 @@ export type ServiceCatalogAggregateArgs<ExtArgs extends runtime.Types.Extensions
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: ServiceCatalogAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: ServiceCatalogSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: ServiceCatalogMinAggregateInputType
@@ -179,8 +143,6 @@ export type ServiceCatalogGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   _count?: ServiceCatalogCountAggregateInputType | true
-  _avg?: ServiceCatalogAvgAggregateInputType
-  _sum?: ServiceCatalogSumAggregateInputType
   _min?: ServiceCatalogMinAggregateInputType
   _max?: ServiceCatalogMaxAggregateInputType
 }
@@ -189,12 +151,9 @@ export type ServiceCatalogGroupByOutputType = {
   id: string
   vendorId: string
   name: string
-  price: runtime.Decimal | null
   createdAt: Date
   updatedAt: Date
   _count: ServiceCatalogCountAggregateOutputType | null
-  _avg: ServiceCatalogAvgAggregateOutputType | null
-  _sum: ServiceCatalogSumAggregateOutputType | null
   _min: ServiceCatalogMinAggregateOutputType | null
   _max: ServiceCatalogMaxAggregateOutputType | null
 }
@@ -221,7 +180,6 @@ export type ServiceCatalogWhereInput = {
   id?: Prisma.StringFilter<"ServiceCatalog"> | string
   vendorId?: Prisma.StringFilter<"ServiceCatalog"> | string
   name?: Prisma.StringFilter<"ServiceCatalog"> | string
-  price?: Prisma.DecimalNullableFilter<"ServiceCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"ServiceCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ServiceCatalog"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
@@ -231,7 +189,6 @@ export type ServiceCatalogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  price?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   vendor?: Prisma.VendorOrderByWithRelationInput
@@ -244,7 +201,6 @@ export type ServiceCatalogWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ServiceCatalogWhereInput | Prisma.ServiceCatalogWhereInput[]
   vendorId?: Prisma.StringFilter<"ServiceCatalog"> | string
   name?: Prisma.StringFilter<"ServiceCatalog"> | string
-  price?: Prisma.DecimalNullableFilter<"ServiceCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"ServiceCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ServiceCatalog"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
@@ -254,14 +210,11 @@ export type ServiceCatalogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  price?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ServiceCatalogCountOrderByAggregateInput
-  _avg?: Prisma.ServiceCatalogAvgOrderByAggregateInput
   _max?: Prisma.ServiceCatalogMaxOrderByAggregateInput
   _min?: Prisma.ServiceCatalogMinOrderByAggregateInput
-  _sum?: Prisma.ServiceCatalogSumOrderByAggregateInput
 }
 
 export type ServiceCatalogScalarWhereWithAggregatesInput = {
@@ -271,7 +224,6 @@ export type ServiceCatalogScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ServiceCatalog"> | string
   vendorId?: Prisma.StringWithAggregatesFilter<"ServiceCatalog"> | string
   name?: Prisma.StringWithAggregatesFilter<"ServiceCatalog"> | string
-  price?: Prisma.DecimalNullableWithAggregatesFilter<"ServiceCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ServiceCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ServiceCatalog"> | Date | string
 }
@@ -279,7 +231,6 @@ export type ServiceCatalogScalarWhereWithAggregatesInput = {
 export type ServiceCatalogCreateInput = {
   id?: string
   name: string
-  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutServiceCatalogInput
@@ -289,7 +240,6 @@ export type ServiceCatalogUncheckedCreateInput = {
   id?: string
   vendorId: string
   name: string
-  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -297,7 +247,6 @@ export type ServiceCatalogUncheckedCreateInput = {
 export type ServiceCatalogUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneRequiredWithoutServiceCatalogNestedInput
@@ -307,7 +256,6 @@ export type ServiceCatalogUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -316,7 +264,6 @@ export type ServiceCatalogCreateManyInput = {
   id?: string
   vendorId: string
   name: string
-  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -324,7 +271,6 @@ export type ServiceCatalogCreateManyInput = {
 export type ServiceCatalogUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -333,7 +279,6 @@ export type ServiceCatalogUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -352,20 +297,14 @@ export type ServiceCatalogCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  price?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type ServiceCatalogAvgOrderByAggregateInput = {
-  price?: Prisma.SortOrder
 }
 
 export type ServiceCatalogMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  price?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -374,13 +313,8 @@ export type ServiceCatalogMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  price?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type ServiceCatalogSumOrderByAggregateInput = {
-  price?: Prisma.SortOrder
 }
 
 export type ServiceCatalogCreateNestedManyWithoutVendorInput = {
@@ -425,18 +359,9 @@ export type ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput = {
   deleteMany?: Prisma.ServiceCatalogScalarWhereInput | Prisma.ServiceCatalogScalarWhereInput[]
 }
 
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
 export type ServiceCatalogCreateWithoutVendorInput = {
   id?: string
   name: string
-  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -444,7 +369,6 @@ export type ServiceCatalogCreateWithoutVendorInput = {
 export type ServiceCatalogUncheckedCreateWithoutVendorInput = {
   id?: string
   name: string
-  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -482,7 +406,6 @@ export type ServiceCatalogScalarWhereInput = {
   id?: Prisma.StringFilter<"ServiceCatalog"> | string
   vendorId?: Prisma.StringFilter<"ServiceCatalog"> | string
   name?: Prisma.StringFilter<"ServiceCatalog"> | string
-  price?: Prisma.DecimalNullableFilter<"ServiceCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"ServiceCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ServiceCatalog"> | Date | string
 }
@@ -490,7 +413,6 @@ export type ServiceCatalogScalarWhereInput = {
 export type ServiceCatalogCreateManyVendorInput = {
   id?: string
   name: string
-  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -498,7 +420,6 @@ export type ServiceCatalogCreateManyVendorInput = {
 export type ServiceCatalogUpdateWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -506,7 +427,6 @@ export type ServiceCatalogUpdateWithoutVendorInput = {
 export type ServiceCatalogUncheckedUpdateWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -514,7 +434,6 @@ export type ServiceCatalogUncheckedUpdateWithoutVendorInput = {
 export type ServiceCatalogUncheckedUpdateManyWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -525,7 +444,6 @@ export type ServiceCatalogSelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   vendorId?: boolean
   name?: boolean
-  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
@@ -535,7 +453,6 @@ export type ServiceCatalogSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   vendorId?: boolean
   name?: boolean
-  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
@@ -545,7 +462,6 @@ export type ServiceCatalogSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   vendorId?: boolean
   name?: boolean
-  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
@@ -555,12 +471,11 @@ export type ServiceCatalogSelectScalar = {
   id?: boolean
   vendorId?: boolean
   name?: boolean
-  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ServiceCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vendorId" | "name" | "price" | "createdAt" | "updatedAt", ExtArgs["result"]["serviceCatalog"]>
+export type ServiceCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vendorId" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["serviceCatalog"]>
 export type ServiceCatalogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
@@ -580,7 +495,6 @@ export type $ServiceCatalogPayload<ExtArgs extends runtime.Types.Extensions.Inte
     id: string
     vendorId: string
     name: string
-    price: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["serviceCatalog"]>
@@ -1010,7 +924,6 @@ export interface ServiceCatalogFieldRefs {
   readonly id: Prisma.FieldRef<"ServiceCatalog", 'String'>
   readonly vendorId: Prisma.FieldRef<"ServiceCatalog", 'String'>
   readonly name: Prisma.FieldRef<"ServiceCatalog", 'String'>
-  readonly price: Prisma.FieldRef<"ServiceCatalog", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"ServiceCatalog", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ServiceCatalog", 'DateTime'>
 }

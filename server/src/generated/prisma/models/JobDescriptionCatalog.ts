@@ -20,14 +20,25 @@ export type JobDescriptionCatalogModel = runtime.Types.Result.DefaultSelection<P
 
 export type AggregateJobDescriptionCatalog = {
   _count: JobDescriptionCatalogCountAggregateOutputType | null
+  _avg: JobDescriptionCatalogAvgAggregateOutputType | null
+  _sum: JobDescriptionCatalogSumAggregateOutputType | null
   _min: JobDescriptionCatalogMinAggregateOutputType | null
   _max: JobDescriptionCatalogMaxAggregateOutputType | null
+}
+
+export type JobDescriptionCatalogAvgAggregateOutputType = {
+  price: runtime.Decimal | null
+}
+
+export type JobDescriptionCatalogSumAggregateOutputType = {
+  price: runtime.Decimal | null
 }
 
 export type JobDescriptionCatalogMinAggregateOutputType = {
   id: string | null
   vendorId: string | null
   title: string | null
+  price: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -36,6 +47,7 @@ export type JobDescriptionCatalogMaxAggregateOutputType = {
   id: string | null
   vendorId: string | null
   title: string | null
+  price: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,16 +56,26 @@ export type JobDescriptionCatalogCountAggregateOutputType = {
   id: number
   vendorId: number
   title: number
+  price: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type JobDescriptionCatalogAvgAggregateInputType = {
+  price?: true
+}
+
+export type JobDescriptionCatalogSumAggregateInputType = {
+  price?: true
+}
+
 export type JobDescriptionCatalogMinAggregateInputType = {
   id?: true
   vendorId?: true
   title?: true
+  price?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -62,6 +84,7 @@ export type JobDescriptionCatalogMaxAggregateInputType = {
   id?: true
   vendorId?: true
   title?: true
+  price?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -70,6 +93,7 @@ export type JobDescriptionCatalogCountAggregateInputType = {
   id?: true
   vendorId?: true
   title?: true
+  price?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -113,6 +137,18 @@ export type JobDescriptionCatalogAggregateArgs<ExtArgs extends runtime.Types.Ext
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: JobDescriptionCatalogAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: JobDescriptionCatalogSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: JobDescriptionCatalogMinAggregateInputType
@@ -143,6 +179,8 @@ export type JobDescriptionCatalogGroupByArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   _count?: JobDescriptionCatalogCountAggregateInputType | true
+  _avg?: JobDescriptionCatalogAvgAggregateInputType
+  _sum?: JobDescriptionCatalogSumAggregateInputType
   _min?: JobDescriptionCatalogMinAggregateInputType
   _max?: JobDescriptionCatalogMaxAggregateInputType
 }
@@ -151,9 +189,12 @@ export type JobDescriptionCatalogGroupByOutputType = {
   id: string
   vendorId: string
   title: string
+  price: runtime.Decimal | null
   createdAt: Date
   updatedAt: Date
   _count: JobDescriptionCatalogCountAggregateOutputType | null
+  _avg: JobDescriptionCatalogAvgAggregateOutputType | null
+  _sum: JobDescriptionCatalogSumAggregateOutputType | null
   _min: JobDescriptionCatalogMinAggregateOutputType | null
   _max: JobDescriptionCatalogMaxAggregateOutputType | null
 }
@@ -180,6 +221,7 @@ export type JobDescriptionCatalogWhereInput = {
   id?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
   vendorId?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
   title?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
+  price?: Prisma.DecimalNullableFilter<"JobDescriptionCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"JobDescriptionCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"JobDescriptionCatalog"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
@@ -189,6 +231,7 @@ export type JobDescriptionCatalogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  price?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   vendor?: Prisma.VendorOrderByWithRelationInput
@@ -201,6 +244,7 @@ export type JobDescriptionCatalogWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.JobDescriptionCatalogWhereInput | Prisma.JobDescriptionCatalogWhereInput[]
   vendorId?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
   title?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
+  price?: Prisma.DecimalNullableFilter<"JobDescriptionCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"JobDescriptionCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"JobDescriptionCatalog"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
@@ -210,11 +254,14 @@ export type JobDescriptionCatalogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  price?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.JobDescriptionCatalogCountOrderByAggregateInput
+  _avg?: Prisma.JobDescriptionCatalogAvgOrderByAggregateInput
   _max?: Prisma.JobDescriptionCatalogMaxOrderByAggregateInput
   _min?: Prisma.JobDescriptionCatalogMinOrderByAggregateInput
+  _sum?: Prisma.JobDescriptionCatalogSumOrderByAggregateInput
 }
 
 export type JobDescriptionCatalogScalarWhereWithAggregatesInput = {
@@ -224,6 +271,7 @@ export type JobDescriptionCatalogScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"JobDescriptionCatalog"> | string
   vendorId?: Prisma.StringWithAggregatesFilter<"JobDescriptionCatalog"> | string
   title?: Prisma.StringWithAggregatesFilter<"JobDescriptionCatalog"> | string
+  price?: Prisma.DecimalNullableWithAggregatesFilter<"JobDescriptionCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"JobDescriptionCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"JobDescriptionCatalog"> | Date | string
 }
@@ -231,6 +279,7 @@ export type JobDescriptionCatalogScalarWhereWithAggregatesInput = {
 export type JobDescriptionCatalogCreateInput = {
   id?: string
   title: string
+  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutJobDescriptionsInput
@@ -240,6 +289,7 @@ export type JobDescriptionCatalogUncheckedCreateInput = {
   id?: string
   vendorId: string
   title: string
+  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -247,6 +297,7 @@ export type JobDescriptionCatalogUncheckedCreateInput = {
 export type JobDescriptionCatalogUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneRequiredWithoutJobDescriptionsNestedInput
@@ -256,6 +307,7 @@ export type JobDescriptionCatalogUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -264,6 +316,7 @@ export type JobDescriptionCatalogCreateManyInput = {
   id?: string
   vendorId: string
   title: string
+  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -271,6 +324,7 @@ export type JobDescriptionCatalogCreateManyInput = {
 export type JobDescriptionCatalogUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -279,6 +333,7 @@ export type JobDescriptionCatalogUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -297,14 +352,20 @@ export type JobDescriptionCatalogCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type JobDescriptionCatalogAvgOrderByAggregateInput = {
+  price?: Prisma.SortOrder
 }
 
 export type JobDescriptionCatalogMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -313,8 +374,13 @@ export type JobDescriptionCatalogMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  price?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type JobDescriptionCatalogSumOrderByAggregateInput = {
+  price?: Prisma.SortOrder
 }
 
 export type JobDescriptionCatalogCreateNestedManyWithoutVendorInput = {
@@ -359,9 +425,18 @@ export type JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput = {
   deleteMany?: Prisma.JobDescriptionCatalogScalarWhereInput | Prisma.JobDescriptionCatalogScalarWhereInput[]
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type JobDescriptionCatalogCreateWithoutVendorInput = {
   id?: string
   title: string
+  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -369,6 +444,7 @@ export type JobDescriptionCatalogCreateWithoutVendorInput = {
 export type JobDescriptionCatalogUncheckedCreateWithoutVendorInput = {
   id?: string
   title: string
+  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -406,6 +482,7 @@ export type JobDescriptionCatalogScalarWhereInput = {
   id?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
   vendorId?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
   title?: Prisma.StringFilter<"JobDescriptionCatalog"> | string
+  price?: Prisma.DecimalNullableFilter<"JobDescriptionCatalog"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"JobDescriptionCatalog"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"JobDescriptionCatalog"> | Date | string
 }
@@ -413,6 +490,7 @@ export type JobDescriptionCatalogScalarWhereInput = {
 export type JobDescriptionCatalogCreateManyVendorInput = {
   id?: string
   title: string
+  price?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -420,6 +498,7 @@ export type JobDescriptionCatalogCreateManyVendorInput = {
 export type JobDescriptionCatalogUpdateWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -427,6 +506,7 @@ export type JobDescriptionCatalogUpdateWithoutVendorInput = {
 export type JobDescriptionCatalogUncheckedUpdateWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -434,6 +514,7 @@ export type JobDescriptionCatalogUncheckedUpdateWithoutVendorInput = {
 export type JobDescriptionCatalogUncheckedUpdateManyWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -444,6 +525,7 @@ export type JobDescriptionCatalogSelect<ExtArgs extends runtime.Types.Extensions
   id?: boolean
   vendorId?: boolean
   title?: boolean
+  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
@@ -453,6 +535,7 @@ export type JobDescriptionCatalogSelectCreateManyAndReturn<ExtArgs extends runti
   id?: boolean
   vendorId?: boolean
   title?: boolean
+  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
@@ -462,6 +545,7 @@ export type JobDescriptionCatalogSelectUpdateManyAndReturn<ExtArgs extends runti
   id?: boolean
   vendorId?: boolean
   title?: boolean
+  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
@@ -471,11 +555,12 @@ export type JobDescriptionCatalogSelectScalar = {
   id?: boolean
   vendorId?: boolean
   title?: boolean
+  price?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type JobDescriptionCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vendorId" | "title" | "createdAt" | "updatedAt", ExtArgs["result"]["jobDescriptionCatalog"]>
+export type JobDescriptionCatalogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vendorId" | "title" | "price" | "createdAt" | "updatedAt", ExtArgs["result"]["jobDescriptionCatalog"]>
 export type JobDescriptionCatalogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
@@ -495,6 +580,7 @@ export type $JobDescriptionCatalogPayload<ExtArgs extends runtime.Types.Extensio
     id: string
     vendorId: string
     title: string
+    price: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["jobDescriptionCatalog"]>
@@ -924,6 +1010,7 @@ export interface JobDescriptionCatalogFieldRefs {
   readonly id: Prisma.FieldRef<"JobDescriptionCatalog", 'String'>
   readonly vendorId: Prisma.FieldRef<"JobDescriptionCatalog", 'String'>
   readonly title: Prisma.FieldRef<"JobDescriptionCatalog", 'String'>
+  readonly price: Prisma.FieldRef<"JobDescriptionCatalog", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"JobDescriptionCatalog", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"JobDescriptionCatalog", 'DateTime'>
 }

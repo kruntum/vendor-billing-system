@@ -24,6 +24,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Get user role name
   const roleName = user ? getRoleName(user.role) : "";
   const isAdminOrUser = roleName === "ADMIN" || roleName === "USER";
+  const isVendor = roleName === "VENDOR";
   const hasVendor = !!user?.vendor?.id;
 
   // Build navigation based on role
@@ -35,10 +36,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: "งาน (Jobs)", icon: "📦", href: "/jobs", show: hasVendor },
     { name: "ใบวางบิล", icon: "📄", href: "/billing", show: hasVendor },
     { name: "ใบเสร็จ", icon: "🧾", href: "/receipts", show: hasVendor },
-    { name: "รายงาน", icon: "📈", href: "/reports", show: hasVendor }, // Hide for Admin/User
+    { name: "รายงาน", icon: "📈", href: "/reports", show: hasVendor },
     { name: "แค็ตตาล็อก", icon: "📋", href: "/catalogs", show: hasVendor },
     { name: "ผู้ใช้งาน", icon: "👥", href: "/users", show: true },
-    { name: "ตั้งค่า", icon: "⚙️", href: "/settings", show: hasVendor || isAdminOrUser },
+    // Settings: show for VENDOR role (even without company) and Admin/User
+    { name: "ตั้งค่า", icon: "⚙️", href: "/settings", show: isVendor || isAdminOrUser },
   ].filter((item) => item.show);
 
   return (

@@ -91,9 +91,6 @@ export function ServiceCatalog() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ชื่อบริการ
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ราคามาตรฐาน
-                </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   จัดการ
                 </th>
@@ -102,7 +99,7 @@ export function ServiceCatalog() {
             <tbody className="bg-white divide-y divide-gray-200">
               {services.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan={2} className="px-6 py-4 text-center text-sm text-gray-500">
                     ไม่พบข้อมูลบริการ
                   </td>
                 </tr>
@@ -111,11 +108,6 @@ export function ServiceCatalog() {
                   <tr key={item.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm text-gray-500">
-                        {item.price ? item.price.toLocaleString() : "-"}
-                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1">
@@ -180,10 +172,9 @@ function ServiceForm({ item, onClose, onSuccess }: ServiceFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<{ name: string; price?: number }>({
+  } = useForm<{ name: string }>({
     defaultValues: {
       name: item?.name || "",
-      price: item?.price || undefined,
     },
   });
 
@@ -193,22 +184,16 @@ function ServiceForm({ item, onClose, onSuccess }: ServiceFormProps) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: { name: string; price?: number }) =>
+    mutationFn: (data: { name: string }) =>
       catalogApi.updateService(item!.id, data),
     onSuccess,
   });
 
-  const onSubmit = (data: { name: string; price?: number }) => {
-    // Convert price to number if it's a string (from input)
-    const payload = {
-      ...data,
-      price: data.price ? Number(data.price) : undefined,
-    };
-
+  const onSubmit = (data: { name: string }) => {
     if (item) {
-      updateMutation.mutate(payload);
+      updateMutation.mutate(data);
     } else {
-      createMutation.mutate(payload);
+      createMutation.mutate(data);
     }
   };
 
@@ -231,16 +216,6 @@ function ServiceForm({ item, onClose, onSuccess }: ServiceFormProps) {
             {errors.name && (
               <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
             )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">ราคามาตรฐาน (บาท)</label>
-            <input
-              {...register("price", { min: 0 })}
-              type="number"
-              step="0.01"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm border p-2"
-            />
           </div>
 
           <div className="flex justify-end gap-2 mt-6">
