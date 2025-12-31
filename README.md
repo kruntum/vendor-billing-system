@@ -1,9 +1,7 @@
 # 📦 Vendor Billing System (VBS)
 
-![Project Banner](https://via.placeholder.com/1200x300?text=Vendor+Billing+System)
-
-> **ระบบจัดการการวางบิลและใบเสร็จรับเงินสำหรับ Vendor**  
-> พัฒนาด้วย Modern Stack เน้นความรวดเร็ว สวยงาม และใช้งานง่าย
+**ระบบจัดการการวางบิลและใบเสร็จรับเงินสำหรับ Vendor**  
+พัฒนาด้วย Modern Stack เน้นความรวดเร็ว สวยงาม และใช้งานง่าย
 
 ![Status](https://img.shields.io/badge/Status-Development-yellow) ![License](https://img.shields.io/badge/License-MIT-blue)
 
@@ -124,7 +122,7 @@ vendor-billing-system/
     _รอสักครู่เพื่อให้ Docker download image และ setup database_
 
 4.  **เข้าใช้งาน**
-    - **Frontend**: เปิด Browser ไปที่ [http://localhost:8802](http://localhost:8802)
+    - **Frontend**: เปิด Browser ไปที่ [http://localhost:5173](http://localhost:5173)
     - **Backend**: [http://localhost:8801](http://localhost:8801)
     - **Database (Prisma Studio)**: (ถ้าเปิด Port ไว้)
 
