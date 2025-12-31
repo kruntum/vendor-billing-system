@@ -124,7 +124,7 @@ vendor-billing-system/
     _รอสักครู่เพื่อให้ Docker download image และ setup database_
 
 4.  **เข้าใช้งาน**
-    - **Frontend**: เปิด Browser ไปที่ [http://localhost:5173](http://localhost:5173)
+    - **Frontend**: เปิด Browser ไปที่ [http://localhost:8802](http://localhost:8802)
     - **Backend**: [http://localhost:8801](http://localhost:8801)
     - **Database (Prisma Studio)**: (ถ้าเปิด Port ไว้)
 
