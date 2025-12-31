@@ -36,6 +36,15 @@ export const StatusReceipt = {
 export type StatusReceipt = (typeof StatusReceipt)[keyof typeof StatusReceipt]
 
 
+export const StatusPaymentVoucher = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type StatusPaymentVoucher = (typeof StatusPaymentVoucher)[keyof typeof StatusPaymentVoucher]
+
+
 export const DateFormat = {
   YYYYMMDD: 'YYYYMMDD',
   YYYYMM: 'YYYYMM',

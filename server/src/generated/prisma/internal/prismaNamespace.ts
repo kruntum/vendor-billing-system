@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.1.0
- * Query Engine version: ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba
+ * Prisma Client JS version: 7.2.0
+ * Query Engine version: 0c8ef2ce45c83248ab3df073180d5eda9e8be7a3
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.1.0",
-  engine: "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba"
+  client: "7.2.0",
+  engine: "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3"
 }
 
 /**
@@ -396,7 +396,8 @@ export const ModelName = {
   Receipt: 'Receipt',
   CompanySettings: 'CompanySettings',
   DocumentNumberConfig: 'DocumentNumberConfig',
-  DocumentNumberSequence: 'DocumentNumberSequence'
+  DocumentNumberSequence: 'DocumentNumberSequence',
+  PaymentVoucher: 'PaymentVoucher'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "role" | "vendor" | "user" | "job" | "jobItem" | "serviceCatalog" | "jobDescriptionCatalog" | "billingNote" | "vatConfigByVendor" | "receipt" | "companySettings" | "documentNumberConfig" | "documentNumberSequence"
+    modelProps: "role" | "vendor" | "user" | "job" | "jobItem" | "serviceCatalog" | "jobDescriptionCatalog" | "billingNote" | "vatConfigByVendor" | "receipt" | "companySettings" | "documentNumberConfig" | "documentNumberSequence" | "paymentVoucher"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1379,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PaymentVoucher: {
+      payload: Prisma.$PaymentVoucherPayload<ExtArgs>
+      fields: Prisma.PaymentVoucherFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PaymentVoucherFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PaymentVoucherFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>
+        }
+        findFirst: {
+          args: Prisma.PaymentVoucherFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PaymentVoucherFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>
+        }
+        findMany: {
+          args: Prisma.PaymentVoucherFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>[]
+        }
+        create: {
+          args: Prisma.PaymentVoucherCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>
+        }
+        createMany: {
+          args: Prisma.PaymentVoucherCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PaymentVoucherCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>[]
+        }
+        delete: {
+          args: Prisma.PaymentVoucherDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>
+        }
+        update: {
+          args: Prisma.PaymentVoucherUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>
+        }
+        deleteMany: {
+          args: Prisma.PaymentVoucherDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PaymentVoucherUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PaymentVoucherUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>[]
+        }
+        upsert: {
+          args: Prisma.PaymentVoucherUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PaymentVoucherPayload>
+        }
+        aggregate: {
+          args: Prisma.PaymentVoucherAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePaymentVoucher>
+        }
+        groupBy: {
+          args: Prisma.PaymentVoucherGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentVoucherGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PaymentVoucherCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PaymentVoucherCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1524,6 +1599,7 @@ export const BillingNoteScalarFieldEnum = {
   whtRateText: 'whtRateText',
   pdfUrl: 'pdfUrl',
   statusBillingNote: 'statusBillingNote',
+  paymentVoucherId: 'paymentVoucherId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1603,6 +1679,26 @@ export const DocumentNumberSequenceScalarFieldEnum = {
 } as const
 
 export type DocumentNumberSequenceScalarFieldEnum = (typeof DocumentNumberSequenceScalarFieldEnum)[keyof typeof DocumentNumberSequenceScalarFieldEnum]
+
+
+export const PaymentVoucherScalarFieldEnum = {
+  id: 'id',
+  voucherRef: 'voucherRef',
+  vendorId: 'vendorId',
+  voucherDate: 'voucherDate',
+  subtotal: 'subtotal',
+  totalVat: 'totalVat',
+  totalWht: 'totalWht',
+  netTotal: 'netTotal',
+  remark: 'remark',
+  pdfUrl: 'pdfUrl',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentVoucherScalarFieldEnum = (typeof PaymentVoucherScalarFieldEnum)[keyof typeof PaymentVoucherScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1769,6 +1865,20 @@ export type ListEnumResetPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
+ * Reference to a field of type 'StatusPaymentVoucher'
+ */
+export type EnumStatusPaymentVoucherFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusPaymentVoucher'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusPaymentVoucher[]'
+ */
+export type ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusPaymentVoucher[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1889,6 +1999,7 @@ export type GlobalOmitConfig = {
   companySettings?: Prisma.CompanySettingsOmit
   documentNumberConfig?: Prisma.DocumentNumberConfigOmit
   documentNumberSequence?: Prisma.DocumentNumberSequenceOmit
+  paymentVoucher?: Prisma.PaymentVoucherOmit
 }
 
 /* Types for Logging */

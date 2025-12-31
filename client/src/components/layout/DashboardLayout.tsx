@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { useAuthStore } from "@/store/authStore";
 import { getRoleName } from "@/lib/api";
@@ -12,8 +12,18 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const queryClient = useQueryClient();
   const router = useRouter();
+
+  // Update clock every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -32,6 +42,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: "แดชบอร์ด", icon: "📊", href: "/", show: hasVendor },
     // Admin/User only menu
     { name: "จัดการ Vendor", icon: "🏢", href: "/admin", show: isAdminOrUser },
+    { name: "ใบสำคัญจ่าย", icon: "💰", href: "/admin/payment-vouchers", show: isAdminOrUser },
     // Vendor-specific menus (hidden for Admin/User without vendor)
     { name: "งาน (Jobs)", icon: "📦", href: "/jobs", show: hasVendor },
     { name: "ใบวางบิล", icon: "📄", href: "/billing", show: hasVendor },
@@ -132,8 +143,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </button>
 
             <div className="flex items-center gap-4 ml-auto">
+              {/* Clock Display */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg">
+                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-sm font-medium text-gray-700 tabular-nums">
+                  {currentTime.toLocaleTimeString("th-TH", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </span>
+              </div>
+              {/* Date Display */}
               <span className="text-sm text-gray-500">
-                {new Date().toLocaleDateString("th-TH", {
+                {currentTime.toLocaleDateString("th-TH", {
                   weekday: "long",
                   year: "numeric",
                   month: "long",

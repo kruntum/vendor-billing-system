@@ -13,6 +13,7 @@ if (!existsSync(pdfDir)) {
 }
 
 const thaiFontPath = path.join(process.cwd(), "fonts", "Sarabun-Regular.ttf");
+const chineseFontPath = path.join(process.cwd(), "fonts", "NotoSansSC-Regular.ttf");
 
 // ------------------------------------------------------------------
 // การตั้งค่าสี (Colors Configuration)
@@ -210,20 +211,21 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
 
                     // --- Left Box Content ---
                     let custContentY = row2Y + padding;
-                    doc.fontSize(11).fillColor(PRIMARY_COLOR);
+                    const custTextW = leftBoxW - (padding * 2); // Width constraint for text
+                    doc.fontSize(10).fillColor(PRIMARY_COLOR);
                     doc.text("ลูกค้า / Customer", leftBoxX + padding, custContentY);
-                    custContentY += 18;
+                    custContentY += 16;
 
-                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    doc.fontSize(9).fillColor(TEXT_GRAY);
                     if (companySettings) {
-                        doc.text(companySettings.companyName || "-", leftBoxX + padding, custContentY);
-                        custContentY += 14;
+                        doc.text(companySettings.companyName || "-", leftBoxX + padding, custContentY, { width: custTextW });
+                        custContentY += 13;
                         if (companySettings.companyAddress) {
-                            doc.text(companySettings.companyAddress, leftBoxX + padding, custContentY, { width: leftBoxW - (padding * 2) });
-                            custContentY = doc.y + 4;
+                            doc.text(companySettings.companyAddress, leftBoxX + padding, custContentY, { width: custTextW });
+                            custContentY = doc.y + 3;
                         }
-                        doc.fontSize(9).fillColor(TEXT_GRAY);
-                        doc.text(`เลขประจำตัวผู้เสียภาษี: ${companySettings.taxId || "-"}`, leftBoxX + padding, custContentY);
+                        doc.fontSize(8).fillColor(TEXT_GRAY);
+                        doc.text(`เลขประจำตัวผู้เสียภาษี: ${companySettings.taxId || "-"}`, leftBoxX + padding, custContentY, { width: custTextW });
                         // custContentY += 14; // ไม่ต้องบวกต่อแล้วสำหรับการวาดจริง แต่ Code เดิมบวกไว้เพื่อนับความสูง
                     } else {
                         doc.text("(ยังไม่ได้ตั้งค่าข้อมูลบริษัท)", leftBoxX + padding, custContentY);
@@ -381,19 +383,20 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                 // Background Box
                 doc.roundedRect(margin, footerY, paymentW, paymentH, 5).stroke(BORDER_COLOR);
 
-                doc.fillColor(PRIMARY_COLOR).fontSize(10);
+                doc.fillColor(PRIMARY_COLOR).fontSize(9);
                 doc.text("ข้อมูลการชำระเงิน", margin + 10, footerY + 10);
 
-                doc.fillColor(TEXT_GRAY).fontSize(9);
-                doc.text(`ธนาคาร: ${billing.vendor.bankName || "-"}`, margin + 10, footerY + 30);
-                doc.text(`สาขา: ${billing.vendor.bankBranch || "-"}`, margin + 10, footerY + 45);
-                doc.text(`เลขที่บัญชี: ${billing.vendor.bankAccount || "-"}`, margin + 10, footerY + 60);
-                doc.text(`ชื่อบัญชี: ${billing.vendor.companyName || "-"}`, margin + 10, footerY + 75);
+                const paymentTextW = paymentW - 20; // Add width constraint
+                doc.fillColor(TEXT_GRAY).fontSize(8);
+                doc.text(`ธนาคาร: ${billing.vendor.bankName || "-"}`, margin + 10, footerY + 28, { width: paymentTextW });
+                doc.text(`สาขา: ${billing.vendor.bankBranch || "-"}`, margin + 10, footerY + 42, { width: paymentTextW });
+                doc.text(`เลขที่บัญชี: ${billing.vendor.bankAccount || "-"}`, margin + 10, footerY + 56, { width: paymentTextW });
+                doc.text(`ชื่อบัญชี: ${billing.vendor.companyName || "-"}`, margin + 10, footerY + 70, { width: paymentTextW });
 
                 // Show Remark here if exists
                 if (billing.remark) {
-                    doc.fillColor(PRIMARY_COLOR).fontSize(9);
-                    doc.text("หมายเหตุ: " + billing.remark, margin + 10, footerY + 95, { width: paymentW - 20 });
+                    doc.fillColor(PRIMARY_COLOR).fontSize(8);
+                    doc.text("หมายเหตุ: " + billing.remark, margin + 10, footerY + 88, { width: paymentTextW });
                 }
 
                 // --- RIGHT: Summary ---
@@ -457,20 +460,25 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                 const sigWidth = 180;
 
                 // ลายเซ็นฝั่งซ้าย (ผู้วางบิล)
-                doc.fontSize(9).fillColor(TEXT_GRAY);
+                doc.fontSize(7).fillColor(TEXT_GRAY);
                 doc.text("ในนาม " + (billing.vendor.companyName || ""), margin, sigY, { width: sigWidth, align: "center" });
                 // doc.text("", margin, sigY + 45, { width: sigWidth, align: "center" });
-                doc.moveTo(margin, sigY + 60).lineTo(margin + sigWidth, sigY + 60).stroke(BORDER_COLOR);
-                doc.text("ผู้วางบิล", margin, sigY + 65, { width: sigWidth, align: "center" });
-                doc.text("วันที่ ______/______/______", margin, sigY + 80, { width: sigWidth, align: "center" });
+                doc.moveTo(margin, sigY + 55).lineTo(margin + sigWidth, sigY + 55).stroke(BORDER_COLOR);
+                doc.fontSize(8);
+                doc.text("ผู้วางบิล", margin, sigY + 60, { width: sigWidth, align: "center" });
+                doc.fontSize(7);
+                doc.text("วันที่ ______/______/______", margin, sigY + 73, { width: sigWidth, align: "center" });
 
                 // ลายเซ็นฝั่งขวา (ผู้รับวางบิล - ลูกค้า)
                 const rightSigX = pageWidth - margin - sigWidth;
+                doc.fontSize(7);
                 doc.text("ในนาม " + (companySettings?.companyName || "บริษัท"), rightSigX, sigY, { width: sigWidth, align: "center" });
                 // doc.text("", rightSigX, sigY + 45, { width: sigWidth, align: "center" });
-                doc.moveTo(rightSigX, sigY + 60).lineTo(rightSigX + sigWidth, sigY + 60).stroke(BORDER_COLOR);
-                doc.text("ผู้รับวางบิล", rightSigX, sigY + 65, { width: sigWidth, align: "center" });
-                doc.text("วันที่ ______/______/______", rightSigX, sigY + 80, { width: sigWidth, align: "center" });
+                doc.moveTo(rightSigX, sigY + 55).lineTo(rightSigX + sigWidth, sigY + 55).stroke(BORDER_COLOR);
+                doc.fontSize(8);
+                doc.text("ผู้รับวางบิล", rightSigX, sigY + 60, { width: sigWidth, align: "center" });
+                doc.fontSize(7);
+                doc.text("วันที่ ______/______/______", rightSigX, sigY + 73, { width: sigWidth, align: "center" });
 
                 // ========== ส่วนท้ายกระดาษรวม (เลขหน้า & วันที่) ==========
                 const range = doc.bufferedPageRange();
@@ -671,25 +679,26 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                     // --- Left Box: Customer Info ---
                     const padding = 10;
                     let custContentY = row2Y + padding;
+                    const custTextW = leftBoxW - (padding * 2); // Width constraint
 
-                    doc.fontSize(11).fillColor(PRIMARY_COLOR);
-                    doc.text("ลูกค้า / Customer", leftBoxX + padding, custContentY);
-                    custContentY += 18;
+                    doc.fontSize(9).fillColor(PRIMARY_COLOR);
+                    doc.text("ลูกค้า / Customer", leftBoxX + padding, custContentY, { width: custTextW });
+                    custContentY += 16;
 
-                    doc.fontSize(10).fillColor(TEXT_GRAY);
+                    doc.fontSize(9).fillColor(TEXT_GRAY);
                     if (companySettings) {
-                        doc.text(companySettings.companyName || "-", leftBoxX + padding, custContentY);
-                        custContentY += 14;
+                        doc.text(companySettings.companyName || "-", leftBoxX + padding, custContentY, { width: custTextW });
+                        custContentY += 13;
                         if (companySettings.companyAddress) {
-                            doc.text(companySettings.companyAddress, leftBoxX + padding, custContentY, { width: leftBoxW - (padding * 2) });
-                            custContentY = doc.y + 4;
+                            doc.text(companySettings.companyAddress, leftBoxX + padding, custContentY, { width: custTextW });
+                            custContentY = doc.y + 3;
                         }
-                        doc.fontSize(9).fillColor(TEXT_GRAY);
-                        doc.text(`เลขประจำตัวผู้เสียภาษี: ${companySettings.taxId || "-"}`, leftBoxX + padding, custContentY);
-                        custContentY += 14;
+                        doc.fontSize(8).fillColor(TEXT_GRAY);
+                        doc.text(`เลขประจำตัวผู้เสียภาษี: ${companySettings.taxId || "-"}`, leftBoxX + padding, custContentY, { width: custTextW });
+                        custContentY += 12;
                     } else {
-                        doc.text("(ยังไม่ได้ตั้งค่าข้อมูลบริษัท)", leftBoxX + padding, custContentY);
-                        custContentY += 14;
+                        doc.text("(ยังไม่ได้ตั้งค่าข้อมูลบริษัท)", leftBoxX + padding, custContentY, { width: custTextW });
+                        custContentY += 12;
                     }
 
                     const leftBoxH = (custContentY - row2Y) + 5;
@@ -863,19 +872,20 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                 // กล่องข้อมูลการชำระเงิน (Background Box)
                 doc.roundedRect(margin, footerY, paymentW, paymentH, 5).stroke(BORDER_COLOR);
 
-                doc.fillColor(PRIMARY_COLOR).fontSize(10);
-                doc.text("หมายเหตุ / Note", margin + 10, footerY + 10);
+                const paymentTextW = paymentW - 20; // Width constraint
+                doc.fillColor(PRIMARY_COLOR).fontSize(9);
+                doc.text("หมายเหตุ / Note", margin + 10, footerY + 10, { width: paymentTextW });
 
-                doc.fillColor(TEXT_GRAY).fontSize(9);
-                doc.text(`ธนาคาร: ${billing.vendor.bankName || "-"}`, margin + 10, footerY + 30);
-                doc.text(`สาขา: ${billing.vendor.bankBranch || "-"}`, margin + 10, footerY + 45);
-                doc.text(`เลขที่บัญชี: ${billing.vendor.bankAccount || "-"}`, margin + 10, footerY + 60);
-                doc.text(`ชื่อบัญชี: ${billing.vendor.companyName || "-"}`, margin + 10, footerY + 75);
+                doc.fillColor(TEXT_GRAY).fontSize(8);
+                doc.text(`ธนาคาร: ${billing.vendor.bankName || "-"}`, margin + 10, footerY + 28, { width: paymentTextW });
+                doc.text(`สาขา: ${billing.vendor.bankBranch || "-"}`, margin + 10, footerY + 42, { width: paymentTextW });
+                doc.text(`เลขที่บัญชี: ${billing.vendor.bankAccount || "-"}`, margin + 10, footerY + 56, { width: paymentTextW });
+                doc.text(`ชื่อบัญชี: ${billing.vendor.companyName || "-"}`, margin + 10, footerY + 70, { width: paymentTextW });
 
                 // แสดงหมายเหตุที่นี่ถ้ามี (ภายในกล่อง)
                 if (billing.remark) {
-                    doc.fillColor(PRIMARY_COLOR).fontSize(9);
-                    doc.text("หมายเหตุ: " + billing.remark, margin + 10, footerY + 95, { width: paymentW - 20 });
+                    doc.fillColor(PRIMARY_COLOR).fontSize(8);
+                    doc.text("หมายเหตุ: " + billing.remark, margin + 10, footerY + 88, { width: paymentTextW });
                 }
 
 
@@ -942,18 +952,23 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                 const sigWidth = 180;
 
                 // ลายเซ็นฝั่งซ้าย (ผู้รับเงิน)
-                doc.fontSize(9).fillColor(TEXT_GRAY);
+                doc.fontSize(7).fillColor(TEXT_GRAY);
                 doc.text("ในนาม " + (billing.vendor.companyName || ""), margin, sigY, { width: sigWidth, align: "center" });
-                doc.moveTo(margin, sigY + 60).lineTo(margin + sigWidth, sigY + 60).stroke(BORDER_COLOR);
-                doc.text("ผู้รับเงิน", margin, sigY + 65, { width: sigWidth, align: "center" });
-                doc.text("วันที่ ______/______/______", margin, sigY + 80, { width: sigWidth, align: "center" });
+                doc.moveTo(margin, sigY + 55).lineTo(margin + sigWidth, sigY + 55).stroke(BORDER_COLOR);
+                doc.fontSize(8);
+                doc.text("ผู้รับเงิน", margin, sigY + 60, { width: sigWidth, align: "center" });
+                doc.fontSize(7);
+                doc.text("วันที่ ______/______/______", margin, sigY + 73, { width: sigWidth, align: "center" });
 
                 // ลายเซ็นฝั่งขวา (ผู้จ่ายเงิน)
                 const rightSigX = pageWidth - margin - sigWidth;
+                doc.fontSize(7);
                 doc.text("ในนาม " + (companySettings?.companyName || "บริษัท"), rightSigX, sigY, { width: sigWidth, align: "center" });
-                doc.moveTo(rightSigX, sigY + 60).lineTo(rightSigX + sigWidth, sigY + 60).stroke(BORDER_COLOR);
-                doc.text("ผู้จ่ายเงิน", rightSigX, sigY + 65, { width: sigWidth, align: "center" });
-                doc.text("วันที่ ______/______/______", rightSigX, sigY + 80, { width: sigWidth, align: "center" });
+                doc.moveTo(rightSigX, sigY + 55).lineTo(rightSigX + sigWidth, sigY + 55).stroke(BORDER_COLOR);
+                doc.fontSize(8);
+                doc.text("ผู้จ่ายเงิน", rightSigX, sigY + 60, { width: sigWidth, align: "center" });
+                doc.fontSize(7);
+                doc.text("วันที่ ______/______/______", rightSigX, sigY + 73, { width: sigWidth, align: "center" });
 
 
                 // ========== ส่วนท้ายกระดาษรวม (เลขหน้า & วันที่) ==========
@@ -1011,5 +1026,419 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
         {
             params: t.Object({ id: t.String() }),
             detail: { summary: "สร้างไฟล์ PDF ใบเสร็จรับเงิน", description: "สร้างไฟล์ PDF ใบเสร็จรับเงินแบบมืออาชีพ" },
+        }
+    )
+    // ============================================
+    // PAYMENT VOUCHER PDF
+    // ============================================
+    .get(
+        "/payment-voucher/:id",
+        async ({ params, user, set }) => {
+            try {
+                const { id } = params;
+
+                // Only ADMIN and USER can access
+                if (user?.role !== "ADMIN" && user?.role !== "USER") {
+                    set.status = 403;
+                    return { success: false, error: "Access denied" };
+                }
+
+                const voucher = await prisma.paymentVoucher.findUnique({
+                    where: { id },
+                    include: {
+                        vendor: true,
+                        billingNotes: {
+                            include: { jobs: true }
+                        },
+                        createdBy: true
+                    }
+                });
+
+                if (!voucher) {
+                    set.status = 404;
+                    return { success: false, error: "Payment voucher not found" };
+                }
+
+                // Check if PDF already exists
+                if (voucher.pdfUrl) {
+                    const existingPath = path.join(process.cwd(), voucher.pdfUrl);
+                    if (existsSync(existingPath)) {
+                        return { success: true, data: { filename: path.basename(voucher.pdfUrl), url: voucher.pdfUrl } };
+                    }
+                }
+
+                const companySettings = await prisma.companySettings.findFirst();
+                const sanitizedRef = sanitizeFilename(voucher.voucherRef || voucher.id);
+                const filename = `payment-voucher-${sanitizedRef}-${Date.now()}.pdf`;
+                const relativeUrl = `/public/pdfs/${filename}`;
+                const filepath = path.join(pdfDir, filename);
+
+                const margin = 25;
+                const marginTop = 15;
+                const doc = new PDFDocument({
+                    size: "A4",
+                    margins: { top: marginTop, bottom: margin, left: margin, right: margin },
+                    bufferPages: true
+                });
+                doc.registerFont("Sarabun", thaiFontPath);
+                doc.registerFont("NotoSansSC", chineseFontPath);
+                const writeStream = createWriteStream(filepath);
+                doc.pipe(writeStream);
+
+                const pageWidth = 595.28;
+                const pageHeight = 841.89;
+                const contentWidth = pageWidth - (margin * 2);
+
+                // --- Font Switching Helper ---
+                const drawMixedText = (text: string, x: number, y: number, options: any = {}) => {
+                    const parts = text.split(/([\u4e00-\u9fa5]+)/g).filter(Boolean);
+                    const fontSizes = options.size || 8;
+                    const baseFont = "Sarabun";
+                    const cnFont = "NotoSansSC";
+
+                    // Start X calculation for align center/right
+                    let startX = x;
+                    if (options.align === "center" || options.align === "right") {
+                        let totalWidth = 0;
+                        parts.forEach(part => {
+                            const isChinese = /[\u4e00-\u9fa5]/.test(part);
+                            doc.font(isChinese ? cnFont : baseFont).fontSize(fontSizes);
+                            totalWidth += doc.widthOfString(part);
+                        });
+                        if (options.align === "center") startX = x + (options.width - totalWidth) / 2;
+                        if (options.align === "right") startX = x + options.width - totalWidth;
+                    }
+
+                    let currentX = startX;
+                    parts.forEach(part => {
+                        const isChinese = /[\u4e00-\u9fa5]/.test(part);
+                        doc.font(isChinese ? cnFont : baseFont).fontSize(fontSizes).fillColor(options.color || TEXT_DARK);
+                        doc.text(part, currentX, y, { lineBreak: false });
+                        currentX += doc.widthOfString(part);
+                    });
+                    // Reset to base
+                    doc.font(baseFont).fontSize(fontSizes);
+                };
+
+                // ========== HEADER ==========
+                let currentY = marginTop;
+
+                // 1. Company Header
+                doc.font("Sarabun").fontSize(12).fillColor(TEXT_DARK);
+                doc.text(companySettings?.companyName || "ASIA THAI SHIPPING SERVICE CO., LTD", margin, currentY, { width: contentWidth, align: "center" });
+                currentY += 14;
+
+                doc.fontSize(8).fillColor(TEXT_GRAY);
+                doc.text(companySettings?.companyAddress || "62 SOI SUPAPONG 3, YAK 8, NONG BON SUBDISTRICT, PRAWET DISTRICT, BANGKOK 10250", margin, currentY, { width: contentWidth, align: "center" });
+                currentY += 16;
+
+                // Title
+                drawMixedText("ใบสำคัญจ่าย (PAYMENT VOUCHER) 付款申请单", margin, currentY, { width: contentWidth, align: "center", size: 14, color: TEXT_DARK });
+                currentY += 20;
+
+                // 2. Info Grid
+                const labelX = margin;
+                const valueX = margin + 120;
+                const rightLabelX = pageWidth - margin - 180;
+                const rightValueX = pageWidth - margin - 80;
+
+                // Row 1: Customer | Date
+                doc.fontSize(8).fillColor(TEXT_DARK);
+                drawMixedText("ลูกค้า (The customer) 付款人 :", labelX, currentY);
+                doc.text(companySettings?.companyName || "-", valueX, currentY);
+                doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
+
+                drawMixedText("วันที่เอกสาร (DATE) 日期 :", rightLabelX, currentY);
+                doc.text(format(new Date(voucher.voucherDate), "dd/MM/yyyy"), rightValueX, currentY, { align: "right", width: 80 });
+                currentY += 18;
+
+                // Row 2: Paid To | Voucher No
+                drawMixedText("จ่ายให้ (Paid To) 收款人 :", labelX, currentY);
+                doc.text(voucher.vendor.companyName, valueX, currentY);
+                doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
+
+                drawMixedText("VOUCHER NO. 单据号 :", rightLabelX, currentY);
+                doc.text(voucher.voucherRef, rightValueX, currentY, { align: "right", width: 80 });
+                currentY += 18;
+
+                // Row 3: Paid For
+                drawMixedText("เพื่อชำระ (Paid For) 款项用途 :", labelX, currentY);
+                const paidForText = "ค่าเดินพิธีการตรวจปล่อยและสำรองใบอนุญาต";
+                doc.text(paidForText, valueX, currentY);
+                doc.moveTo(valueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
+                currentY += 24; // Increased spacing for Account No
+
+                // Row 4: Account Bank / No
+                const accLabel = "ACCOUNT BANK 收款银行 / ACCOUNT NO. 账号 :";
+                drawMixedText(accLabel, labelX, currentY);
+                const accValueX = margin + 220;
+                const bankInfo = `${voucher.vendor.bankName || ""} ${voucher.vendor.bankAccount || ""}`.trim() || "-";
+
+                doc.text(bankInfo, accValueX, currentY);
+                doc.moveTo(accValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
+                currentY += 20;
+
+                // Row 5: Payment Method
+                doc.fontSize(7).fillColor(TEXT_DARK);
+                doc.text("ช่องทางชำระเงิน PAYMENT METHOD", labelX, currentY);
+                drawMixedText("付款方式 :", labelX, currentY + 10, { size: 7 });
+
+                const checkboxY = currentY + 3;
+                const drawCheckbox = (x: number, label: string, checked: boolean = false) => {
+                    doc.rect(x, checkboxY, 10, 10).stroke(TEXT_DARK);
+                    if (checked) {
+                        doc.moveTo(x + 2, checkboxY + 2).lineTo(x + 8, checkboxY + 8).lineWidth(1).stroke(TEXT_DARK);
+                        doc.moveTo(x + 8, checkboxY + 2).lineTo(x + 2, checkboxY + 8).lineWidth(1).stroke(TEXT_DARK);
+                    }
+                    drawMixedText(label, x + 15, checkboxY + 1, { size: 7 });
+                    return x + 95;
+                };
+
+                let nextX = valueX;
+                nextX = drawCheckbox(nextX, "Bank Transfer 转账", true);
+                nextX = drawCheckbox(nextX, "CHQUE 支票", false);
+                nextX = drawCheckbox(nextX, "CASH เงินสด 现金", false);
+                drawCheckbox(nextX, "CASHIER CHQUE 现金支票", false);
+
+                currentY += 25;
+
+                // ========== TABLE ==========
+                const tableY = currentY;
+                // Columns: ITEM | DESCRIPTION | CONTAINER NO | INVOICE | Amount | Net Amount
+                // Adjusted Description width to 215 to fill contentWidth (545)
+                const colWidths = [30, 215, 90, 80, 65, 65];
+                const colX = [margin];
+                for (let i = 1; i < colWidths.length; i++) {
+                    colX.push(colX[i - 1] + colWidths[i - 1]);
+                }
+                const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+
+                // Header
+                const drawTableHeader = (y: number) => {
+                    doc.rect(margin, y, tableWidth, 25).fillAndStroke("#e5e7eb", BORDER_COLOR);
+                    doc.fillColor(TEXT_DARK).fontSize(7);
+
+                    const headers = [
+                        { th: "ITEM", en: "项目", align: "center" },
+                        { th: "รายละเอียด DESCRIPTION", en: "摘要", align: "center" },
+                        { th: "CONTAINER NO.", en: "柜号", align: "center" },
+                        { th: "INVOICE", en: "发票号", align: "center" },
+                        { th: "Amount", en: "金额(THB)", align: "center" },
+                        { th: "Net Amount", en: "金额(THB)", align: "center" }
+                    ];
+
+                    headers.forEach((h, i) => {
+                        const x = colX[i] + 2;
+                        doc.text(h.th, x, y + 4, { width: colWidths[i] - 4, align: h.align as any });
+                        if (h.en) {
+                            const isChinese = /[\u4e00-\u9fa5]/.test(h.en);
+                            if (isChinese) doc.font("NotoSansSC");
+                            doc.text(h.en, x, y + 14, { width: colWidths[i] - 4, align: h.align as any });
+                            if (isChinese) doc.font("Sarabun");
+                        }
+                    });
+                };
+
+                drawTableHeader(currentY);
+                currentY += 25;
+
+                // Rows
+                let rowIndex = 1;
+                const rowHeight = 16;
+
+                const drawVerticalLines = (endY: number) => {
+                    colX.forEach((x, i) => {
+                        if (i > 0) doc.moveTo(x, tableY).lineTo(x, endY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                    });
+                    doc.moveTo(margin, tableY).lineTo(margin, endY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                    doc.moveTo(margin + tableWidth, tableY).lineTo(margin + tableWidth, endY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                };
+
+                for (const bn of voucher.billingNotes) {
+                    const jobs = bn.jobs || [];
+                    const containers = Array.from(new Set(jobs.map(j => j.containerNo).filter(Boolean))).join(", ");
+                    const invoices = Array.from(new Set(jobs.map(j => j.refInvoiceNo).filter(Boolean))).join(", ");
+                    const description = "ค่าเดินพิธีการตรวจปล่อยและสำรองใบอนุญาต";
+
+                    // Trigger page break if not enough space for Row + Summary + Footer
+                    if (currentY + rowHeight > pageHeight - 300) {
+                        drawVerticalLines(currentY);
+                        doc.moveTo(margin, currentY).lineTo(margin + tableWidth, currentY).stroke(BORDER_COLOR);
+                        doc.addPage();
+                        currentY = marginTop;
+                        drawTableHeader(currentY);
+                        currentY += 25;
+                    }
+
+                    doc.fillColor(TEXT_DARK).fontSize(8);
+                    const py = currentY + 4;
+
+                    doc.text(String(rowIndex), colX[0], py, { width: colWidths[0], align: "center" });
+                    doc.text(description, colX[1] + 2, py, { width: colWidths[1] - 4, align: "left" });
+                    doc.text(containers || "-", colX[2] + 2, py, { width: colWidths[2] - 4, align: "center" });
+                    doc.text(invoices || bn.billingRef, colX[3] + 2, py, { width: colWidths[3] - 4, align: "center" });
+
+                    doc.text(Number(bn.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[4], py, { width: colWidths[4] - 2, align: "right" });
+
+                    doc.text(Number(bn.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[5], py, { width: colWidths[5] - 2, align: "right" });
+
+                    doc.moveTo(margin, currentY + rowHeight).lineTo(margin + tableWidth, currentY + rowHeight).lineWidth(0.2).stroke(ROW_BORDER_COLOR);
+                    currentY += rowHeight;
+                    rowIndex++;
+                }
+
+                // Fill rows
+                // Fill rows to bottom
+                // Reserve space for Summary (approx 120) + 2 Rows of Signatures (140) + Padding
+                const tableBottomLimit = pageHeight - 300;
+                while (currentY < tableBottomLimit) {
+                    doc.moveTo(margin, currentY + rowHeight).lineTo(margin + tableWidth, currentY + rowHeight).lineWidth(0.2).stroke(ROW_BORDER_COLOR);
+                    currentY += rowHeight;
+                    rowIndex++;
+                }
+
+                drawVerticalLines(currentY);
+                doc.moveTo(margin, currentY).lineTo(margin + tableWidth, currentY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+                // ========== TOTALS & SUMMARY ==========
+                const totalY = currentY;
+                doc.fontSize(8).fillColor(TEXT_DARK);
+                doc.text("TOTAL", margin + 150, totalY + 5, { align: "center", width: 100 });
+
+                doc.text(Number(voucher.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[4], totalY + 5, { align: "right", width: colWidths[4] - 2 });
+                doc.text(Number(voucher.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[6], totalY + 5, { align: "right", width: colWidths[6] - 2 });
+
+                doc.rect(margin, totalY, tableWidth, 20).stroke(BORDER_COLOR);
+                currentY = totalY + 25;
+
+                // Summary Calculation (Right)
+                const summaryW = 200;
+                const summaryX = pageWidth - margin - summaryW;
+                const remarkY = currentY;
+
+                const drawSummaryLine = (label: string, value: string, isBold = false, isGreen = false) => {
+                    const size = isBold ? 9 : 8;
+                    doc.fontSize(size).fillColor(TEXT_DARK);
+                    if (isGreen) doc.fillColor("#166534");
+                    drawMixedText(label, summaryX, currentY, { size, color: isGreen ? "#166534" : TEXT_DARK });
+                    doc.text(value, summaryX, currentY, { width: summaryW, align: "right" });
+                    currentY += 14;
+                };
+
+                drawSummaryLine("TOTAL VALUE BEFORE VAT :", Number(voucher.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }));
+                drawSummaryLine("VAT ภาษีมูลค่าเพิ่ม (7%) :", Number(voucher.totalVat).toLocaleString("th-TH", { minimumFractionDigits: 2 }));
+                const totalWithVat = Number(voucher.subtotal) + Number(voucher.totalVat);
+                drawSummaryLine("TOTAL 总计 :", totalWithVat.toLocaleString("th-TH", { minimumFractionDigits: 2 }));
+                drawSummaryLine("WHT 代扣税 (3%) :", Number(voucher.totalWht) > 0 ? `-${Number(voucher.totalWht).toLocaleString("th-TH", { minimumFractionDigits: 2 })}` : "0.00");
+
+                doc.rect(summaryX - 5, currentY - 2, summaryW + 5, 20).fill("#f0fdf4");
+                doc.fillColor("#166534");
+                drawSummaryLine("NET TOTAL 总计 :", Number(voucher.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), true, true);
+
+                // Thai Text
+                const thaiText = BahtText(Number(voucher.netTotal));
+                doc.fontSize(8).fillColor(TEXT_DARK);
+                drawMixedText(`(${thaiText})`, summaryX, currentY + 15, { width: summaryW, align: "right" });
+                currentY += 10;
+
+                // Remark Box (Left)
+                const remarkHeight = currentY - remarkY; // Exclude padding/Thai text line from box height
+                doc.rect(margin, remarkY, pageWidth - margin - summaryW - 15 - margin, remarkHeight).stroke(BORDER_COLOR);
+                doc.fillColor(TEXT_DARK).fontSize(8);
+                drawMixedText("REMARK 备注", margin + 5, remarkY + 5, { size: 8 });
+                doc.text(voucher.remark || "-", margin + 5, remarkY + 20, { width: 300 });
+
+                currentY += 0;
+
+                // ========== SIGNATURES ==========
+                // Disable bottom margin to prevent auto-page break
+                const oldBottomMargin = doc.page.margins.bottom;
+                doc.page.margins.bottom = 0;
+
+                // 2 Rows of 4 boxes. Height 70 each. Total 140.
+                const sigBoxH = 70;
+                const sigStartY = pageHeight - 170; // Moved up closer to content
+                const boxW = (contentWidth) / 4;
+                const sigLabels = [
+                    // Row 1
+                    { en: "PERSON IN CHARGE", cn: "经办人" },
+                    { en: "DEPARTMENT IN CHARGE", cn: "部门负责人" },
+                    { en: "AUTHORIZED BY (ACCOUNT)", cn: "财务复核人" },
+                    { en: "ACCOUNTING IN CHARGE", cn: "财务负责人" },
+                    // Row 2
+                    { en: "COMPANY IN CHARGE", cn: "公司负责人" },
+                    { en: "FINANCIAL IN CHARGE", cn: "资金部负责人" },
+                    { en: "CASHIER", cn: "出纳" },
+                    { en: "", cn: "" }
+                ];
+
+                sigLabels.forEach((l, i) => {
+                    const row = Math.floor(i / 4);
+                    const col = i % 4;
+                    const bx = margin + (col * boxW);
+                    const by = sigStartY + (row * sigBoxH);
+
+                    // 1. Draw Header Background (REMOVED as requested)
+                    // doc.rect(bx, by, boxW, 15).fill("#e5e7eb");
+
+                    // 2. Draw Main Box Border
+                    doc.rect(bx, by, boxW, sigBoxH).lineWidth(1).stroke("#000000");
+
+                    // 3. Draw content
+                    doc.moveTo(bx + 10, by + 45).lineTo(bx + boxW - 10, by + 45).lineWidth(0.5).stroke(TEXT_GRAY);
+
+                    doc.fontSize(6).fillColor(TEXT_GRAY);
+                    doc.text("Signature : __________________________________", bx + 10, by + 50);
+                    doc.text("DATE : __________________________________", bx + 10, by + 60);
+
+                    doc.fillColor(TEXT_DARK).fontSize(6);
+                    if (l.en) doc.text(l.en, bx, by + 3, { width: boxW, align: "center" });
+                    if (l.cn) {
+                        doc.font("NotoSansSC");
+                        doc.text(l.cn, bx, by + 9, { width: boxW, align: "center" });
+                        doc.font("Sarabun");
+                    }
+                });
+
+                // Restore margin
+                doc.page.margins.bottom = oldBottomMargin;
+
+                // ========== FOOTER ==========
+                const range = doc.bufferedPageRange();
+                for (let i = range.start; i < range.start + range.count; i++) {
+                    doc.switchToPage(i);
+                    const oldBottomMargin = doc.page.margins.bottom;
+                    doc.page.margins.bottom = 0;
+
+                    doc.fontSize(6).fillColor(TEXT_GRAY);
+                    doc.text(`พิมพ์เมื่อ: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, margin, pageHeight - 15, { align: "left" });
+                    doc.text(`หน้า ${i + 1} / ${range.count}`, pageWidth - margin - 100, pageHeight - 15, { width: 100, align: "right" });
+
+                    doc.page.margins.bottom = oldBottomMargin;
+                }
+
+                doc.end();
+
+                await new Promise<void>((resolve, reject) => {
+                    writeStream.on("finish", resolve);
+                    writeStream.on("error", reject);
+                });
+
+                // Update voucher with PDF URL
+                await prisma.paymentVoucher.update({
+                    where: { id: voucher.id },
+                    data: { pdfUrl: relativeUrl }
+                });
+
+                return { success: true, data: { filename, url: relativeUrl } };
+            } catch (error: any) {
+                console.error("PDF generation error:", error);
+                set.status = 500;
+                return { success: false, error: error.message || "Failed to generate PDF" };
+            }
+        },
+        {
+            params: t.Object({ id: t.String() }),
+            detail: { summary: "สร้างไฟล์ PDF ใบสำคัญจ่าย", description: "สร้างไฟล์ PDF ใบสำคัญจ่ายแบบมืออาชีพ" },
         }
     );

@@ -13,6 +13,7 @@ import { settingsRoutes } from "./routes/settings.route";
 import { pdfRoutes } from "./routes/pdf.route";
 import { documentNumberRoutes } from "./routes/docnumber.route";
 import { vendorRoutes } from "./routes/vendor.route";
+import { paymentVoucherRoutes } from "./routes/payment-voucher.route";
 
 const app = new Elysia()
   // CORS Configuration
@@ -50,6 +51,7 @@ const app = new Elysia()
           { name: "Settings", description: "Settings management" },
           { name: "PDF", description: "PDF generation" },
           { name: "Document Number", description: "Document numbering configuration" },
+          { name: "Payment Voucher", description: "Payment voucher management" },
         ],
       },
     })
@@ -73,6 +75,7 @@ const app = new Elysia()
   .use(pdfRoutes)
   .use(documentNumberRoutes)
   .use(vendorRoutes)
+  .use(paymentVoucherRoutes)
   // Start Server
   .listen(process.env.PORT || 8801);
 

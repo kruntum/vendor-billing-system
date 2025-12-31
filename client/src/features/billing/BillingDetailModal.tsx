@@ -45,11 +45,19 @@ const CloseIcon = () => (
     </svg>
 );
 
+// Send Icon
+const SendIcon = () => (
+    <svg className="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    </svg>
+);
+
 interface BillingDetailModalProps {
     billing: BillingNote | null;
     onClose: () => void;
     onEdit: () => void;
     onCancel: () => Promise<void>;
+    onSubmit: () => Promise<void>;
     onPrint: () => Promise<void>;
     onPrintReceipt: () => Promise<void>;
     onIssueReceipt: () => void;
@@ -68,6 +76,7 @@ export function BillingDetailModal({
     onClose,
     onEdit,
     onCancel,
+    onSubmit,
     onPrint,
     onPrintReceipt,
     onIssueReceipt,
@@ -117,20 +126,28 @@ export function BillingDetailModal({
                                 <p
                                     className={`font-medium ${billing.statusBillingNote === "APPROVED"
                                         ? "text-green-600"
-                                        : billing.statusBillingNote === "PENDING"
-                                            ? "text-yellow-600"
-                                            : billing.statusBillingNote === "CANCELLED"
-                                                ? "text-red-600"
-                                                : "text-blue-600"
+                                        : billing.statusBillingNote === "PAID"
+                                            ? "text-green-600"
+                                            : billing.statusBillingNote === "SUBMITTED"
+                                                ? "text-blue-600"
+                                                : billing.statusBillingNote === "PENDING"
+                                                    ? "text-yellow-600"
+                                                    : billing.statusBillingNote === "CANCELLED"
+                                                        ? "text-red-600"
+                                                        : "text-gray-600"
                                         }`}
                                 >
                                     {billing.statusBillingNote === "APPROVED"
                                         ? "อนุมัติแล้ว"
-                                        : billing.statusBillingNote === "PENDING"
-                                            ? "รอดำเนินการ"
-                                            : billing.statusBillingNote === "CANCELLED"
-                                                ? "ยกเลิก"
-                                                : billing.statusBillingNote}
+                                        : billing.statusBillingNote === "PAID"
+                                            ? "ชำระแล้ว"
+                                            : billing.statusBillingNote === "SUBMITTED"
+                                                ? "ส่งแล้ว"
+                                                : billing.statusBillingNote === "PENDING"
+                                                    ? "รอดำเนินการ"
+                                                    : billing.statusBillingNote === "CANCELLED"
+                                                        ? "ยกเลิก"
+                                                        : billing.statusBillingNote}
                                 </p>
                             </div>
                             {billing.receipt && (
@@ -252,6 +269,31 @@ export function BillingDetailModal({
 
                         {canEdit && (
                             <>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <button className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                                            <SendIcon />
+                                            ส่งใบวางบิล
+                                        </button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>ยืนยันการส่งใบวางบิล?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                คุณต้องการส่งใบวางบิลเลขที่ {billing.billingRef} ให้ Admin ตรวจสอบใช่หรือไม่?
+                                                <br />
+                                                หลังจากส่งแล้วจะไม่สามารถแก้ไขได้
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                            <AlertDialogAction onClick={onSubmit} className="bg-blue-600 hover:bg-blue-700">
+                                                ยืนยันการส่ง
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+
                                 <button
                                     onClick={onEdit}
                                     className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center"

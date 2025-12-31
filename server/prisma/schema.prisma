@@ -35,6 +35,12 @@ enum StatusReceipt {
   PAID
 }
 
+enum StatusPaymentVoucher {
+  PENDING
+  APPROVED
+  CANCELLED
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -67,6 +73,7 @@ model Vendor {
   vatConfig       VatConfigByVendor?
   serviceCatalog  ServiceCatalog[]
   jobDescriptions JobDescriptionCatalog[]
+  paymentVouchers PaymentVoucher[]
 
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
@@ -87,6 +94,9 @@ model User {
 
   vendorId String? @map("vendor_id")
   vendor   Vendor? @relation(fields: [vendorId], references: [id])
+
+  // Payment vouchers created by this user
+  paymentVouchers PaymentVoucher[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -180,6 +190,10 @@ model BillingNote {
   whtRateText       String?           @map("wht_rate_text") // กำหนดค่าภาษีตามบริษัท
   pdfUrl            String?           @map("pdf_url")
   statusBillingNote StatusBillingNote @default(PENDING) @map("status_billing_note")
+
+  // Payment Voucher relation
+  paymentVoucherId String?         @map("payment_voucher_id")
+  paymentVoucher   PaymentVoucher? @relation(fields: [paymentVoucherId], references: [id])
 
   // Relationships
   jobs    Job[]
@@ -300,4 +314,40 @@ model DocumentNumberSequence {
 
   @@unique([vendorId, documentType, periodKey])
   @@map("document_number_sequences")
+}
+
+// ============================================
+// PAYMENT VOUCHER (ใบสำคัญจ่าย)
+// ============================================
+
+// 11. PaymentVoucher: ใบสำคัญจ่าย (สร้างโดย User/Admin)
+model PaymentVoucher {
+  id          String   @id @default(uuid())
+  voucherRef  String   @unique @map("voucher_ref") @db.VarChar(30)
+  vendorId    String   @map("vendor_id")
+  voucherDate DateTime @map("voucher_date")
+
+  // ยอดเงินรวม (SUM จาก BillingNotes)
+  subtotal Decimal @map("subtotal") @db.Decimal(12, 2)
+  totalVat Decimal @map("total_vat") @db.Decimal(12, 2)
+  totalWht Decimal @map("total_wht") @db.Decimal(12, 2)
+  netTotal Decimal @map("net_total") @db.Decimal(12, 2)
+
+  remark String?
+  pdfUrl String? @map("pdf_url")
+
+  status StatusPaymentVoucher @default(PENDING)
+
+  // ผู้สร้าง (User/Admin)
+  createdById String @map("created_by_id")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  // Relationships
+  vendor       Vendor        @relation(fields: [vendorId], references: [id])
+  billingNotes BillingNote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payment_vouchers")
 }

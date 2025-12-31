@@ -289,6 +289,23 @@ export type EnumResetPeriodWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumResetPeriodFilter<$PrismaModel>
 }
 
+export type EnumStatusPaymentVoucherFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPaymentVoucher | Prisma.EnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel> | $Enums.StatusPaymentVoucher
+}
+
+export type EnumStatusPaymentVoucherWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPaymentVoucher | Prisma.EnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPaymentVoucherWithAggregatesFilter<$PrismaModel> | $Enums.StatusPaymentVoucher
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -575,6 +592,23 @@ export type NestedEnumResetPeriodWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumResetPeriodFilter<$PrismaModel>
   _max?: Prisma.NestedEnumResetPeriodFilter<$PrismaModel>
+}
+
+export type NestedEnumStatusPaymentVoucherFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPaymentVoucher | Prisma.EnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel> | $Enums.StatusPaymentVoucher
+}
+
+export type NestedEnumStatusPaymentVoucherWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPaymentVoucher | Prisma.EnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPaymentVoucher[] | Prisma.ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPaymentVoucherWithAggregatesFilter<$PrismaModel> | $Enums.StatusPaymentVoucher
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
 }
 
 

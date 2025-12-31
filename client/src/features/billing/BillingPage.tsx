@@ -61,6 +61,12 @@ const PrintReceiptIcon = () => (
     </svg>
 );
 
+const SendIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    </svg>
+);
+
 export default function BillingPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedBilling, setSelectedBilling] = useState<BillingNote | null>(null);
@@ -79,6 +85,8 @@ export default function BillingPage() {
     const { data: billingResponse, isLoading } = useQuery({
         queryKey: ["billing"],
         queryFn: () => billingApi.list().then((res) => res.data),
+        refetchOnMount: "always",  // Always fetch fresh data when page loads
+        staleTime: 0,              // Data is immediately considered stale
     });
 
     const billingNotes = Array.isArray(billingResponse?.data) ? billingResponse.data : [];
@@ -169,11 +177,25 @@ export default function BillingPage() {
             await billingApi.cancel(selectedBilling.id);
             queryClient.invalidateQueries({ queryKey: ["billing"] });
             queryClient.invalidateQueries({ queryKey: ["jobs"] });
-            toast.success("ยกเล ิกใบวางบิลเรียบร้อยแล้ว");
+            toast.success("ยกเลิกใบวางบิลเรียบร้อยแล้ว");
             handleCloseDetails();
         } catch (error) {
             console.error("Cancel error:", error);
             toast.error("เกิดข้อผิดพลาดในการยกเลิกเอกสาร");
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!selectedBilling) return;
+
+        try {
+            await billingApi.updateStatus(selectedBilling.id, "SUBMITTED");
+            queryClient.invalidateQueries({ queryKey: ["billing"] });
+            toast.success("ส่งใบวางบิลเรียบร้อยแล้ว");
+            handleCloseDetails();
+        } catch (error) {
+            console.error("Submit error:", error);
+            toast.error("เกิดข้อผิดพลาดในการส่งใบวางบิล");
         }
     };
 
@@ -186,6 +208,17 @@ export default function BillingPage() {
         } catch (error) {
             console.error("Cancel error:", error);
             toast.error("เกิดข้อผิดพลาดในการยกเลิกเอกสาร");
+        }
+    };
+
+    const handleSubmitDirect = async (note: BillingNote) => {
+        try {
+            await billingApi.updateStatus(note.id, "SUBMITTED");
+            queryClient.invalidateQueries({ queryKey: ["billing"] });
+            toast.success("ส่งใบวางบิลเรียบร้อยแล้ว");
+        } catch (error) {
+            console.error("Submit error:", error);
+            toast.error("เกิดข้อผิดพลาดในการส่งใบวางบิล");
         }
     };
 
@@ -328,19 +361,23 @@ export default function BillingPage() {
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.statusBillingNote === "PAID"
                         ? "bg-green-100 text-green-800"
                         : note.statusBillingNote === "APPROVED"
-                            ? "bg-blue-100 text-blue-800"
-                            : note.statusBillingNote === "CANCELLED"
-                                ? "bg-gray-100 text-gray-800"
-                                : "bg-yellow-100 text-yellow-800"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : note.statusBillingNote === "SUBMITTED"
+                                ? "bg-blue-100 text-blue-800"
+                                : note.statusBillingNote === "CANCELLED"
+                                    ? "bg-gray-100 text-gray-800"
+                                    : "bg-yellow-100 text-yellow-800"
                         }`}
                 >
                     {note.statusBillingNote === "PAID"
                         ? "ชำระแล้ว"
                         : note.statusBillingNote === "APPROVED"
                             ? "อนุมัติแล้ว"
-                            : note.statusBillingNote === "CANCELLED"
-                                ? "ยกเลิก"
-                                : "รอดำเนินการ"}
+                            : note.statusBillingNote === "SUBMITTED"
+                                ? "ส่งแล้ว"
+                                : note.statusBillingNote === "CANCELLED"
+                                    ? "ยกเลิก"
+                                    : "รอดำเนินการ"}
                 </span>
             ),
         },
@@ -377,6 +414,42 @@ export default function BillingPage() {
                                 <p>ดูรายละเอียด</p>
                             </TooltipContent>
                         </Tooltip>
+
+                        {canEdit && (
+                            <AlertDialog>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <AlertDialogTrigger asChild>
+                                            <button className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors">
+                                                <SendIcon />
+                                            </button>
+                                        </AlertDialogTrigger>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>ส่งใบวางบิล</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>ยืนยันการส่งใบวางบิล?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            คุณต้องการส่งใบวางบิลเลขที่ {note.billingRef} ให้ Admin ตรวจสอบใช่หรือไม่?
+                                            <br />
+                                            หลังจากส่งแล้วจะไม่สามารถแก้ไขได้
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() => handleSubmitDirect(note)}
+                                            className="bg-blue-600 hover:bg-blue-700"
+                                        >
+                                            ยืนยันการส่ง
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        )}
 
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -533,6 +606,7 @@ export default function BillingPage() {
                     onClose={handleCloseDetails}
                     onEdit={handleEdit}
                     onCancel={handleCancel}
+                    onSubmit={handleSubmit}
                     onPrint={handlePrint}
                     onPrintReceipt={handlePrintReceipt}
                     onIssueReceipt={handleIssueReceipt}

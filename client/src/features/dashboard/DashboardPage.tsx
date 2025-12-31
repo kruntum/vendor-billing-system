@@ -165,16 +165,24 @@ export default function DashboardPage() {
                     <p
                       className={`text-xs mt-0.5 ${billing.statusBillingNote === "PAID"
                         ? "text-green-600"
-                        : billing.statusBillingNote === "CANCELLED"
-                          ? "text-gray-500"
-                          : "text-yellow-600"
+                        : billing.statusBillingNote === "APPROVED"
+                          ? "text-emerald-600"
+                          : billing.statusBillingNote === "SUBMITTED"
+                            ? "text-blue-600"
+                            : billing.statusBillingNote === "CANCELLED"
+                              ? "text-gray-500"
+                              : "text-yellow-600"
                         }`}
                     >
                       {billing.statusBillingNote === "PAID"
                         ? "ชำระแล้ว"
-                        : billing.statusBillingNote === "CANCELLED"
-                          ? "ยกเลิก"
-                          : "รอชำระ"}
+                        : billing.statusBillingNote === "APPROVED"
+                          ? "อนุมัติแล้ว"
+                          : billing.statusBillingNote === "SUBMITTED"
+                            ? "ส่งแล้ว"
+                            : billing.statusBillingNote === "CANCELLED"
+                              ? "ยกเลิก"
+                              : "รอดำเนินการ"}
                     </p>
                   </div>
                 </div>

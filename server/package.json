@@ -13,7 +13,7 @@
     "@elysiajs/static": "^1.4.7",
     "@elysiajs/swagger": "^1.1.6",
     "@prisma/adapter-pg": "^7.1.0",
-    "@prisma/client": "^7.1.0",
+    "@prisma/client": "^7.2.0",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "elysia": "^1.1.25",
@@ -27,7 +27,7 @@
     "@types/node": "^24.10.1",
     "@types/pdfkit": "^0.13.5",
     "@types/pg": "^8.15.6",
-    "prisma": "^7.1.0",
+    "prisma": "^7.2.0",
     "typescript": "^5.6.3"
   },
   "prisma": {

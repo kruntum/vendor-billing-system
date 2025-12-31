@@ -40,6 +40,8 @@ export function BillingForm({ onClose, onSuccess, initialData }: BillingFormProp
   const { data: jobsResponse, isLoading: isLoadingJobs } = useQuery({
     queryKey: ["jobs", "pending"],
     queryFn: () => jobApi.list({ status: "PENDING" }).then((res) => res.data),
+    refetchOnMount: "always",  // Always fetch fresh data when form opens
+    staleTime: 0,              // Data is immediately considered stale
   });
 
   // Fetch document number preview (only for new billing)

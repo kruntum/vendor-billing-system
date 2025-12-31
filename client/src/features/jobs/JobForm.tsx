@@ -102,8 +102,15 @@ export function JobForm({ job, initialValues, onClose, onSuccess }: JobFormProps
 
   // Autocomplete helpers
   const handleItemSelect = (index: number, value: string) => {
-    // When items use jobDescriptions, there is no price to auto-fill
     setValue(`items.${index}.description`, value);
+
+    // Find the selected job description and auto-fill price if available
+    const selectedItem = jobDescriptions.find(
+      (d) => d.title === value || d.id === value
+    );
+    if (selectedItem?.price != null) {
+      setValue(`items.${index}.amount`, Number(selectedItem.price));
+    }
   };
 
   const modalContent = (
@@ -130,7 +137,6 @@ export function JobForm({ job, initialValues, onClose, onSuccess }: JobFormProps
                       options={services.map((s) => ({
                         label: s.name,
                         value: s.id,
-                        subLabel: s.price ? s.price.toLocaleString() : undefined,
                       }))}
                       value={field.value}
                       onChange={field.onChange}
@@ -219,6 +225,7 @@ export function JobForm({ job, initialValues, onClose, onSuccess }: JobFormProps
                             options={jobDescriptions.map((d) => ({
                               label: d.title,
                               value: d.id,
+                              subLabel: d.price ? `฿${d.price.toLocaleString()}` : undefined,
                             }))}
                             value={value}
                             onChange={(val) => {

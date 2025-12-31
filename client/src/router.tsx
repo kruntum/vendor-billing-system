@@ -12,6 +12,7 @@ import ReportsPage from "@/features/reports/ReportsPage";
 import AdminDashboardPage from "@/features/admin/AdminDashboardPage";
 import AdminVendorBillingPage from "@/features/admin/AdminVendorBillingPage";
 import AdminVendorReceiptsPage from "@/features/admin/AdminVendorReceiptsPage";
+import PaymentVoucherPage from "@/features/admin/PaymentVoucherPage";
 
 // Create a root route
 const rootRoute = createRootRoute({
@@ -103,6 +104,12 @@ const adminVendorReceiptsRoute = createRoute({
   component: AdminVendorReceiptsPage,
 });
 
+const paymentVoucherRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/payment-vouchers",
+  component: PaymentVoucherPage,
+});
+
 // Create the route tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -116,6 +123,7 @@ const routeTree = rootRoute.addChildren([
   adminRoute,
   adminVendorBillingRoute,
   adminVendorReceiptsRoute,
+  paymentVoucherRoute,
   loginRoute,
 ]);
 

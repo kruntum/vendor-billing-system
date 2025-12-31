@@ -171,19 +171,23 @@ export default function AdminVendorBillingPage() {
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.statusBillingNote === "PAID"
                         ? "bg-green-100 text-green-800"
                         : note.statusBillingNote === "APPROVED"
-                            ? "bg-blue-100 text-blue-800"
-                            : note.statusBillingNote === "CANCELLED"
-                                ? "bg-gray-100 text-gray-800"
-                                : "bg-yellow-100 text-yellow-800"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : note.statusBillingNote === "SUBMITTED"
+                                ? "bg-blue-100 text-blue-800"
+                                : note.statusBillingNote === "CANCELLED"
+                                    ? "bg-gray-100 text-gray-800"
+                                    : "bg-yellow-100 text-yellow-800"
                         }`}
                 >
                     {note.statusBillingNote === "PAID"
                         ? "ชำระแล้ว"
                         : note.statusBillingNote === "APPROVED"
                             ? "อนุมัติแล้ว"
-                            : note.statusBillingNote === "CANCELLED"
-                                ? "ยกเลิก"
-                                : "รอดำเนินการ"}
+                            : note.statusBillingNote === "SUBMITTED"
+                                ? "ส่งแล้ว"
+                                : note.statusBillingNote === "CANCELLED"
+                                    ? "ยกเลิก"
+                                    : "รอดำเนินการ"}
                 </span>
             ),
         },

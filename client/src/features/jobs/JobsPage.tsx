@@ -54,6 +54,8 @@ export default function JobsPage() {
   const { data: jobsResponse, isLoading } = useQuery({
     queryKey: ["jobs"],
     queryFn: () => jobApi.list().then((res) => res.data),
+    refetchOnMount: "always",  // Always fetch fresh data when page loads
+    staleTime: 0,              // Data is immediately considered stale
   });
 
   const deleteMutation = useMutation({

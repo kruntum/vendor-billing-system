@@ -7,7 +7,8 @@ import './fonts/fonts.css';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60, // 1 minute
+      staleTime: 0,              // Data is immediately considered stale
+      refetchOnMount: "always",  // Always fetch fresh data when component mounts
       retry: 1,
     },
   },

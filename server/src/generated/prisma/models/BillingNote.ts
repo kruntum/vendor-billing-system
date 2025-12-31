@@ -57,6 +57,7 @@ export type BillingNoteMinAggregateOutputType = {
   whtRateText: string | null
   pdfUrl: string | null
   statusBillingNote: $Enums.StatusBillingNote | null
+  paymentVoucherId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -76,6 +77,7 @@ export type BillingNoteMaxAggregateOutputType = {
   whtRateText: string | null
   pdfUrl: string | null
   statusBillingNote: $Enums.StatusBillingNote | null
+  paymentVoucherId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -95,6 +97,7 @@ export type BillingNoteCountAggregateOutputType = {
   whtRateText: number
   pdfUrl: number
   statusBillingNote: number
+  paymentVoucherId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -132,6 +135,7 @@ export type BillingNoteMinAggregateInputType = {
   whtRateText?: true
   pdfUrl?: true
   statusBillingNote?: true
+  paymentVoucherId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -151,6 +155,7 @@ export type BillingNoteMaxAggregateInputType = {
   whtRateText?: true
   pdfUrl?: true
   statusBillingNote?: true
+  paymentVoucherId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -170,6 +175,7 @@ export type BillingNoteCountAggregateInputType = {
   whtRateText?: true
   pdfUrl?: true
   statusBillingNote?: true
+  paymentVoucherId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -276,6 +282,7 @@ export type BillingNoteGroupByOutputType = {
   whtRateText: string | null
   pdfUrl: string | null
   statusBillingNote: $Enums.StatusBillingNote
+  paymentVoucherId: string | null
   createdAt: Date
   updatedAt: Date
   _count: BillingNoteCountAggregateOutputType | null
@@ -318,8 +325,10 @@ export type BillingNoteWhereInput = {
   whtRateText?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFilter<"BillingNote"> | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BillingNote"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BillingNote"> | Date | string
+  paymentVoucher?: Prisma.XOR<Prisma.PaymentVoucherNullableScalarRelationFilter, Prisma.PaymentVoucherWhereInput> | null
   jobs?: Prisma.JobListRelationFilter
   receipt?: Prisma.XOR<Prisma.ReceiptNullableScalarRelationFilter, Prisma.ReceiptWhereInput> | null
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
@@ -340,8 +349,10 @@ export type BillingNoteOrderByWithRelationInput = {
   whtRateText?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   statusBillingNote?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  paymentVoucher?: Prisma.PaymentVoucherOrderByWithRelationInput
   jobs?: Prisma.JobOrderByRelationAggregateInput
   receipt?: Prisma.ReceiptOrderByWithRelationInput
   vendor?: Prisma.VendorOrderByWithRelationInput
@@ -365,8 +376,10 @@ export type BillingNoteWhereUniqueInput = Prisma.AtLeast<{
   whtRateText?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFilter<"BillingNote"> | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BillingNote"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BillingNote"> | Date | string
+  paymentVoucher?: Prisma.XOR<Prisma.PaymentVoucherNullableScalarRelationFilter, Prisma.PaymentVoucherWhereInput> | null
   jobs?: Prisma.JobListRelationFilter
   receipt?: Prisma.XOR<Prisma.ReceiptNullableScalarRelationFilter, Prisma.ReceiptWhereInput> | null
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
@@ -387,6 +400,7 @@ export type BillingNoteOrderByWithAggregationInput = {
   whtRateText?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   statusBillingNote?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BillingNoteCountOrderByAggregateInput
@@ -414,6 +428,7 @@ export type BillingNoteScalarWhereWithAggregatesInput = {
   whtRateText?: Prisma.StringNullableWithAggregatesFilter<"BillingNote"> | string | null
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"BillingNote"> | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteWithAggregatesFilter<"BillingNote"> | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.StringNullableWithAggregatesFilter<"BillingNote"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BillingNote"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BillingNote"> | Date | string
 }
@@ -434,6 +449,7 @@ export type BillingNoteCreateInput = {
   statusBillingNote?: $Enums.StatusBillingNote
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentVoucher?: Prisma.PaymentVoucherCreateNestedOneWithoutBillingNotesInput
   jobs?: Prisma.JobCreateNestedManyWithoutBillingNoteInput
   receipt?: Prisma.ReceiptCreateNestedOneWithoutBillingNoteInput
   vendor: Prisma.VendorCreateNestedOneWithoutBillingNotesInput
@@ -454,6 +470,7 @@ export type BillingNoteUncheckedCreateInput = {
   whtRateText?: string | null
   pdfUrl?: string | null
   statusBillingNote?: $Enums.StatusBillingNote
+  paymentVoucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutBillingNoteInput
@@ -476,6 +493,7 @@ export type BillingNoteUpdateInput = {
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentVoucher?: Prisma.PaymentVoucherUpdateOneWithoutBillingNotesNestedInput
   jobs?: Prisma.JobUpdateManyWithoutBillingNoteNestedInput
   receipt?: Prisma.ReceiptUpdateOneWithoutBillingNoteNestedInput
   vendor?: Prisma.VendorUpdateOneRequiredWithoutBillingNotesNestedInput
@@ -496,6 +514,7 @@ export type BillingNoteUncheckedUpdateInput = {
   whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jobs?: Prisma.JobUncheckedUpdateManyWithoutBillingNoteNestedInput
@@ -517,6 +536,7 @@ export type BillingNoteCreateManyInput = {
   whtRateText?: string | null
   pdfUrl?: string | null
   statusBillingNote?: $Enums.StatusBillingNote
+  paymentVoucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -554,6 +574,7 @@ export type BillingNoteUncheckedUpdateManyInput = {
   whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -588,6 +609,7 @@ export type BillingNoteCountOrderByAggregateInput = {
   whtRateText?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   statusBillingNote?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -615,6 +637,7 @@ export type BillingNoteMaxOrderByAggregateInput = {
   whtRateText?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   statusBillingNote?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -634,6 +657,7 @@ export type BillingNoteMinOrderByAggregateInput = {
   whtRateText?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   statusBillingNote?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -727,6 +751,48 @@ export type BillingNoteUpdateOneRequiredWithoutReceiptNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BillingNoteUpdateToOneWithWhereWithoutReceiptInput, Prisma.BillingNoteUpdateWithoutReceiptInput>, Prisma.BillingNoteUncheckedUpdateWithoutReceiptInput>
 }
 
+export type BillingNoteCreateNestedManyWithoutPaymentVoucherInput = {
+  create?: Prisma.XOR<Prisma.BillingNoteCreateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput> | Prisma.BillingNoteCreateWithoutPaymentVoucherInput[] | Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput[]
+  connectOrCreate?: Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput | Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput[]
+  createMany?: Prisma.BillingNoteCreateManyPaymentVoucherInputEnvelope
+  connect?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+}
+
+export type BillingNoteUncheckedCreateNestedManyWithoutPaymentVoucherInput = {
+  create?: Prisma.XOR<Prisma.BillingNoteCreateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput> | Prisma.BillingNoteCreateWithoutPaymentVoucherInput[] | Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput[]
+  connectOrCreate?: Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput | Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput[]
+  createMany?: Prisma.BillingNoteCreateManyPaymentVoucherInputEnvelope
+  connect?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+}
+
+export type BillingNoteUpdateManyWithoutPaymentVoucherNestedInput = {
+  create?: Prisma.XOR<Prisma.BillingNoteCreateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput> | Prisma.BillingNoteCreateWithoutPaymentVoucherInput[] | Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput[]
+  connectOrCreate?: Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput | Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput[]
+  upsert?: Prisma.BillingNoteUpsertWithWhereUniqueWithoutPaymentVoucherInput | Prisma.BillingNoteUpsertWithWhereUniqueWithoutPaymentVoucherInput[]
+  createMany?: Prisma.BillingNoteCreateManyPaymentVoucherInputEnvelope
+  set?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  disconnect?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  delete?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  connect?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  update?: Prisma.BillingNoteUpdateWithWhereUniqueWithoutPaymentVoucherInput | Prisma.BillingNoteUpdateWithWhereUniqueWithoutPaymentVoucherInput[]
+  updateMany?: Prisma.BillingNoteUpdateManyWithWhereWithoutPaymentVoucherInput | Prisma.BillingNoteUpdateManyWithWhereWithoutPaymentVoucherInput[]
+  deleteMany?: Prisma.BillingNoteScalarWhereInput | Prisma.BillingNoteScalarWhereInput[]
+}
+
+export type BillingNoteUncheckedUpdateManyWithoutPaymentVoucherNestedInput = {
+  create?: Prisma.XOR<Prisma.BillingNoteCreateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput> | Prisma.BillingNoteCreateWithoutPaymentVoucherInput[] | Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput[]
+  connectOrCreate?: Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput | Prisma.BillingNoteCreateOrConnectWithoutPaymentVoucherInput[]
+  upsert?: Prisma.BillingNoteUpsertWithWhereUniqueWithoutPaymentVoucherInput | Prisma.BillingNoteUpsertWithWhereUniqueWithoutPaymentVoucherInput[]
+  createMany?: Prisma.BillingNoteCreateManyPaymentVoucherInputEnvelope
+  set?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  disconnect?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  delete?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  connect?: Prisma.BillingNoteWhereUniqueInput | Prisma.BillingNoteWhereUniqueInput[]
+  update?: Prisma.BillingNoteUpdateWithWhereUniqueWithoutPaymentVoucherInput | Prisma.BillingNoteUpdateWithWhereUniqueWithoutPaymentVoucherInput[]
+  updateMany?: Prisma.BillingNoteUpdateManyWithWhereWithoutPaymentVoucherInput | Prisma.BillingNoteUpdateManyWithWhereWithoutPaymentVoucherInput[]
+  deleteMany?: Prisma.BillingNoteScalarWhereInput | Prisma.BillingNoteScalarWhereInput[]
+}
+
 export type BillingNoteCreateWithoutVendorInput = {
   id?: string
   billingRef: string
@@ -743,6 +809,7 @@ export type BillingNoteCreateWithoutVendorInput = {
   statusBillingNote?: $Enums.StatusBillingNote
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentVoucher?: Prisma.PaymentVoucherCreateNestedOneWithoutBillingNotesInput
   jobs?: Prisma.JobCreateNestedManyWithoutBillingNoteInput
   receipt?: Prisma.ReceiptCreateNestedOneWithoutBillingNoteInput
 }
@@ -761,6 +828,7 @@ export type BillingNoteUncheckedCreateWithoutVendorInput = {
   whtRateText?: string | null
   pdfUrl?: string | null
   statusBillingNote?: $Enums.StatusBillingNote
+  paymentVoucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutBillingNoteInput
@@ -811,6 +879,7 @@ export type BillingNoteScalarWhereInput = {
   whtRateText?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFilter<"BillingNote"> | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.StringNullableFilter<"BillingNote"> | string | null
   createdAt?: Prisma.DateTimeFilter<"BillingNote"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BillingNote"> | Date | string
 }
@@ -831,6 +900,7 @@ export type BillingNoteCreateWithoutJobsInput = {
   statusBillingNote?: $Enums.StatusBillingNote
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentVoucher?: Prisma.PaymentVoucherCreateNestedOneWithoutBillingNotesInput
   receipt?: Prisma.ReceiptCreateNestedOneWithoutBillingNoteInput
   vendor: Prisma.VendorCreateNestedOneWithoutBillingNotesInput
 }
@@ -850,6 +920,7 @@ export type BillingNoteUncheckedCreateWithoutJobsInput = {
   whtRateText?: string | null
   pdfUrl?: string | null
   statusBillingNote?: $Enums.StatusBillingNote
+  paymentVoucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutBillingNoteInput
@@ -887,6 +958,7 @@ export type BillingNoteUpdateWithoutJobsInput = {
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentVoucher?: Prisma.PaymentVoucherUpdateOneWithoutBillingNotesNestedInput
   receipt?: Prisma.ReceiptUpdateOneWithoutBillingNoteNestedInput
   vendor?: Prisma.VendorUpdateOneRequiredWithoutBillingNotesNestedInput
 }
@@ -906,6 +978,7 @@ export type BillingNoteUncheckedUpdateWithoutJobsInput = {
   whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutBillingNoteNestedInput
@@ -927,6 +1000,7 @@ export type BillingNoteCreateWithoutReceiptInput = {
   statusBillingNote?: $Enums.StatusBillingNote
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentVoucher?: Prisma.PaymentVoucherCreateNestedOneWithoutBillingNotesInput
   jobs?: Prisma.JobCreateNestedManyWithoutBillingNoteInput
   vendor: Prisma.VendorCreateNestedOneWithoutBillingNotesInput
 }
@@ -946,6 +1020,7 @@ export type BillingNoteUncheckedCreateWithoutReceiptInput = {
   whtRateText?: string | null
   pdfUrl?: string | null
   statusBillingNote?: $Enums.StatusBillingNote
+  paymentVoucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutBillingNoteInput
@@ -983,6 +1058,7 @@ export type BillingNoteUpdateWithoutReceiptInput = {
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentVoucher?: Prisma.PaymentVoucherUpdateOneWithoutBillingNotesNestedInput
   jobs?: Prisma.JobUpdateManyWithoutBillingNoteNestedInput
   vendor?: Prisma.VendorUpdateOneRequiredWithoutBillingNotesNestedInput
 }
@@ -1002,9 +1078,78 @@ export type BillingNoteUncheckedUpdateWithoutReceiptInput = {
   whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jobs?: Prisma.JobUncheckedUpdateManyWithoutBillingNoteNestedInput
+}
+
+export type BillingNoteCreateWithoutPaymentVoucherInput = {
+  id?: string
+  billingRef: string
+  billingDate: Date | string
+  subtotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceBeforeVat?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vatAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  whtAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: string | null
+  vatRateText?: string | null
+  whtRateText?: string | null
+  pdfUrl?: string | null
+  statusBillingNote?: $Enums.StatusBillingNote
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  jobs?: Prisma.JobCreateNestedManyWithoutBillingNoteInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutBillingNoteInput
+  vendor: Prisma.VendorCreateNestedOneWithoutBillingNotesInput
+}
+
+export type BillingNoteUncheckedCreateWithoutPaymentVoucherInput = {
+  id?: string
+  billingRef: string
+  vendorId: string
+  billingDate: Date | string
+  subtotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceBeforeVat?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vatAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  whtAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: string | null
+  vatRateText?: string | null
+  whtRateText?: string | null
+  pdfUrl?: string | null
+  statusBillingNote?: $Enums.StatusBillingNote
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutBillingNoteInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutBillingNoteInput
+}
+
+export type BillingNoteCreateOrConnectWithoutPaymentVoucherInput = {
+  where: Prisma.BillingNoteWhereUniqueInput
+  create: Prisma.XOR<Prisma.BillingNoteCreateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput>
+}
+
+export type BillingNoteCreateManyPaymentVoucherInputEnvelope = {
+  data: Prisma.BillingNoteCreateManyPaymentVoucherInput | Prisma.BillingNoteCreateManyPaymentVoucherInput[]
+  skipDuplicates?: boolean
+}
+
+export type BillingNoteUpsertWithWhereUniqueWithoutPaymentVoucherInput = {
+  where: Prisma.BillingNoteWhereUniqueInput
+  update: Prisma.XOR<Prisma.BillingNoteUpdateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedUpdateWithoutPaymentVoucherInput>
+  create: Prisma.XOR<Prisma.BillingNoteCreateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedCreateWithoutPaymentVoucherInput>
+}
+
+export type BillingNoteUpdateWithWhereUniqueWithoutPaymentVoucherInput = {
+  where: Prisma.BillingNoteWhereUniqueInput
+  data: Prisma.XOR<Prisma.BillingNoteUpdateWithoutPaymentVoucherInput, Prisma.BillingNoteUncheckedUpdateWithoutPaymentVoucherInput>
+}
+
+export type BillingNoteUpdateManyWithWhereWithoutPaymentVoucherInput = {
+  where: Prisma.BillingNoteScalarWhereInput
+  data: Prisma.XOR<Prisma.BillingNoteUpdateManyMutationInput, Prisma.BillingNoteUncheckedUpdateManyWithoutPaymentVoucherInput>
 }
 
 export type BillingNoteCreateManyVendorInput = {
@@ -1021,6 +1166,7 @@ export type BillingNoteCreateManyVendorInput = {
   whtRateText?: string | null
   pdfUrl?: string | null
   statusBillingNote?: $Enums.StatusBillingNote
+  paymentVoucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1041,6 +1187,7 @@ export type BillingNoteUpdateWithoutVendorInput = {
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentVoucher?: Prisma.PaymentVoucherUpdateOneWithoutBillingNotesNestedInput
   jobs?: Prisma.JobUpdateManyWithoutBillingNoteNestedInput
   receipt?: Prisma.ReceiptUpdateOneWithoutBillingNoteNestedInput
 }
@@ -1059,6 +1206,7 @@ export type BillingNoteUncheckedUpdateWithoutVendorInput = {
   whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jobs?: Prisma.JobUncheckedUpdateManyWithoutBillingNoteNestedInput
@@ -1068,6 +1216,87 @@ export type BillingNoteUncheckedUpdateWithoutVendorInput = {
 export type BillingNoteUncheckedUpdateManyWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   billingRef?: Prisma.StringFieldUpdateOperationsInput | string
+  billingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subtotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceBeforeVat?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vatAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  whtAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BillingNoteCreateManyPaymentVoucherInput = {
+  id?: string
+  billingRef: string
+  vendorId: string
+  billingDate: Date | string
+  subtotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceBeforeVat?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vatAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  whtAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: string | null
+  vatRateText?: string | null
+  whtRateText?: string | null
+  pdfUrl?: string | null
+  statusBillingNote?: $Enums.StatusBillingNote
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BillingNoteUpdateWithoutPaymentVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  billingRef?: Prisma.StringFieldUpdateOperationsInput | string
+  billingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subtotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceBeforeVat?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vatAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  whtAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  jobs?: Prisma.JobUpdateManyWithoutBillingNoteNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutBillingNoteNestedInput
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutBillingNotesNestedInput
+}
+
+export type BillingNoteUncheckedUpdateWithoutPaymentVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  billingRef?: Prisma.StringFieldUpdateOperationsInput | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subtotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  priceBeforeVat?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vatAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  whtAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vatRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whtRateText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  statusBillingNote?: Prisma.EnumStatusBillingNoteFieldUpdateOperationsInput | $Enums.StatusBillingNote
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  jobs?: Prisma.JobUncheckedUpdateManyWithoutBillingNoteNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutBillingNoteNestedInput
+}
+
+export type BillingNoteUncheckedUpdateManyWithoutPaymentVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  billingRef?: Prisma.StringFieldUpdateOperationsInput | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   billingDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   subtotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   priceBeforeVat?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1129,8 +1358,10 @@ export type BillingNoteSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   whtRateText?: boolean
   pdfUrl?: boolean
   statusBillingNote?: boolean
+  paymentVoucherId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  paymentVoucher?: boolean | Prisma.BillingNote$paymentVoucherArgs<ExtArgs>
   jobs?: boolean | Prisma.BillingNote$jobsArgs<ExtArgs>
   receipt?: boolean | Prisma.BillingNote$receiptArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
@@ -1152,8 +1383,10 @@ export type BillingNoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   whtRateText?: boolean
   pdfUrl?: boolean
   statusBillingNote?: boolean
+  paymentVoucherId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  paymentVoucher?: boolean | Prisma.BillingNote$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["billingNote"]>
 
@@ -1172,8 +1405,10 @@ export type BillingNoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   whtRateText?: boolean
   pdfUrl?: boolean
   statusBillingNote?: boolean
+  paymentVoucherId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  paymentVoucher?: boolean | Prisma.BillingNote$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["billingNote"]>
 
@@ -1192,27 +1427,32 @@ export type BillingNoteSelectScalar = {
   whtRateText?: boolean
   pdfUrl?: boolean
   statusBillingNote?: boolean
+  paymentVoucherId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BillingNoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "billingRef" | "vendorId" | "billingDate" | "subtotal" | "priceBeforeVat" | "vatAmount" | "whtAmount" | "netTotal" | "remark" | "vatRateText" | "whtRateText" | "pdfUrl" | "statusBillingNote" | "createdAt" | "updatedAt", ExtArgs["result"]["billingNote"]>
+export type BillingNoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "billingRef" | "vendorId" | "billingDate" | "subtotal" | "priceBeforeVat" | "vatAmount" | "whtAmount" | "netTotal" | "remark" | "vatRateText" | "whtRateText" | "pdfUrl" | "statusBillingNote" | "paymentVoucherId" | "createdAt" | "updatedAt", ExtArgs["result"]["billingNote"]>
 export type BillingNoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  paymentVoucher?: boolean | Prisma.BillingNote$paymentVoucherArgs<ExtArgs>
   jobs?: boolean | Prisma.BillingNote$jobsArgs<ExtArgs>
   receipt?: boolean | Prisma.BillingNote$receiptArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.BillingNoteCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BillingNoteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  paymentVoucher?: boolean | Prisma.BillingNote$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
 export type BillingNoteIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  paymentVoucher?: boolean | Prisma.BillingNote$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
 
 export type $BillingNotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "BillingNote"
   objects: {
+    paymentVoucher: Prisma.$PaymentVoucherPayload<ExtArgs> | null
     jobs: Prisma.$JobPayload<ExtArgs>[]
     receipt: Prisma.$ReceiptPayload<ExtArgs> | null
     vendor: Prisma.$VendorPayload<ExtArgs>
@@ -1232,6 +1472,7 @@ export type $BillingNotePayload<ExtArgs extends runtime.Types.Extensions.Interna
     whtRateText: string | null
     pdfUrl: string | null
     statusBillingNote: $Enums.StatusBillingNote
+    paymentVoucherId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["billingNote"]>
@@ -1628,6 +1869,7 @@ readonly fields: BillingNoteFieldRefs;
  */
 export interface Prisma__BillingNoteClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  paymentVoucher<T extends Prisma.BillingNote$paymentVoucherArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BillingNote$paymentVoucherArgs<ExtArgs>>): Prisma.Prisma__PaymentVoucherClient<runtime.Types.Result.GetResult<Prisma.$PaymentVoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   jobs<T extends Prisma.BillingNote$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BillingNote$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   receipt<T extends Prisma.BillingNote$receiptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BillingNote$receiptArgs<ExtArgs>>): Prisma.Prisma__ReceiptClient<runtime.Types.Result.GetResult<Prisma.$ReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   vendor<T extends Prisma.VendorDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VendorDefaultArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
@@ -1674,6 +1916,7 @@ export interface BillingNoteFieldRefs {
   readonly whtRateText: Prisma.FieldRef<"BillingNote", 'String'>
   readonly pdfUrl: Prisma.FieldRef<"BillingNote", 'String'>
   readonly statusBillingNote: Prisma.FieldRef<"BillingNote", 'StatusBillingNote'>
+  readonly paymentVoucherId: Prisma.FieldRef<"BillingNote", 'String'>
   readonly createdAt: Prisma.FieldRef<"BillingNote", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BillingNote", 'DateTime'>
 }
@@ -2069,6 +2312,25 @@ export type BillingNoteDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many BillingNotes to delete.
    */
   limit?: number
+}
+
+/**
+ * BillingNote.paymentVoucher
+ */
+export type BillingNote$paymentVoucherArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentVoucher
+   */
+  select?: Prisma.PaymentVoucherSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PaymentVoucher
+   */
+  omit?: Prisma.PaymentVoucherOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentVoucherInclude<ExtArgs> | null
+  where?: Prisma.PaymentVoucherWhereInput
 }
 
 /**

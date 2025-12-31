@@ -376,3 +376,53 @@ export const adminApi = {
   updateReceiptStatus: (receiptId: string, status: "PENDING" | "PAID", revertBilling?: boolean) =>
     api.patch<ApiResponse<Receipt>>(`/receipts/${receiptId}/status`, { status, revertBilling }),
 };
+
+// Payment Voucher API (Admin/User only)
+export interface PaymentVoucher {
+  id: string;
+  voucherRef: string;
+  vendorId: string;
+  voucherDate: string;
+  subtotal: number;
+  totalVat: number;
+  totalWht: number;
+  netTotal: number;
+  remark?: string;
+  pdfUrl?: string;
+  status: "PENDING" | "APPROVED" | "CANCELLED";
+  createdById: string;
+  createdBy?: {
+    id: string;
+    email: string;
+    name: string | null;
+  };
+  vendor?: Vendor;
+  billingNotes?: BillingNote[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const paymentVoucherApi = {
+  list: (params?: { vendorId?: string; status?: string }) =>
+    api.get<ApiResponse<PaymentVoucher[]>>("/payment-voucher", { params }),
+
+  get: (id: string) =>
+    api.get<ApiResponse<PaymentVoucher>>(`/payment-voucher/${id}`),
+
+  create: (data: { vendorId: string; billingNoteIds: string[]; voucherDate: string; remark?: string }) =>
+    api.post<ApiResponse<PaymentVoucher>>("/payment-voucher", data),
+
+  updateStatus: (id: string, status: "PENDING" | "APPROVED" | "CANCELLED") =>
+    api.patch<ApiResponse<PaymentVoucher>>(`/payment-voucher/${id}/status`, { status }),
+
+  cancel: (id: string) =>
+    api.post<ApiResponse<void>>(`/payment-voucher/${id}/cancel`),
+
+  // Get submitted billing notes for a vendor (for creating voucher)
+  getSubmittedBillings: (vendorId: string) =>
+    api.get<ApiResponse<BillingNote[]>>(`/payment-voucher/billing-notes/${vendorId}`),
+
+  // Generate PDF
+  generatePdf: (id: string) =>
+    api.get<ApiResponse<{ filename: string; url: string }>>(`/pdf/payment-voucher/${id}`),
+};

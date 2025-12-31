@@ -63,7 +63,8 @@ export const ModelName = {
   Receipt: 'Receipt',
   CompanySettings: 'CompanySettings',
   DocumentNumberConfig: 'DocumentNumberConfig',
-  DocumentNumberSequence: 'DocumentNumberSequence'
+  DocumentNumberSequence: 'DocumentNumberSequence',
+  PaymentVoucher: 'PaymentVoucher'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -189,6 +190,7 @@ export const BillingNoteScalarFieldEnum = {
   whtRateText: 'whtRateText',
   pdfUrl: 'pdfUrl',
   statusBillingNote: 'statusBillingNote',
+  paymentVoucherId: 'paymentVoucherId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -268,6 +270,26 @@ export const DocumentNumberSequenceScalarFieldEnum = {
 } as const
 
 export type DocumentNumberSequenceScalarFieldEnum = (typeof DocumentNumberSequenceScalarFieldEnum)[keyof typeof DocumentNumberSequenceScalarFieldEnum]
+
+
+export const PaymentVoucherScalarFieldEnum = {
+  id: 'id',
+  voucherRef: 'voucherRef',
+  vendorId: 'vendorId',
+  voucherDate: 'voucherDate',
+  subtotal: 'subtotal',
+  totalVat: 'totalVat',
+  totalWht: 'totalWht',
+  netTotal: 'netTotal',
+  remark: 'remark',
+  pdfUrl: 'pdfUrl',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentVoucherScalarFieldEnum = (typeof PaymentVoucherScalarFieldEnum)[keyof typeof PaymentVoucherScalarFieldEnum]
 
 
 export const SortOrder = {

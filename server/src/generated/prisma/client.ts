@@ -104,3 +104,8 @@ export type DocumentNumberConfig = Prisma.DocumentNumberConfigModel
  * 
  */
 export type DocumentNumberSequence = Prisma.DocumentNumberSequenceModel
+/**
+ * Model PaymentVoucher
+ * 
+ */
+export type PaymentVoucher = Prisma.PaymentVoucherModel
