@@ -84,8 +84,8 @@ export function BillingDetailModal({
 }: BillingDetailModalProps) {
     if (!billing) return null;
 
-    const canEdit = billing.statusBillingNote === "PENDING";
-    const canIssueReceipt = billing.statusBillingNote === "APPROVED" && !billing.receipt;
+    const canEdit = billing.status === "PENDING";
+    const canIssueReceipt = billing.status === "APPROVED" && !billing.receipt;
     const hasReceipt = !!billing.receipt;
 
     return createPortal(
@@ -124,30 +124,30 @@ export function BillingDetailModal({
                             <div>
                                 <p className="text-sm text-gray-500">สถานะ</p>
                                 <p
-                                    className={`font-medium ${billing.statusBillingNote === "APPROVED"
+                                    className={`font-medium ${billing.status === "APPROVED"
                                         ? "text-green-600"
-                                        : billing.statusBillingNote === "PAID"
+                                        : billing.status === "PAID"
                                             ? "text-green-600"
-                                            : billing.statusBillingNote === "SUBMITTED"
+                                            : billing.status === "SUBMITTED"
                                                 ? "text-blue-600"
-                                                : billing.statusBillingNote === "PENDING"
+                                                : billing.status === "PENDING"
                                                     ? "text-yellow-600"
-                                                    : billing.statusBillingNote === "CANCELLED"
+                                                    : billing.status === "CANCELLED"
                                                         ? "text-red-600"
                                                         : "text-gray-600"
                                         }`}
                                 >
-                                    {billing.statusBillingNote === "APPROVED"
+                                    {billing.status === "APPROVED"
                                         ? "อนุมัติแล้ว"
-                                        : billing.statusBillingNote === "PAID"
+                                        : billing.status === "PAID"
                                             ? "ชำระแล้ว"
-                                            : billing.statusBillingNote === "SUBMITTED"
+                                            : billing.status === "SUBMITTED"
                                                 ? "ส่งแล้ว"
-                                                : billing.statusBillingNote === "PENDING"
+                                                : billing.status === "PENDING"
                                                     ? "รอดำเนินการ"
-                                                    : billing.statusBillingNote === "CANCELLED"
+                                                    : billing.status === "CANCELLED"
                                                         ? "ยกเลิก"
-                                                        : billing.statusBillingNote}
+                                                        : billing.status}
                                 </p>
                             </div>
                             {billing.receipt && (

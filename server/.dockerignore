@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+bun.lockb
+
+# Build output
+dist
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage
+
+# Prisma
+migrations
+*.db
+*.sqlite

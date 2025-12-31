@@ -12,7 +12,7 @@ interface BillingFormProps {
 
 export function BillingForm({ onClose, onSuccess, initialData }: BillingFormProps) {
   const [selectedJobIds, setSelectedJobIds] = useState<string[]>(
-    initialData?.jobs.map((j) => j.id) || []
+    initialData?.jobs?.map((j) => j.id) || []
   );
   const [step, setStep] = useState<"select" | "preview">("select");
   const [billingRef, setBillingRef] = useState(initialData?.billingRef || "");

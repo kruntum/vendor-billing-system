@@ -1130,11 +1130,11 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
 
                 doc.fontSize(8).fillColor(TEXT_GRAY);
                 doc.text(companySettings?.companyAddress || "62 SOI SUPAPONG 3, YAK 8, NONG BON SUBDISTRICT, PRAWET DISTRICT, BANGKOK 10250", margin, currentY, { width: contentWidth, align: "center" });
-                currentY += 16;
+                currentY += 20;
 
                 // Title
-                drawMixedText("ใบสำคัญจ่าย (PAYMENT VOUCHER) 付款申请单", margin, currentY, { width: contentWidth, align: "center", size: 14, color: TEXT_DARK });
-                currentY += 20;
+                drawMixedText("ใบสำคัญจ่าย (PAYMENT VOUCHER) 付款申请单", margin, currentY, { width: contentWidth, align: "center", size: 12, color: TEXT_DARK });
+                currentY += 30;
 
                 // 2. Info Grid
                 const labelX = margin;
@@ -1145,43 +1145,46 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                 // Row 1: Customer | Date
                 doc.fontSize(8).fillColor(TEXT_DARK);
                 drawMixedText("ลูกค้า (The customer) 付款人 :", labelX, currentY);
-                doc.text(companySettings?.companyName || "-", valueX, currentY);
-                doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
+                doc.fillColor(TEXT_GRAY).text(companySettings?.companyName || "-", valueX, currentY);
+                doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
 
                 drawMixedText("วันที่เอกสาร (DATE) 日期 :", rightLabelX, currentY);
-                doc.text(format(new Date(voucher.voucherDate), "dd/MM/yyyy"), rightValueX, currentY, { align: "right", width: 80 });
+                doc.fillColor(TEXT_GRAY).text(format(new Date(voucher.voucherDate), "dd/MM/yyyy"), rightValueX, currentY, { align: "right", width: 80 });
+                doc.moveTo(rightValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
                 currentY += 18;
 
                 // Row 2: Paid To | Voucher No
                 drawMixedText("จ่ายให้ (Paid To) 收款人 :", labelX, currentY);
-                doc.text(voucher.vendor.companyName, valueX, currentY);
-                doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
+                doc.fillColor(TEXT_GRAY).text(voucher.vendor.companyName, valueX, currentY);
+                doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
 
                 drawMixedText("VOUCHER NO. 单据号 :", rightLabelX, currentY);
-                doc.text(voucher.voucherRef, rightValueX, currentY, { align: "right", width: 80 });
+                doc.fillColor(TEXT_GRAY).text(voucher.voucherRef, rightValueX, currentY, { align: "right", width: 80 });
+                doc.moveTo(rightValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
                 currentY += 18;
 
                 // Row 3: Paid For
                 drawMixedText("เพื่อชำระ (Paid For) 款项用途 :", labelX, currentY);
                 const paidForText = "ค่าเดินพิธีการตรวจปล่อยและสำรองใบอนุญาต";
-                doc.text(paidForText, valueX, currentY);
-                doc.moveTo(valueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
-                currentY += 24; // Increased spacing for Account No
+                doc.fillColor(TEXT_GRAY).text(paidForText, valueX, currentY);
+                doc.moveTo(valueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+                currentY += 18; // Increased spacing for Account No
 
                 // Row 4: Account Bank / No
-                const accLabel = "ACCOUNT BANK 收款银行 / ACCOUNT NO. 账号 :";
+                const accLabel = "ชื่อบัญชี/เลขบัญชี (Account Name/Account No.) 银行名称/银行账号 :";
+                doc.fillColor(TEXT_DARK); // Set color for labels
                 drawMixedText(accLabel, labelX, currentY);
-                const accValueX = margin + 220;
+                const accValueX = margin + 250;
                 const bankInfo = `${voucher.vendor.bankName || ""} ${voucher.vendor.bankAccount || ""}`.trim() || "-";
 
-                doc.text(bankInfo, accValueX, currentY);
-                doc.moveTo(accValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.5).stroke(TEXT_GRAY);
-                currentY += 20;
+                doc.fillColor(TEXT_GRAY).text(bankInfo, accValueX, currentY); // Data value
+                doc.moveTo(accValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+                currentY += 18;
 
                 // Row 5: Payment Method
                 doc.fontSize(7).fillColor(TEXT_DARK);
-                doc.text("ช่องทางชำระเงิน PAYMENT METHOD", labelX, currentY);
-                drawMixedText("付款方式 :", labelX, currentY + 10, { size: 7 });
+                drawMixedText("ช่องทางชำระเงิน PAYMENT METHOD 付款方式", labelX, currentY);
+
 
                 const checkboxY = currentY + 3;
                 const drawCheckbox = (x: number, label: string, checked: boolean = false) => {
@@ -1194,19 +1197,22 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                     return x + 95;
                 };
 
-                let nextX = valueX;
-                nextX = drawCheckbox(nextX, "Bank Transfer 转账", true);
-                nextX = drawCheckbox(nextX, "CHQUE 支票", false);
-                nextX = drawCheckbox(nextX, "CASH เงินสด 现金", false);
-                drawCheckbox(nextX, "CASHIER CHQUE 现金支票", false);
+                let nextX = valueX + 60;
+                nextX = drawCheckbox(nextX - 10, "Bank Transfer 转账", true);
+                nextX = drawCheckbox(nextX - 10, "CHQUE 支票", false);
+                nextX = drawCheckbox(nextX - 10, "CASH เงินสด 现金", false);
+                drawCheckbox(nextX - 10, "CASHIER CHQUE 现金支票", false);
 
-                currentY += 25;
-
+                currentY += 20;
                 // ========== TABLE ==========
                 const tableY = currentY;
                 // Columns: ITEM | DESCRIPTION | CONTAINER NO | INVOICE | Amount | Net Amount
                 // Adjusted Description width to 215 to fill contentWidth (545)
-                const colWidths = [30, 215, 90, 80, 65, 65];
+                // Columns: ITEM | BILLING NOTE NO | INVOICE NO | Amount | Net Amount
+                // Replaced Description with Billing Note No.
+                // Split Ref No into Invoice No.
+                // New Widths: [30, 100, 255, 80, 80] = 545
+                const colWidths = [30, 100, 255, 80, 80];
                 const colX = [margin];
                 for (let i = 1; i < colWidths.length; i++) {
                     colX.push(colX[i - 1] + colWidths[i - 1]);
@@ -1220,9 +1226,8 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
 
                     const headers = [
                         { th: "ITEM", en: "项目", align: "center" },
-                        { th: "รายละเอียด DESCRIPTION", en: "摘要", align: "center" },
-                        { th: "CONTAINER NO.", en: "柜号", align: "center" },
-                        { th: "INVOICE", en: "发票号", align: "center" },
+                        { th: "BILLING NOTE NO.", en: "账单号", align: "center" },
+                        { th: "INVOICE NO.", en: "发票号", align: "center" },
                         { th: "Amount", en: "金额(THB)", align: "center" },
                         { th: "Net Amount", en: "金额(THB)", align: "center" }
                     ];
@@ -1244,7 +1249,8 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
 
                 // Rows
                 let rowIndex = 1;
-                const rowHeight = 16;
+                // Default base height, but will be dynamic
+                const baseRowHeight = 16;
 
                 const drawVerticalLines = (endY: number) => {
                     colX.forEach((x, i) => {
@@ -1256,9 +1262,18 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
 
                 for (const bn of voucher.billingNotes) {
                     const jobs = bn.jobs || [];
-                    const containers = Array.from(new Set(jobs.map(j => j.containerNo).filter(Boolean))).join(", ");
                     const invoices = Array.from(new Set(jobs.map(j => j.refInvoiceNo).filter(Boolean))).join(", ");
-                    const description = "ค่าเดินพิธีการตรวจปล่อยและสำรองใบอนุญาต";
+
+                    const billNo = bn.billingRef || "-";
+                    const invoiceText = invoices || "-";
+
+                    // CALCULATE DYNAMIC HEIGHT
+                    doc.fontSize(8);
+                    // Measure Invoice Text height
+                    const invHeight = doc.heightOfString(invoiceText, { width: colWidths[2] - 4 });
+
+                    // Add some padding (top 4 + bottom 4)
+                    const rowHeight = Math.max(baseRowHeight, invHeight + 8);
 
                     // Trigger page break if not enough space for Row + Summary + Footer
                     if (currentY + rowHeight > pageHeight - 300) {
@@ -1270,19 +1285,18 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                         currentY += 25;
                     }
 
-                    doc.fillColor(TEXT_DARK).fontSize(8);
+                    doc.fillColor(TEXT_GRAY).fontSize(8);
                     const py = currentY + 4;
 
                     doc.text(String(rowIndex), colX[0], py, { width: colWidths[0], align: "center" });
-                    doc.text(description, colX[1] + 2, py, { width: colWidths[1] - 4, align: "left" });
-                    doc.text(containers || "-", colX[2] + 2, py, { width: colWidths[2] - 4, align: "center" });
-                    doc.text(invoices || bn.billingRef, colX[3] + 2, py, { width: colWidths[3] - 4, align: "center" });
+                    doc.text(billNo, colX[1] + 2, py, { width: colWidths[1] - 4, align: "left" });
+                    doc.text(invoiceText, colX[2] + 2, py, { width: colWidths[2] - 4, align: "left" });
 
-                    doc.text(Number(bn.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[4], py, { width: colWidths[4] - 2, align: "right" });
+                    doc.text(Number(bn.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[3], py, { width: colWidths[3] - 2, align: "right" });
 
-                    doc.text(Number(bn.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[5], py, { width: colWidths[5] - 2, align: "right" });
+                    doc.text(Number(bn.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[4], py, { width: colWidths[4] - 2, align: "right" });
 
-                    doc.moveTo(margin, currentY + rowHeight).lineTo(margin + tableWidth, currentY + rowHeight).lineWidth(0.2).stroke(ROW_BORDER_COLOR);
+                    doc.moveTo(margin, currentY + rowHeight).lineTo(margin + tableWidth, currentY + rowHeight).lineWidth(0.2).dash(1, { space: 2 }).stroke(ROW_BORDER_COLOR).undash();
                     currentY += rowHeight;
                     rowIndex++;
                 }
@@ -1292,8 +1306,8 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                 // Reserve space for Summary (approx 120) + 2 Rows of Signatures (140) + Padding
                 const tableBottomLimit = pageHeight - 300;
                 while (currentY < tableBottomLimit) {
-                    doc.moveTo(margin, currentY + rowHeight).lineTo(margin + tableWidth, currentY + rowHeight).lineWidth(0.2).stroke(ROW_BORDER_COLOR);
-                    currentY += rowHeight;
+                    doc.moveTo(margin, currentY + baseRowHeight).lineTo(margin + tableWidth, currentY + baseRowHeight).lineWidth(0.2).dash(1, { space: 2 }).stroke(ROW_BORDER_COLOR).undash();
+                    currentY += baseRowHeight;
                     rowIndex++;
                 }
 
@@ -1305,10 +1319,15 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                 doc.fontSize(8).fillColor(TEXT_DARK);
                 doc.text("TOTAL", margin + 150, totalY + 5, { align: "center", width: 100 });
 
-                doc.text(Number(voucher.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[4], totalY + 5, { align: "right", width: colWidths[4] - 2 });
-                doc.text(Number(voucher.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[6], totalY + 5, { align: "right", width: colWidths[6] - 2 });
+                doc.fillColor(TEXT_GRAY).text(Number(voucher.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[3], totalY + 5, { align: "right", width: colWidths[3] - 2 });
+                doc.fillColor(TEXT_GRAY).text(Number(voucher.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[4], totalY + 5, { align: "right", width: colWidths[4] - 2 });
 
                 doc.rect(margin, totalY, tableWidth, 20).stroke(BORDER_COLOR);
+                // Vertical lines for TOTAL row
+                const totalColX1 = colX[3]; // Start of Amount column
+                const totalColX2 = colX[4]; // Start of Net Amount column
+                doc.moveTo(totalColX1, totalY).lineTo(totalColX1, totalY + 20).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+                doc.moveTo(totalColX2, totalY).lineTo(totalColX2, totalY + 20).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
                 currentY = totalY + 25;
 
                 // Summary Calculation (Right)
@@ -1320,8 +1339,9 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                     const size = isBold ? 9 : 8;
                     doc.fontSize(size).fillColor(TEXT_DARK);
                     if (isGreen) doc.fillColor("#166534");
+                    if (isGreen) doc.fillColor("#166534");
                     drawMixedText(label, summaryX, currentY, { size, color: isGreen ? "#166534" : TEXT_DARK });
-                    doc.text(value, summaryX, currentY, { width: summaryW, align: "right" });
+                    doc.fillColor(isGreen ? "#166534" : TEXT_GRAY).text(value, summaryX, currentY, { width: summaryW, align: "right" });
                     currentY += 14;
                 };
 
@@ -1337,9 +1357,10 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
 
                 // Thai Text
                 const thaiText = BahtText(Number(voucher.netTotal));
-                doc.fontSize(8).fillColor(TEXT_DARK);
-                drawMixedText(`(${thaiText})`, summaryX, currentY + 15, { width: summaryW, align: "right" });
-                currentY += 10;
+                doc.fontSize(8);
+                drawMixedText(thaiText, summaryX, currentY + 8, { width: summaryW, align: "right", color: TEXT_GRAY });
+
+                currentY += 20;
 
                 // Remark Box (Left)
                 const remarkHeight = currentY - remarkY; // Exclude padding/Thai text line from box height
@@ -1382,14 +1403,21 @@ export const pdfRoutes = new Elysia({ prefix: "/pdf", tags: ["PDF"] })
                     // doc.rect(bx, by, boxW, 15).fill("#e5e7eb");
 
                     // 2. Draw Main Box Border
-                    doc.rect(bx, by, boxW, sigBoxH).lineWidth(1).stroke("#000000");
+                    doc.rect(bx, by, boxW, sigBoxH).lineWidth(TABLE_BORDER_WIDTH).stroke(BOX_BORDER_COLOR);
 
                     // 3. Draw content
-                    doc.moveTo(bx + 10, by + 45).lineTo(bx + boxW - 10, by + 45).lineWidth(0.5).stroke(TEXT_GRAY);
+                    doc.moveTo(bx + 10, by + 45).lineTo(bx + boxW - 10, by + 45).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
 
                     doc.fontSize(6).fillColor(TEXT_GRAY);
-                    doc.text("Signature : __________________________________", bx + 10, by + 50);
-                    doc.text("DATE : __________________________________", bx + 10, by + 60);
+                    let signatureText = "";
+                    if (l.en === "PERSON IN CHARGE" && voucher.createdBy) {
+                        signatureText = voucher.createdBy.name || "";
+                    }
+                    if (l.en === "DEPARTMENT IN CHARGE") {
+                        signatureText = "Mr. Chalermrit Thongkham";
+                    }
+                    doc.text("Signature : " + signatureText, bx + 10, by + 50);
+                    doc.text("DATE : ", bx + 10, by + 60);
 
                     doc.fillColor(TEXT_DARK).fontSize(6);
                     if (l.en) doc.text(l.en, bx, by + 3, { width: boxW, align: "center" });

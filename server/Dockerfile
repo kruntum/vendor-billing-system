@@ -53,6 +53,8 @@ COPY server/prisma.config.ts ./
 
 # Copy source code and package files
 COPY server/src ./src/
+# 🔥 CRITICAL 4: Copy Prisma Generated Client จาก Builder (เพราะ server/src จาก Host อาจไม่มีไฟล์นี้)
+COPY --from=builder /app/src/generated ./src/generated
 COPY server/package.json ./
 COPY server/fonts ./fonts/  
 # สร้าง public directory (ตามโครงสร้างไฟล์ของคุณ)

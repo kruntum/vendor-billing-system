@@ -168,24 +168,24 @@ export default function AdminVendorBillingPage() {
             className: "text-center",
             cell: (note) => (
                 <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.statusBillingNote === "PAID"
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.status === "PAID"
                         ? "bg-green-100 text-green-800"
-                        : note.statusBillingNote === "APPROVED"
+                        : note.status === "APPROVED"
                             ? "bg-emerald-100 text-emerald-800"
-                            : note.statusBillingNote === "SUBMITTED"
+                            : note.status === "SUBMITTED"
                                 ? "bg-blue-100 text-blue-800"
-                                : note.statusBillingNote === "CANCELLED"
+                                : note.status === "CANCELLED"
                                     ? "bg-gray-100 text-gray-800"
                                     : "bg-yellow-100 text-yellow-800"
                         }`}
                 >
-                    {note.statusBillingNote === "PAID"
+                    {note.status === "PAID"
                         ? "ชำระแล้ว"
-                        : note.statusBillingNote === "APPROVED"
+                        : note.status === "APPROVED"
                             ? "อนุมัติแล้ว"
-                            : note.statusBillingNote === "SUBMITTED"
+                            : note.status === "SUBMITTED"
                                 ? "ส่งแล้ว"
-                                : note.statusBillingNote === "CANCELLED"
+                                : note.status === "CANCELLED"
                                     ? "ยกเลิก"
                                     : "รอดำเนินการ"}
                 </span>
@@ -210,7 +210,7 @@ export default function AdminVendorBillingPage() {
                         </TooltipContent>
                     </Tooltip>
 
-                    {note.statusBillingNote === "PENDING" && (
+                    {note.status === "PENDING" && (
                         <AlertDialog>
                             <Tooltip>
                                 <TooltipTrigger asChild>

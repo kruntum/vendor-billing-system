@@ -30,7 +30,15 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                 where,
                 include: {
                     vendor: true,
-                    billingNotes: true,
+                    billingNotes: {
+                        include: {
+                            jobs: {
+                                include: {
+                                    items: true
+                                }
+                            }
+                        }
+                    },
                     createdBy: {
                         select: { id: true, email: true, name: true }
                     }
@@ -227,7 +235,7 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
             detail: { summary: "Update payment voucher status" }
         }
     )
-    // Cancel payment voucher
+    // Cancel/Delete payment voucher
     .post(
         "/:id/cancel",
         async ({ params, user, set }) => {
@@ -246,20 +254,9 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                 return { success: false, error: "Payment voucher not found" };
             }
 
-            if (voucher.status === "CANCELLED") {
-                set.status = 400;
-                return { success: false, error: "Already cancelled" };
-            }
-
-            // Cancel voucher and revert billing notes to SUBMITTED
+            // Delete voucher and revert billing notes to SUBMITTED
             await prisma.$transaction(async (tx) => {
-                // Update voucher status
-                await tx.paymentVoucher.update({
-                    where: { id: params.id },
-                    data: { status: "CANCELLED" }
-                });
-
-                // Revert billing notes: unlink and change status back to SUBMITTED
+                // 1. Revert billing notes: unlink and change status back to SUBMITTED
                 await tx.billingNote.updateMany({
                     where: { paymentVoucherId: params.id },
                     data: {
@@ -267,13 +264,18 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                         statusBillingNote: "SUBMITTED"
                     }
                 });
+
+                // 2. Delete the voucher
+                await tx.paymentVoucher.delete({
+                    where: { id: params.id }
+                });
             });
 
-            return { success: true, message: "Payment voucher cancelled" };
+            return { success: true, message: "Payment voucher deleted" };
         },
         {
             params: t.Object({ id: t.String() }),
-            detail: { summary: "Cancel payment voucher and revert billing notes" }
+            detail: { summary: "Delete payment voucher and revert billing notes" }
         }
     )
     // Get submitted billing notes for a vendor (for creating voucher)

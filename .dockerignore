@@ -1,0 +1,26 @@
+# Dependencies
+node_modules
+client/node_modules
+server/node_modules
+
+# Environment Variables (IMPORTANT: Do not leak local envs to production build)
+.env
+.env.local
+client/.env
+client/.env.local
+server/.env
+server/.env.local
+
+# Git
+.git
+.gitignore
+
+# Build Artifacts
+dist
+build
+coverage
+test-results
+
+# Generated files
+generated/
+server/src/generated/prisma

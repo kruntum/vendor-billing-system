@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { paymentVoucherApi, vendorApi, PaymentVoucher } from "@/lib/api";
+import {
+    PaymentVoucher,
+    paymentVoucherApi,
+    BillingNote,
+    vendorApi
+} from "@/lib/api";
 import { format, parseISO, isValid, startOfDay, endOfDay, isWithinInterval } from "date-fns";
 import { th } from "date-fns/locale";
 import { useAuthStore } from "@/store/authStore";
@@ -135,8 +140,8 @@ export default function PaymentVoucherPage() {
         }
     };
 
-    const vouchers = voucherData || [];
-    const vendors = vendorData || [];
+    const vouchers = Array.isArray(voucherData) ? voucherData : [];
+    const vendors = Array.isArray(vendorData) ? vendorData : [];
 
     // Filter Logic
     const filteredVouchers = useMemo(() => {
@@ -161,6 +166,76 @@ export default function PaymentVoucherPage() {
         (currentPage - 1) * pageSize,
         currentPage * pageSize
     );
+
+
+
+    const renderJobsTable = (bn: BillingNote) => {
+        if (!bn.jobs || bn.jobs.length === 0) return <div className="p-4 text-center text-gray-500 text-sm">ไม่มีรายการงาน</div>;
+
+        return (
+            <div className="pl-12 pr-4 py-2 bg-gray-100/50">
+                <h4 className="text-xs font-semibold text-gray-500 mb-2">รายการงาน (Jobs)</h4>
+                <div className="bg-white border rounded-lg overflow-hidden shadow-sm">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Container No</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Invoice No</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {bn.jobs.map((job: any) => {
+                                const amount = job.items?.reduce((sum: number, item: any) => sum + Number(item.amount), 0) || 0;
+                                return (
+                                    <tr key={job.id}>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.containerNo || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.refInvoiceNo || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.description || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900 text-right">{formatCurrency(amount)}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
+
+    // Billing Note Columns
+    const billingNoteColumns: DataTableColumn<BillingNote>[] = [
+        { header: "เลขที่ใบวางบิล", accessorKey: "billingRef" },
+        { header: "วันที่", cell: (bn) => safeFormatDate(bn.billingDate, "dd/MM/yyyy") },
+        { header: "ยอดรวม", className: "text-right", cell: (bn) => formatCurrency(Number(bn.subtotal)) },
+        { header: "สุทธิ", className: "text-right", cell: (bn) => formatCurrency(Number(bn.netTotal)) },
+    ];
+
+    const renderBillingNotesTable = (voucher: PaymentVoucher) => {
+        if (!voucher.billingNotes || voucher.billingNotes.length === 0) {
+            return <div className="p-4 text-center text-gray-500 text-sm">ไม่มีใบวางบิลในรายการนี้</div>;
+        }
+
+        return (
+            <div className="p-4 bg-gray-50 border-b">
+                <h4 className="font-semibold mb-2 ml-1">รายการใบวางบิล</h4>
+                <DataTable
+                    data={voucher.billingNotes}
+                    columns={billingNoteColumns}
+                    currentPage={1}
+                    totalPages={1}
+                    pageSize={100}
+                    totalItems={voucher.billingNotes.length}
+                    onPageChange={() => { }}
+                    onPageSizeChange={() => { }}
+                    rowKey={(row) => row.id}
+                    maxHeight="auto"
+                    renderSubComponent={renderJobsTable}
+                />
+            </div>
+        );
+    };
 
     // Columns
     const columns: DataTableColumn<PaymentVoucher>[] = [
@@ -330,14 +405,12 @@ export default function PaymentVoucherPage() {
                     pageSize={pageSize}
                     totalItems={filteredVouchers.length}
                     onPageChange={setCurrentPage}
-                    onPageSizeChange={(size) => {
-                        setPageSize(size);
-                        setCurrentPage(1);
-                    }}
-                    rowKey={(voucher) => voucher.id}
+                    onPageSizeChange={setPageSize}
+                    rowKey={(row) => row.id}
                     emptyMessage="ไม่พบข้อมูลใบสำคัญจ่าย"
                     maxHeight="calc(100vh - 400px)"
-                    showIndex={true}
+                    showIndex
+                    renderSubComponent={renderBillingNotesTable}
                 />
 
                 {/* Form Modal */}

@@ -31,11 +31,10 @@ export function ReceiptForm({ onClose, onSuccess }: ReceiptFormProps) {
         queryFn: () => billingApi.list().then((res) => res.data),
     });
 
-    // Filter: billing notes that have no receipt AND are not CANCELLED or PAID
-    // Changed from APPROVED to include PENDING
+    // Filter: billing notes that have no receipt AND are strictly APPROVED
     const availableBillingNotes = Array.isArray(billingResponse?.data)
         ? billingResponse.data.filter(
-            (b) => !b.receipt && b.statusBillingNote !== "CANCELLED" && b.statusBillingNote !== "PAID"
+            (b) => !b.receipt && b.status === "APPROVED"
         )
         : [];
 
@@ -102,7 +101,7 @@ export function ReceiptForm({ onClose, onSuccess }: ReceiptFormProps) {
                         {step === "select" ? (
                             <div className="space-y-4">
                                 <p className="text-sm text-gray-500">
-                                    เลือกใบวางบิลที่ต้องการออกใบเสร็จ (สถานะ PENDING, SUBMITTED หรือ APPROVED)
+                                    เลือกใบวางบิลที่ต้องการออกใบเสร็จ (เฉพาะสถานะ "อนุมัติแล้ว" เท่านั้น)
                                 </p>
 
                                 {isLoading ? (
@@ -150,7 +149,7 @@ export function ReceiptForm({ onClose, onSuccess }: ReceiptFormProps) {
                                                             {safeFormatDate(note.billingDate, "dd/MM/yyyy")}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            {getStatusBadge(note.statusBillingNote)}
+                                                            {getStatusBadge(note.status)}
                                                         </td>
                                                         <td className="px-4 py-3 text-sm text-gray-900 text-right">
                                                             {formatCurrency(Number(note.netTotal))}
@@ -191,7 +190,7 @@ export function ReceiptForm({ onClose, onSuccess }: ReceiptFormProps) {
                                         </div>
                                         <div>
                                             <p className="text-gray-500">สถานะ</p>
-                                            {selectedBilling && getStatusBadge(selectedBilling.statusBillingNote)}
+                                            {selectedBilling && getStatusBadge(selectedBilling.status)}
                                         </div>
                                         <div>
                                             <p className="text-gray-500">ยอดสุทธิ</p>

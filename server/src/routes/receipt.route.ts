@@ -169,6 +169,12 @@ export const receiptRoutes = new Elysia({
                 return { success: false, error: "Cannot issue receipt for cancelled billing note" };
             }
 
+            // Enforce logic: Must be APPROVED (or PAID for re-issuing)
+            if (billing.statusBillingNote !== "APPROVED" && billing.statusBillingNote !== "PAID") {
+                set.status = 400;
+                return { success: false, error: "Billing note must be APPROVED by Admin before issuing receipt" };
+            }
+
             // Generate receipt ref: try auto-numbering first, then fallback
             const autoNumber = await generateDocumentNumber(user!.vendorId!, "RECEIPT", new Date(receiptDate));
             const receiptRef = autoNumber || await generateReceiptRef(user!.vendorId!);

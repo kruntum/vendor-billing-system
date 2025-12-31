@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { prisma } from "../lib/prisma";
 import { requireAuth } from "../plugins/auth.plugin";
+import { StatusBillingNote, StatusReceipt } from "../generated/prisma/client";
 
 export const vendorRoutes = new Elysia({
     prefix: "/vendors",
@@ -17,6 +18,12 @@ export const vendorRoutes = new Elysia({
                 return { success: false, error: "Access denied. Admin or User role required." };
             }
 
+            // Count only "Actionable" items
+            // Billing: SUBMITTED (Vendor sent, waiting for Admin)
+            // Receipt: PENDING (Vendor sent, waiting for Admin)
+            const billingWhere: { statusBillingNote: StatusBillingNote } = { statusBillingNote: "SUBMITTED" };
+            const receiptWhere: { statusReceipt: StatusReceipt } = { statusReceipt: "PENDING" };
+
             const vendors = await prisma.vendor.findMany({
                 select: {
                     id: true,
@@ -25,10 +32,10 @@ export const vendorRoutes = new Elysia({
                     _count: {
                         select: {
                             billingNotes: {
-                                where: { statusBillingNote: "PENDING" },
+                                where: billingWhere,
                             },
                             receipts: {
-                                where: { statusReceipt: "PENDING" },
+                                where: receiptWhere,
                             },
                         },
                     },
@@ -37,7 +44,7 @@ export const vendorRoutes = new Elysia({
             });
 
             // Transform to better structure
-            const data = vendors.map((v) => ({
+            const data = vendors.map((v: any) => ({
                 id: v.id,
                 companyName: v.companyName,
                 taxId: v.taxId,

@@ -54,11 +54,11 @@ export function JobForm({ job, initialValues, onClose, onSuccess }: JobFormProps
   useEffect(() => {
     if (job) {
       setValue("description", job.description);
-      setValue("refInvoiceNo", job.refInvoiceNo);
-      setValue("containerNo", job.containerNo);
-      setValue("truckPlate", job.truckPlate);
+      setValue("refInvoiceNo", job.refInvoiceNo || "");
+      setValue("containerNo", job.containerNo || "");
+      setValue("truckPlate", job.truckPlate || "");
       setValue("clearanceDate", format(new Date(job.clearanceDate), "yyyy-MM-dd"));
-      setValue("declarationNo", job.declarationNo);
+      setValue("declarationNo", job.declarationNo || "");
       setValue("items", job.items.map(i => ({ description: i.description, amount: i.amount })));
     } else if (initialValues) {
       if (initialValues.description) setValue("description", initialValues.description);

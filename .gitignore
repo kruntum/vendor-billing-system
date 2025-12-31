@@ -36,5 +36,5 @@ yarn-error.log*
 server/prisma/migrations/**/migration_lock.toml
 
 # Docker
-.dockerignore
+
 docker-compose.override.yml

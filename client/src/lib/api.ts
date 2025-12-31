@@ -161,14 +161,16 @@ export interface JobItem {
 
 export interface Job {
   id: string;
+  jobNo?: string;
   description: string;
-  refInvoiceNo: string;
-  containerNo: string;
-  truckPlate: string;
+  refInvoiceNo?: string;
+  containerNo?: string;
+  truckPlate?: string;
   clearanceDate: string;
   declarationNo: string;
   statusJob: "PENDING" | "BILLED";
   items: JobItem[];
+  amount?: number; // Added for frontend compatibility if needed
   totalAmount: number;
   billingNote?: {
     id: string;
@@ -200,19 +202,20 @@ export const jobApi = {
 export interface BillingNote {
   id: string;
   billingRef: string;
-  vendorId: string;
   billingDate: string;
   subtotal: number;
-  priceBeforeVat?: number;
   vatAmount: number;
   whtAmount: number;
   netTotal: number;
+  status: "PENDING" | "SUBMITTED" | "APPROVED" | "PAID" | "CANCELLED";
+  vendorId: string;
+  vendor?: Vendor;
+  jobs?: Job[];
   remark?: string;
-  statusBillingNote: "PENDING" | "SUBMITTED" | "APPROVED" | "PAID" | "CANCELLED";
-  jobs: Job[];
-  receipt?: Receipt | null;
+  priceBeforeVat?: number;
   vatRateText?: string;
   whtRateText?: string;
+  receipt?: Receipt | null;
 }
 
 export interface Receipt {
@@ -247,7 +250,7 @@ export const billingApi = {
     }),
   create: (jobIds: string[], billingRef?: string, calculateBeforeVat?: boolean, remark?: string) =>
     api.post<ApiResponse<BillingNote>>("/billing", { jobIds, billingRef, calculateBeforeVat, remark }),
-  updateStatus: (id: string, status: BillingNote["statusBillingNote"]) =>
+  updateStatus: (id: string, status: BillingNote["status"]) =>
     api.patch<ApiResponse<BillingNote>>(`/billing/${id}/status`, { status }),
   cancel: (id: string) => api.post<ApiResponse<void>>(`/billing/${id}/cancel`),
   update: (id: string, jobIds: string[], remark?: string, calculateBeforeVat?: boolean) =>
