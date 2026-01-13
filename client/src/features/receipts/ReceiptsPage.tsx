@@ -16,7 +16,7 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { SearchToolbar } from "@/components/ui/search-toolbar";
 
 // PDF files: in dev use backend directly, in Docker use Nginx (empty prefix)
-const PDF_BASE_URL = import.meta.env.VITE_PDF_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8801" : "");
+
 
 // Helper for safe date formatting
 const safeFormatDate = (dateString: string | undefined | null, formatStr: string) => {
@@ -35,8 +35,7 @@ const PrintIcon = () => (
 
 const EyeIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
 );
 
@@ -121,14 +120,13 @@ export default function ReceiptsPage() {
 
     const handlePrint = async (receipt: ReceiptWithBilling) => {
         try {
-            const response = await pdfApi.generateReceipt(receipt.id);
-            if (response.data.success && response.data.data) {
-                const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
-                window.open(pdfUrl, "_blank");
-            }
+            const response = await pdfApi.getReceiptPreview(receipt.id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
         } catch (error) {
-            console.error("PDF generation error:", error);
-            alert("ไม่สามารถสร้าง PDF ได้");
+            console.error("Receipt PDF generation error:", error);
+            alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF ใบเสร็จ");
         }
     };
 

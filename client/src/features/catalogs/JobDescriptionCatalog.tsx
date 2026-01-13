@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { catalogApi, JobDescriptionCatalog as JobDescriptionType } from "@/lib/api";
@@ -213,9 +214,9 @@ function JobDescriptionForm({ item, onClose, onSuccess }: JobDescriptionFormProp
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+  const modalContent = (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
         <h2 className="text-xl font-bold mb-4">
           {item ? "แก้ไขรายละเอียดงาน" : "เพิ่มรายละเอียดงาน"}
         </h2>
@@ -262,4 +263,6 @@ function JobDescriptionForm({ item, onClose, onSuccess }: JobDescriptionFormProp
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

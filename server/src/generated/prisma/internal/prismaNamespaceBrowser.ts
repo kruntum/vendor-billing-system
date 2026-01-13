@@ -64,7 +64,11 @@ export const ModelName = {
   CompanySettings: 'CompanySettings',
   DocumentNumberConfig: 'DocumentNumberConfig',
   DocumentNumberSequence: 'DocumentNumberSequence',
-  PaymentVoucher: 'PaymentVoucher'
+  PaymentVoucher: 'PaymentVoucher',
+  CashAdvance: 'CashAdvance',
+  CashAdvanceItem: 'CashAdvanceItem',
+  CashAdvanceBilling: 'CashAdvanceBilling',
+  CashAdvancePayment: 'CashAdvancePayment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -215,13 +219,18 @@ export const ReceiptScalarFieldEnum = {
   id: 'id',
   receiptRef: 'receiptRef',
   billingNoteId: 'billingNoteId',
+  paymentVoucherId: 'paymentVoucherId',
   receiptFile: 'receiptFile',
   receiptDate: 'receiptDate',
   statusReceipt: 'statusReceipt',
   vendorId: 'vendorId',
   pdfUrl: 'pdfUrl',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  paymentMethod: 'paymentMethod',
+  paymentRef: 'paymentRef',
+  bankInfo: 'bankInfo',
+  remark: 'remark'
 } as const
 
 export type ReceiptScalarFieldEnum = (typeof ReceiptScalarFieldEnum)[keyof typeof ReceiptScalarFieldEnum]
@@ -249,6 +258,10 @@ export const DocumentNumberConfigScalarFieldEnum = {
   billingPrefix: 'billingPrefix',
   receiptEnabled: 'receiptEnabled',
   receiptPrefix: 'receiptPrefix',
+  cashAdvanceEnabled: 'cashAdvanceEnabled',
+  cashAdvancePrefix: 'cashAdvancePrefix',
+  cashAdvanceBillingEnabled: 'cashAdvanceBillingEnabled',
+  cashAdvanceBillingPrefix: 'cashAdvanceBillingPrefix',
   dateFormat: 'dateFormat',
   runningDigits: 'runningDigits',
   resetPeriod: 'resetPeriod',
@@ -282,14 +295,83 @@ export const PaymentVoucherScalarFieldEnum = {
   totalWht: 'totalWht',
   netTotal: 'netTotal',
   remark: 'remark',
+  paymentMethod: 'paymentMethod',
+  paymentInfo: 'paymentInfo',
   pdfUrl: 'pdfUrl',
   status: 'status',
   createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentVoucherScalarFieldEnum = (typeof PaymentVoucherScalarFieldEnum)[keyof typeof PaymentVoucherScalarFieldEnum]
+
+
+export const CashAdvanceScalarFieldEnum = {
+  id: 'id',
+  advanceRef: 'advanceRef',
+  vendorId: 'vendorId',
+  advanceDate: 'advanceDate',
+  description: 'description',
+  refInvoiceNo: 'refInvoiceNo',
+  containerNo: 'containerNo',
+  truckPlate: 'truckPlate',
+  declarationNo: 'declarationNo',
+  totalAmount: 'totalAmount',
+  status: 'status',
+  cashAdvanceBillingId: 'cashAdvanceBillingId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type PaymentVoucherScalarFieldEnum = (typeof PaymentVoucherScalarFieldEnum)[keyof typeof PaymentVoucherScalarFieldEnum]
+export type CashAdvanceScalarFieldEnum = (typeof CashAdvanceScalarFieldEnum)[keyof typeof CashAdvanceScalarFieldEnum]
+
+
+export const CashAdvanceItemScalarFieldEnum = {
+  id: 'id',
+  cashAdvanceId: 'cashAdvanceId',
+  description: 'description',
+  amount: 'amount',
+  receiptFile: 'receiptFile',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAdvanceItemScalarFieldEnum = (typeof CashAdvanceItemScalarFieldEnum)[keyof typeof CashAdvanceItemScalarFieldEnum]
+
+
+export const CashAdvanceBillingScalarFieldEnum = {
+  id: 'id',
+  billingRef: 'billingRef',
+  vendorId: 'vendorId',
+  billingDate: 'billingDate',
+  totalAmount: 'totalAmount',
+  remark: 'remark',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAdvanceBillingScalarFieldEnum = (typeof CashAdvanceBillingScalarFieldEnum)[keyof typeof CashAdvanceBillingScalarFieldEnum]
+
+
+export const CashAdvancePaymentScalarFieldEnum = {
+  id: 'id',
+  paymentRef: 'paymentRef',
+  cashAdvanceBillingId: 'cashAdvanceBillingId',
+  paymentDate: 'paymentDate',
+  paymentMethod: 'paymentMethod',
+  amount: 'amount',
+  proofFile: 'proofFile',
+  chequeNo: 'chequeNo',
+  bankInfo: 'bankInfo',
+  remark: 'remark',
+  pdfUrl: 'pdfUrl',
+  approvedById: 'approvedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAdvancePaymentScalarFieldEnum = (typeof CashAdvancePaymentScalarFieldEnum)[keyof typeof CashAdvancePaymentScalarFieldEnum]
 
 
 export const SortOrder = {

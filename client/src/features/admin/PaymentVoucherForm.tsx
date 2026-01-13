@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { paymentVoucherApi, VendorSummary } from "@/lib/api";
 import { format, parseISO, isValid } from "date-fns";
@@ -30,6 +31,8 @@ export function PaymentVoucherForm({ vendors, onClose, onSuccess }: PaymentVouch
     const [selectedBillingIds, setSelectedBillingIds] = useState<string[]>([]);
     const [voucherDate, setVoucherDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
     const [remark, setRemark] = useState<string>("");
+    const [paymentMethod, setPaymentMethod] = useState<string>("TRANSFER");
+    const [paymentInfo, setPaymentInfo] = useState<string>("");
 
     // Query submitted billing notes for selected vendor
     const { data: billingData, isLoading: billingLoading } = useQuery({
@@ -60,6 +63,8 @@ export function PaymentVoucherForm({ vendors, onClose, onSuccess }: PaymentVouch
                 billingNoteIds: selectedBillingIds,
                 voucherDate,
                 remark: remark || undefined,
+                paymentMethod,
+                paymentInfo: paymentInfo || undefined,
             }),
         onSuccess: () => {
             toast.success("สร้างใบสำคัญจ่ายเรียบร้อยแล้ว");
@@ -96,8 +101,8 @@ export function PaymentVoucherForm({ vendors, onClose, onSuccess }: PaymentVouch
         createMutation.mutate();
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    const modalContent = (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
                     <div className="flex justify-between items-start mb-6">
@@ -262,6 +267,41 @@ export function PaymentVoucherForm({ vendors, onClose, onSuccess }: PaymentVouch
                         </div>
                     </div>
 
+                    {/* Payment Method & Info */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                ช่องทางการชำระเงิน
+                            </label>
+                            <select
+                                value={paymentMethod}
+                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            >
+                                <option value="TRANSFER">โอนเงิน (Transfer)</option>
+                                <option value="CASH">เงินสด (Cash)</option>
+                                <option value="CHEQUE">เช็ค (Cheque)</option>
+                                <option value="CASHIER_CHEQUE">แคชเชียร์เช็ค (Cashier Cheque)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                รายละเอียดการชำระเงิน
+                            </label>
+                            <input
+                                type="text"
+                                value={paymentInfo}
+                                onChange={(e) => setPaymentInfo(e.target.value)}
+                                placeholder={
+                                    paymentMethod === "TRANSFER" ? "ธนาคาร..." :
+                                        paymentMethod === "CHEQUE" ? "เลขที่เช็ค..." :
+                                            "รายละเอียดเพิ่มเติม..."
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            />
+                        </div>
+                    </div>
+
                     {/* Actions */}
                     <div className="flex justify-end gap-3">
                         <button
@@ -284,4 +324,6 @@ export function PaymentVoucherForm({ vendors, onClose, onSuccess }: PaymentVouch
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }

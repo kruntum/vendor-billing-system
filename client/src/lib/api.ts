@@ -207,7 +207,7 @@ export interface BillingNote {
   vatAmount: number;
   whtAmount: number;
   netTotal: number;
-  status: "PENDING" | "SUBMITTED" | "APPROVED" | "PAID" | "CANCELLED";
+  statusBillingNote: "PENDING" | "SUBMITTED" | "APPROVED" | "PAID" | "CANCELLED";
   vendorId: string;
   vendor?: Vendor;
   jobs?: Job[];
@@ -216,6 +216,8 @@ export interface BillingNote {
   vatRateText?: string;
   whtRateText?: string;
   receipt?: Receipt | null;
+  paymentVoucherId?: string | null;
+  paymentVoucher?: PaymentVoucher | null;
 }
 
 export interface Receipt {
@@ -250,7 +252,7 @@ export const billingApi = {
     }),
   create: (jobIds: string[], billingRef?: string, calculateBeforeVat?: boolean, remark?: string) =>
     api.post<ApiResponse<BillingNote>>("/billing", { jobIds, billingRef, calculateBeforeVat, remark }),
-  updateStatus: (id: string, status: BillingNote["status"]) =>
+  updateStatus: (id: string, status: BillingNote["statusBillingNote"]) =>
     api.patch<ApiResponse<BillingNote>>(`/billing/${id}/status`, { status }),
   cancel: (id: string) => api.post<ApiResponse<void>>(`/billing/${id}/cancel`),
   update: (id: string, jobIds: string[], remark?: string, calculateBeforeVat?: boolean) =>
@@ -293,6 +295,10 @@ export const settingsApi = {
 export const pdfApi = {
   generateBilling: (billingId: string) =>
     api.get<ApiResponse<{ filename: string; url: string }>>(`/pdf/billing/${billingId}`),
+  getBillingPreview: (billingId: string) =>
+    api.get(`/pdf/billing/${billingId}/preview`, { responseType: "blob" }),
+  getReceiptPreview: (id: string) =>
+    api.get(`/pdf/receipt/${id}/preview`, { responseType: "blob" }),
   generateReceipt: (receiptId: string) =>
     api.get<ApiResponse<{ filename: string; url: string }>>(`/pdf/receipt/${receiptId}`),
 };
@@ -338,6 +344,10 @@ export interface DocumentNumberConfig {
   billingPrefix: string;
   receiptEnabled: boolean;
   receiptPrefix: string;
+  cashAdvanceEnabled: boolean;
+  cashAdvancePrefix: string;
+  cashAdvanceBillingEnabled: boolean;
+  cashAdvanceBillingPrefix: string;
   dateFormat: "YYYYMMDD" | "YYYYMM" | "YYMM";
   runningDigits: number;
   resetPeriod: "DAILY" | "MONTHLY" | "YEARLY" | "NEVER";
@@ -347,7 +357,7 @@ export const documentNumberApi = {
   getConfig: () => api.get<ApiResponse<DocumentNumberConfig>>("/document-number/config"),
   updateConfig: (data: DocumentNumberConfig) =>
     api.put<ApiResponse<DocumentNumberConfig>>("/document-number/config", data),
-  getPreview: (type: "BILLING" | "RECEIPT") =>
+  getPreview: (type: "BILLING" | "RECEIPT" | "CASH_ADVANCE") =>
     api.get<ApiResponse<{ preview: string; documentType: string }>>(`/document-number/preview?type=${type}`),
 };
 
@@ -391,8 +401,10 @@ export interface PaymentVoucher {
   totalWht: number;
   netTotal: number;
   remark?: string;
+  paymentMethod?: string;
+  paymentInfo?: string;
   pdfUrl?: string;
-  status: "PENDING" | "APPROVED" | "CANCELLED";
+  status: "PENDING" | "APPROVED" | "PAID" | "CANCELLED";
   createdById: string;
   createdBy?: {
     id: string;
@@ -401,6 +413,7 @@ export interface PaymentVoucher {
   };
   vendor?: Vendor;
   billingNotes?: BillingNote[];
+  receipt?: Receipt | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -412,11 +425,30 @@ export const paymentVoucherApi = {
   get: (id: string) =>
     api.get<ApiResponse<PaymentVoucher>>(`/payment-voucher/${id}`),
 
-  create: (data: { vendorId: string; billingNoteIds: string[]; voucherDate: string; remark?: string }) =>
+  create: (data: {
+    vendorId: string;
+    billingNoteIds: string[];
+    voucherDate: string;
+    remark?: string;
+    paymentMethod?: string;
+    paymentInfo?: string;
+  }) =>
     api.post<ApiResponse<PaymentVoucher>>("/payment-voucher", data),
 
-  updateStatus: (id: string, status: "PENDING" | "APPROVED" | "CANCELLED") =>
+  updateStatus: (id: string, status: "PENDING" | "APPROVED" | "PAID") =>
     api.patch<ApiResponse<PaymentVoucher>>(`/payment-voucher/${id}/status`, { status }),
+
+  approve: (id: string) =>
+    api.post<ApiResponse<PaymentVoucher>>(`/payment-voucher/${id}/approve`),
+
+  confirmPayment: (id: string, data: {
+    paymentDate: string;
+    paymentMethod: "TRANSFER" | "CASH" | "CHEQUE" | "CASHIER_CHEQUE";
+    paymentRef?: string;
+    bankInfo?: string;
+    remark?: string;
+    proofFile?: string;
+  }) => api.post<ApiResponse<{ voucher: PaymentVoucher; receipt: any }>>(`/payment-voucher/${id}/confirm-payment`, data),
 
   cancel: (id: string) =>
     api.post<ApiResponse<void>>(`/payment-voucher/${id}/cancel`),
@@ -428,4 +460,168 @@ export const paymentVoucherApi = {
   // Generate PDF
   generatePdf: (id: string) =>
     api.get<ApiResponse<{ filename: string; url: string }>>(`/pdf/payment-voucher/${id}`),
+
+  // Generate Detailed PDF
+  generateDetailedPdf: (id: string) =>
+    api.get<ApiResponse<{ filename: string; url: string }>>(`/pdf/payment-voucher-detailed/${id}`),
+
+  // Get PDF Preview (streaming)
+  getPreview: (id: string) =>
+    api.get(`/pdf/payment-voucher/${id}/preview`, { responseType: "blob" }),
+
+  // Get Detailed PDF Preview
+  getDetailedPreview: (id: string) =>
+    api.get(`/pdf/payment-voucher-detailed/${id}/preview`, { responseType: "blob" }),
+};
+
+// Cash Advance API (สำรองเงินสด)
+export interface CashAdvanceItem {
+  id: string;
+  description: string;
+  amount: number;
+  receiptFile?: string;
+}
+
+export interface CashAdvancePayment {
+  id: string;
+  paymentRef: string;
+  paymentDate: string;
+  paymentMethod: "TRANSFER" | "CASH" | "CHEQUE" | "CASHIER_CHEQUE";
+  amount: number;
+  proofFile?: string;
+  chequeNo?: string;
+  bankInfo?: string;
+  remark?: string;
+  pdfUrl?: string;
+  approvedBy?: { name: string; email: string };
+}
+
+export interface CashAdvance {
+  id: string;
+  advanceRef: string;
+  vendorId: string;
+  advanceDate: string;
+  description?: string;
+  refInvoiceNo?: string;
+  containerNo?: string;
+  truckPlate?: string;
+  declarationNo?: string;
+  totalAmount: number;
+  status: "DRAFT" | "PENDING" | "BILLED";
+  vendor?: Vendor;
+  items: CashAdvanceItem[];
+  cashAdvanceBillingId?: string;
+  cashAdvanceBilling?: CashAdvanceBilling;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCashAdvanceInput {
+  advanceDate: string;
+  description?: string;
+  refInvoiceNo?: string;
+  containerNo?: string;
+  truckPlate?: string;
+  declarationNo?: string;
+  items: { description: string; amount: number; receiptFile?: string }[];
+}
+
+export interface CreateCashAdvancePaymentInput {
+  paymentDate: string;
+  paymentMethod: "TRANSFER" | "CASH" | "CHEQUE" | "CASHIER_CHEQUE";
+  proofFile?: string;
+  chequeNo?: string;
+  bankInfo?: string;
+  remark?: string;
+}
+
+export interface CashAdvanceReportSummary {
+  total: number;
+  draft: number;
+  submitted: number;
+  paid: number;
+  totalAmount: number;
+  paidAmount: number;
+}
+
+export const cashAdvanceApi = {
+  // List cash advances
+  list: (params?: { status?: string; page?: number; limit?: number }) =>
+    api.get<ApiResponse<CashAdvance[]>>("/cash-advance", { params }),
+
+  // Get cash advance by ID
+  get: (id: string) =>
+    api.get<ApiResponse<CashAdvance>>(`/cash-advance/${id}`),
+
+  // Create cash advance (Vendor only)
+  create: (data: CreateCashAdvanceInput) =>
+    api.post<ApiResponse<CashAdvance>>("/cash-advance", data),
+
+  // Update cash advance (Vendor only, DRAFT status)
+  update: (id: string, data: CreateCashAdvanceInput) =>
+    api.put<ApiResponse<CashAdvance>>(`/cash-advance/${id}`, data),
+
+  // Delete cash advance (Vendor only, DRAFT status)
+  delete: (id: string) =>
+    api.delete<ApiResponse<void>>(`/cash-advance/${id}`),
+
+  // Submit cash advance (DRAFT -> SUBMITTED)
+  submit: (id: string) =>
+    api.post<ApiResponse<CashAdvance>>(`/cash-advance/${id}/submit`),
+
+  // Revert cash advance status
+  revert: (id: string) =>
+    api.post<ApiResponse<{ message: string }>>(`/cash-advance/${id}/revert`),
+
+  // Get report summary
+  getReport: (params?: { vendorId?: string; fromDate?: string; toDate?: string }) =>
+    api.get<ApiResponse<{ summary: CashAdvanceReportSummary; advances: CashAdvance[] }>>(
+      "/cash-advance/report/summary",
+      { params }
+    ),
+};
+
+// Cash Advance Billing API
+export interface CashAdvanceBilling {
+  id: string;
+  billingRef: string;
+  vendorId: string;
+  billingDate: string;
+  totalAmount: number;
+  remark?: string;
+  status: "PENDING" | "SUBMITTED" | "APPROVED" | "PAID" | "CANCELLED";
+  vendor?: Vendor;
+  items: CashAdvance[];
+  payment?: CashAdvancePayment;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCashAdvanceBillingInput {
+  cashAdvanceIds: string[];
+  billingRef?: string;
+  remark?: string;
+}
+
+export const cashAdvanceBillingApi = {
+  list: (params?: { status?: string; vendorId?: string; page?: number; limit?: number }) =>
+    api.get<ApiResponse<CashAdvanceBilling[]>>("/cash-advance-billing", { params }),
+
+  get: (id: string) =>
+    api.get<ApiResponse<CashAdvanceBilling>>(`/cash-advance-billing/${id}`),
+
+  preview: (cashAdvanceIds: string[]) =>
+    api.post<ApiResponse<{ totalAmount: number; count: number }>>("/cash-advance-billing/preview", { cashAdvanceIds }),
+
+  create: (data: CreateCashAdvanceBillingInput) =>
+    api.post<ApiResponse<CashAdvanceBilling>>("/cash-advance-billing", data),
+
+  updateStatus: (id: string, status: string) =>
+    api.patch<ApiResponse<CashAdvanceBilling>>(`/cash-advance-billing/${id}/status`, { status }),
+
+  pay: (id: string, data: CreateCashAdvancePaymentInput) =>
+    api.post<ApiResponse<CashAdvancePayment>>(`/cash-advance-billing/${id}/pay`, data),
+
+  cancel: (id: string) =>
+    api.post<ApiResponse<void>>(`/cash-advance-billing/${id}/cancel`),
 };

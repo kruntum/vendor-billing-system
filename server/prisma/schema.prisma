@@ -38,6 +38,7 @@ enum StatusReceipt {
 enum StatusPaymentVoucher {
   PENDING
   APPROVED
+  PAID
   CANCELLED
 }
 
@@ -66,14 +67,16 @@ model Vendor {
   bankBranch     String @map("bank_branch")
 
   // Relationships
-  users           User[]
-  jobs            Job[]
-  billingNotes    BillingNote[]
-  receipts        Receipt[]
-  vatConfig       VatConfigByVendor?
-  serviceCatalog  ServiceCatalog[]
-  jobDescriptions JobDescriptionCatalog[]
-  paymentVouchers PaymentVoucher[]
+  users               User[]
+  jobs                Job[]
+  billingNotes        BillingNote[]
+  receipts            Receipt[]
+  vatConfig           VatConfigByVendor?
+  serviceCatalog      ServiceCatalog[]
+  jobDescriptions     JobDescriptionCatalog[]
+  paymentVouchers     PaymentVoucher[]
+  cashAdvances        CashAdvance[]
+  cashAdvanceBillings CashAdvanceBilling[]
 
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
@@ -96,7 +99,8 @@ model User {
   vendor   Vendor? @relation(fields: [vendorId], references: [id])
 
   // Payment vouchers created by this user
-  paymentVouchers PaymentVoucher[]
+  paymentVouchers     PaymentVoucher[]
+  cashAdvancePayments CashAdvancePayment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -224,20 +228,31 @@ model VatConfigByVendor {
 
 // 7. Receipt: ใบเสร็จรับเงิน
 model Receipt {
-  id            String        @id @default(uuid())
-  receiptRef    String        @unique @map("receipt_ref") @db.VarChar(20)
-  billingNoteId String        @unique @map("billing_note_id")
+  id         String @id @default(uuid())
+  receiptRef String @unique @map("receipt_ref") @db.VarChar(20)
+
+  billingNoteId String?      @unique @map("billing_note_id")
+  billingNote   BillingNote? @relation(fields: [billingNoteId], references: [id])
+
+  paymentVoucherId String?         @unique @map("payment_voucher_id")
+  paymentVoucher   PaymentVoucher? @relation(fields: [paymentVoucherId], references: [id])
+
   receiptFile   String?       @map("receipt_file")
   receiptDate   DateTime      @map("receipt_date")
   statusReceipt StatusReceipt @default(PENDING) @map("status_receipt")
 
-  billingNote BillingNote @relation(fields: [billingNoteId], references: [id])
-  vendor      Vendor      @relation(fields: [vendorId], references: [id])
-  vendorId    String      @map("vendor_id")
-  pdfUrl      String?     @map("pdf_url")
+  vendor   Vendor  @relation(fields: [vendorId], references: [id])
+  vendorId String  @map("vendor_id")
+  pdfUrl   String? @map("pdf_url")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Payment Info
+  paymentMethod PaymentMethod? @map("payment_method")
+  paymentRef    String?        @map("payment_ref")
+  bankInfo      String?        @map("bank_info")
+  remark        String?
 
   @@map("receipts")
 }
@@ -290,6 +305,14 @@ model DocumentNumberConfig {
   receiptEnabled Boolean @default(false) @map("receipt_enabled")
   receiptPrefix  String  @default("R") @map("receipt_prefix") @db.VarChar(10)
 
+  // Cash Advance Config
+  cashAdvanceEnabled Boolean @default(false) @map("cash_advance_enabled")
+  cashAdvancePrefix  String  @default("CA") @map("cash_advance_prefix") @db.VarChar(10)
+
+  // Cash Advance Billing Config
+  cashAdvanceBillingEnabled Boolean @default(false) @map("cash_advance_billing_enabled")
+  cashAdvanceBillingPrefix  String  @default("CAB") @map("cash_advance_billing_prefix") @db.VarChar(10)
+
   // Shared Settings
   dateFormat    DateFormat  @default(YYYYMMDD) @map("date_format")
   runningDigits Int         @default(3) @map("running_digits")
@@ -333,8 +356,10 @@ model PaymentVoucher {
   totalWht Decimal @map("total_wht") @db.Decimal(12, 2)
   netTotal Decimal @map("net_total") @db.Decimal(12, 2)
 
-  remark String?
-  pdfUrl String? @map("pdf_url")
+  remark        String?
+  paymentMethod PaymentMethod? @default(TRANSFER) @map("payment_method")
+  paymentInfo   String?        @map("payment_info")
+  pdfUrl        String?        @map("pdf_url")
 
   status StatusPaymentVoucher @default(PENDING)
 
@@ -345,9 +370,132 @@ model PaymentVoucher {
   // Relationships
   vendor       Vendor        @relation(fields: [vendorId], references: [id])
   billingNotes BillingNote[]
+  receipt      Receipt?
+
+  createdAt DateTime @default(now())
+
+  @@map("payment_vouchers")
+}
+
+// ============================================
+// CASH ADVANCE (สำรองเงินสด)
+// ============================================
+
+enum StatusCashAdvance {
+  DRAFT // ร่าง
+  PENDING // รอวางบิล (Ready)
+  BILLED // วางบิลแล้ว
+}
+
+enum StatusCashAdvanceBilling {
+  PENDING // สร้างแล้ว รอส่ง
+  SUBMITTED // ส่งแล้ว รออนุมัติ
+  APPROVED // อนุมัติแล้ว รอจ่าย
+  PAID // จ่ายเงินแล้ว
+  CANCELLED // ยกเลิก
+}
+
+enum PaymentMethod {
+  TRANSFER // โอนเงิน
+  CASH // เงินสด
+  CHEQUE // เช็ค
+  CASHIER_CHEQUE // แคชเชียร์เช็ค
+}
+
+// 12. CashAdvance: รายการสำรองเงินสด (สร้างโดย Vendor)
+model CashAdvance {
+  id          String   @id @default(uuid())
+  advanceRef  String   @unique @map("advance_ref") @db.VarChar(30)
+  vendorId    String   @map("vendor_id")
+  advanceDate DateTime @map("advance_date")
+  description String?
+
+  // Reference fields (เหมือน Job)
+  refInvoiceNo  String? @map("ref_invoice_no")
+  containerNo   String? @map("container_no")
+  truckPlate    String? @map("truck_plate")
+  declarationNo String? @map("declaration_no")
+
+  totalAmount Decimal           @map("total_amount") @db.Decimal(12, 2)
+  status      StatusCashAdvance @default(DRAFT)
+
+  // Relationships
+  vendor Vendor            @relation(fields: [vendorId], references: [id])
+  items  CashAdvanceItem[]
+
+  // Billing Relation
+  cashAdvanceBillingId String?             @map("cash_advance_billing_id")
+  cashAdvanceBilling   CashAdvanceBilling? @relation(fields: [cashAdvanceBillingId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("payment_vouchers")
+  @@map("cash_advances")
+}
+
+// 13. CashAdvanceItem: รายการค่าใช้จ่ายย่อยในการสำรองเงินสด
+model CashAdvanceItem {
+  id            String  @id @default(uuid())
+  cashAdvanceId String  @map("cash_advance_id")
+  description   String // ชื่อจาก JobDescriptionCatalog หรือกรอกเอง
+  amount        Decimal @db.Decimal(12, 2)
+  receiptFile   String? @map("receipt_file") // ไฟล์ใบเสร็จ
+
+  cashAdvance CashAdvance @relation(fields: [cashAdvanceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cash_advance_items")
+}
+
+// 13.5 CashAdvanceBilling: ใบวางบิลสำรองเงินสด
+model CashAdvanceBilling {
+  id          String   @id @default(uuid())
+  billingRef  String   @unique @map("billing_ref") @db.VarChar(20)
+  vendorId    String   @map("vendor_id")
+  billingDate DateTime @map("billing_date")
+
+  totalAmount Decimal                  @map("total_amount") @db.Decimal(12, 2)
+  remark      String?
+  status      StatusCashAdvanceBilling @default(PENDING)
+
+  // Relationships
+  vendor  Vendor              @relation(fields: [vendorId], references: [id])
+  items   CashAdvance[]
+  payment CashAdvancePayment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cash_advance_billings")
+}
+
+// 14. CashAdvancePayment: ใบสำคัญจ่ายสำหรับสำรองเงินสด
+model CashAdvancePayment {
+  id                   String        @id @default(uuid())
+  paymentRef           String        @unique @map("payment_ref") @db.VarChar(30)
+  cashAdvanceBillingId String        @unique @map("cash_advance_billing_id")
+  paymentDate          DateTime      @map("payment_date")
+  paymentMethod        PaymentMethod @map("payment_method")
+  amount               Decimal       @db.Decimal(12, 2)
+
+  // เอกสารหลักฐานการจ่าย
+  proofFile String? @map("proof_file") // สลิปโอน/สำเนาเช็ค
+  chequeNo  String? @map("cheque_no") // เลขที่เช็ค
+  bankInfo  String? @map("bank_info") // ข้อมูลธนาคาร
+
+  remark String?
+  pdfUrl String? @map("pdf_url")
+
+  // ผู้อนุมัติ/จ่ายเงิน
+  approvedById String @map("approved_by_id")
+  approvedBy   User   @relation(fields: [approvedById], references: [id])
+
+  cashAdvanceBilling CashAdvanceBilling @relation(fields: [cashAdvanceBillingId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cash_advance_payments")
 }

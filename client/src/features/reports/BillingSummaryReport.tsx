@@ -58,7 +58,7 @@ export function BillingSummaryReport({ startDate, endDate, status }: BillingSumm
         totalVat: billings.reduce((sum, b) => sum + Number(b.vatAmount), 0),
         totalWht: billings.reduce((sum, b) => sum + Number(b.whtAmount), 0),
         byStatus: billings.reduce((acc, b) => {
-            acc[b.status] = (acc[b.status] || 0) + 1;
+            acc[b.statusBillingNote] = (acc[b.statusBillingNote] || 0) + 1;
             return acc;
         }, {} as Record<string, number>),
     };
@@ -98,7 +98,7 @@ export function BillingSummaryReport({ startDate, endDate, status }: BillingSumm
                 no: index + 1,
                 billingRef: b.billingRef,
                 date: safeFormatDate(b.billingDate, "dd/MM/yyyy"),
-                status: b.status,
+                status: b.statusBillingNote,
                 subtotal: Number(b.subtotal),
                 vat: Number(b.vatAmount),
                 wht: Number(b.whtAmount),
@@ -313,7 +313,7 @@ export function BillingSummaryReport({ startDate, endDate, status }: BillingSumm
                                             {safeFormatDate(billing.billingDate, "d MMM yyyy")}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                                            {getStatusBadge(billing.status)}
+                                            {getStatusBadge(billing.statusBillingNote)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-gray-900">
                                             {formatCurrency(Number(billing.subtotal))}

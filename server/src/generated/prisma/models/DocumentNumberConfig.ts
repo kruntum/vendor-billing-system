@@ -41,6 +41,10 @@ export type DocumentNumberConfigMinAggregateOutputType = {
   billingPrefix: string | null
   receiptEnabled: boolean | null
   receiptPrefix: string | null
+  cashAdvanceEnabled: boolean | null
+  cashAdvancePrefix: string | null
+  cashAdvanceBillingEnabled: boolean | null
+  cashAdvanceBillingPrefix: string | null
   dateFormat: $Enums.DateFormat | null
   runningDigits: number | null
   resetPeriod: $Enums.ResetPeriod | null
@@ -55,6 +59,10 @@ export type DocumentNumberConfigMaxAggregateOutputType = {
   billingPrefix: string | null
   receiptEnabled: boolean | null
   receiptPrefix: string | null
+  cashAdvanceEnabled: boolean | null
+  cashAdvancePrefix: string | null
+  cashAdvanceBillingEnabled: boolean | null
+  cashAdvanceBillingPrefix: string | null
   dateFormat: $Enums.DateFormat | null
   runningDigits: number | null
   resetPeriod: $Enums.ResetPeriod | null
@@ -69,6 +77,10 @@ export type DocumentNumberConfigCountAggregateOutputType = {
   billingPrefix: number
   receiptEnabled: number
   receiptPrefix: number
+  cashAdvanceEnabled: number
+  cashAdvancePrefix: number
+  cashAdvanceBillingEnabled: number
+  cashAdvanceBillingPrefix: number
   dateFormat: number
   runningDigits: number
   resetPeriod: number
@@ -93,6 +105,10 @@ export type DocumentNumberConfigMinAggregateInputType = {
   billingPrefix?: true
   receiptEnabled?: true
   receiptPrefix?: true
+  cashAdvanceEnabled?: true
+  cashAdvancePrefix?: true
+  cashAdvanceBillingEnabled?: true
+  cashAdvanceBillingPrefix?: true
   dateFormat?: true
   runningDigits?: true
   resetPeriod?: true
@@ -107,6 +123,10 @@ export type DocumentNumberConfigMaxAggregateInputType = {
   billingPrefix?: true
   receiptEnabled?: true
   receiptPrefix?: true
+  cashAdvanceEnabled?: true
+  cashAdvancePrefix?: true
+  cashAdvanceBillingEnabled?: true
+  cashAdvanceBillingPrefix?: true
   dateFormat?: true
   runningDigits?: true
   resetPeriod?: true
@@ -121,6 +141,10 @@ export type DocumentNumberConfigCountAggregateInputType = {
   billingPrefix?: true
   receiptEnabled?: true
   receiptPrefix?: true
+  cashAdvanceEnabled?: true
+  cashAdvancePrefix?: true
+  cashAdvanceBillingEnabled?: true
+  cashAdvanceBillingPrefix?: true
   dateFormat?: true
   runningDigits?: true
   resetPeriod?: true
@@ -222,6 +246,10 @@ export type DocumentNumberConfigGroupByOutputType = {
   billingPrefix: string
   receiptEnabled: boolean
   receiptPrefix: string
+  cashAdvanceEnabled: boolean
+  cashAdvancePrefix: string
+  cashAdvanceBillingEnabled: boolean
+  cashAdvanceBillingPrefix: string
   dateFormat: $Enums.DateFormat
   runningDigits: number
   resetPeriod: $Enums.ResetPeriod
@@ -259,6 +287,10 @@ export type DocumentNumberConfigWhereInput = {
   billingPrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
   receiptEnabled?: Prisma.BoolFilter<"DocumentNumberConfig"> | boolean
   receiptPrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
+  cashAdvanceEnabled?: Prisma.BoolFilter<"DocumentNumberConfig"> | boolean
+  cashAdvancePrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFilter<"DocumentNumberConfig"> | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
   dateFormat?: Prisma.EnumDateFormatFilter<"DocumentNumberConfig"> | $Enums.DateFormat
   runningDigits?: Prisma.IntFilter<"DocumentNumberConfig"> | number
   resetPeriod?: Prisma.EnumResetPeriodFilter<"DocumentNumberConfig"> | $Enums.ResetPeriod
@@ -274,6 +306,10 @@ export type DocumentNumberConfigOrderByWithRelationInput = {
   billingPrefix?: Prisma.SortOrder
   receiptEnabled?: Prisma.SortOrder
   receiptPrefix?: Prisma.SortOrder
+  cashAdvanceEnabled?: Prisma.SortOrder
+  cashAdvancePrefix?: Prisma.SortOrder
+  cashAdvanceBillingEnabled?: Prisma.SortOrder
+  cashAdvanceBillingPrefix?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
   runningDigits?: Prisma.SortOrder
   resetPeriod?: Prisma.SortOrder
@@ -292,6 +328,10 @@ export type DocumentNumberConfigWhereUniqueInput = Prisma.AtLeast<{
   billingPrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
   receiptEnabled?: Prisma.BoolFilter<"DocumentNumberConfig"> | boolean
   receiptPrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
+  cashAdvanceEnabled?: Prisma.BoolFilter<"DocumentNumberConfig"> | boolean
+  cashAdvancePrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFilter<"DocumentNumberConfig"> | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFilter<"DocumentNumberConfig"> | string
   dateFormat?: Prisma.EnumDateFormatFilter<"DocumentNumberConfig"> | $Enums.DateFormat
   runningDigits?: Prisma.IntFilter<"DocumentNumberConfig"> | number
   resetPeriod?: Prisma.EnumResetPeriodFilter<"DocumentNumberConfig"> | $Enums.ResetPeriod
@@ -307,6 +347,10 @@ export type DocumentNumberConfigOrderByWithAggregationInput = {
   billingPrefix?: Prisma.SortOrder
   receiptEnabled?: Prisma.SortOrder
   receiptPrefix?: Prisma.SortOrder
+  cashAdvanceEnabled?: Prisma.SortOrder
+  cashAdvancePrefix?: Prisma.SortOrder
+  cashAdvanceBillingEnabled?: Prisma.SortOrder
+  cashAdvanceBillingPrefix?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
   runningDigits?: Prisma.SortOrder
   resetPeriod?: Prisma.SortOrder
@@ -329,6 +373,10 @@ export type DocumentNumberConfigScalarWhereWithAggregatesInput = {
   billingPrefix?: Prisma.StringWithAggregatesFilter<"DocumentNumberConfig"> | string
   receiptEnabled?: Prisma.BoolWithAggregatesFilter<"DocumentNumberConfig"> | boolean
   receiptPrefix?: Prisma.StringWithAggregatesFilter<"DocumentNumberConfig"> | string
+  cashAdvanceEnabled?: Prisma.BoolWithAggregatesFilter<"DocumentNumberConfig"> | boolean
+  cashAdvancePrefix?: Prisma.StringWithAggregatesFilter<"DocumentNumberConfig"> | string
+  cashAdvanceBillingEnabled?: Prisma.BoolWithAggregatesFilter<"DocumentNumberConfig"> | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringWithAggregatesFilter<"DocumentNumberConfig"> | string
   dateFormat?: Prisma.EnumDateFormatWithAggregatesFilter<"DocumentNumberConfig"> | $Enums.DateFormat
   runningDigits?: Prisma.IntWithAggregatesFilter<"DocumentNumberConfig"> | number
   resetPeriod?: Prisma.EnumResetPeriodWithAggregatesFilter<"DocumentNumberConfig"> | $Enums.ResetPeriod
@@ -342,6 +390,10 @@ export type DocumentNumberConfigCreateInput = {
   billingPrefix?: string
   receiptEnabled?: boolean
   receiptPrefix?: string
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: string
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: string
   dateFormat?: $Enums.DateFormat
   runningDigits?: number
   resetPeriod?: $Enums.ResetPeriod
@@ -357,6 +409,10 @@ export type DocumentNumberConfigUncheckedCreateInput = {
   billingPrefix?: string
   receiptEnabled?: boolean
   receiptPrefix?: string
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: string
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: string
   dateFormat?: $Enums.DateFormat
   runningDigits?: number
   resetPeriod?: $Enums.ResetPeriod
@@ -370,6 +426,10 @@ export type DocumentNumberConfigUpdateInput = {
   billingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   receiptEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   receiptPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvancePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
   runningDigits?: Prisma.IntFieldUpdateOperationsInput | number
   resetPeriod?: Prisma.EnumResetPeriodFieldUpdateOperationsInput | $Enums.ResetPeriod
@@ -385,6 +445,10 @@ export type DocumentNumberConfigUncheckedUpdateInput = {
   billingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   receiptEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   receiptPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvancePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
   runningDigits?: Prisma.IntFieldUpdateOperationsInput | number
   resetPeriod?: Prisma.EnumResetPeriodFieldUpdateOperationsInput | $Enums.ResetPeriod
@@ -399,6 +463,10 @@ export type DocumentNumberConfigCreateManyInput = {
   billingPrefix?: string
   receiptEnabled?: boolean
   receiptPrefix?: string
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: string
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: string
   dateFormat?: $Enums.DateFormat
   runningDigits?: number
   resetPeriod?: $Enums.ResetPeriod
@@ -412,6 +480,10 @@ export type DocumentNumberConfigUpdateManyMutationInput = {
   billingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   receiptEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   receiptPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvancePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
   runningDigits?: Prisma.IntFieldUpdateOperationsInput | number
   resetPeriod?: Prisma.EnumResetPeriodFieldUpdateOperationsInput | $Enums.ResetPeriod
@@ -426,6 +498,10 @@ export type DocumentNumberConfigUncheckedUpdateManyInput = {
   billingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   receiptEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   receiptPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvancePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
   runningDigits?: Prisma.IntFieldUpdateOperationsInput | number
   resetPeriod?: Prisma.EnumResetPeriodFieldUpdateOperationsInput | $Enums.ResetPeriod
@@ -445,6 +521,10 @@ export type DocumentNumberConfigCountOrderByAggregateInput = {
   billingPrefix?: Prisma.SortOrder
   receiptEnabled?: Prisma.SortOrder
   receiptPrefix?: Prisma.SortOrder
+  cashAdvanceEnabled?: Prisma.SortOrder
+  cashAdvancePrefix?: Prisma.SortOrder
+  cashAdvanceBillingEnabled?: Prisma.SortOrder
+  cashAdvanceBillingPrefix?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
   runningDigits?: Prisma.SortOrder
   resetPeriod?: Prisma.SortOrder
@@ -463,6 +543,10 @@ export type DocumentNumberConfigMaxOrderByAggregateInput = {
   billingPrefix?: Prisma.SortOrder
   receiptEnabled?: Prisma.SortOrder
   receiptPrefix?: Prisma.SortOrder
+  cashAdvanceEnabled?: Prisma.SortOrder
+  cashAdvancePrefix?: Prisma.SortOrder
+  cashAdvanceBillingEnabled?: Prisma.SortOrder
+  cashAdvanceBillingPrefix?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
   runningDigits?: Prisma.SortOrder
   resetPeriod?: Prisma.SortOrder
@@ -477,6 +561,10 @@ export type DocumentNumberConfigMinOrderByAggregateInput = {
   billingPrefix?: Prisma.SortOrder
   receiptEnabled?: Prisma.SortOrder
   receiptPrefix?: Prisma.SortOrder
+  cashAdvanceEnabled?: Prisma.SortOrder
+  cashAdvancePrefix?: Prisma.SortOrder
+  cashAdvanceBillingEnabled?: Prisma.SortOrder
+  cashAdvanceBillingPrefix?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
   runningDigits?: Prisma.SortOrder
   resetPeriod?: Prisma.SortOrder
@@ -542,6 +630,10 @@ export type DocumentNumberConfigCreateWithoutVendorInput = {
   billingPrefix?: string
   receiptEnabled?: boolean
   receiptPrefix?: string
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: string
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: string
   dateFormat?: $Enums.DateFormat
   runningDigits?: number
   resetPeriod?: $Enums.ResetPeriod
@@ -555,6 +647,10 @@ export type DocumentNumberConfigUncheckedCreateWithoutVendorInput = {
   billingPrefix?: string
   receiptEnabled?: boolean
   receiptPrefix?: string
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: string
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: string
   dateFormat?: $Enums.DateFormat
   runningDigits?: number
   resetPeriod?: $Enums.ResetPeriod
@@ -584,6 +680,10 @@ export type DocumentNumberConfigUpdateWithoutVendorInput = {
   billingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   receiptEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   receiptPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvancePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
   runningDigits?: Prisma.IntFieldUpdateOperationsInput | number
   resetPeriod?: Prisma.EnumResetPeriodFieldUpdateOperationsInput | $Enums.ResetPeriod
@@ -597,6 +697,10 @@ export type DocumentNumberConfigUncheckedUpdateWithoutVendorInput = {
   billingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   receiptEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   receiptPrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvancePrefix?: Prisma.StringFieldUpdateOperationsInput | string
+  cashAdvanceBillingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cashAdvanceBillingPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.EnumDateFormatFieldUpdateOperationsInput | $Enums.DateFormat
   runningDigits?: Prisma.IntFieldUpdateOperationsInput | number
   resetPeriod?: Prisma.EnumResetPeriodFieldUpdateOperationsInput | $Enums.ResetPeriod
@@ -613,6 +717,10 @@ export type DocumentNumberConfigSelect<ExtArgs extends runtime.Types.Extensions.
   billingPrefix?: boolean
   receiptEnabled?: boolean
   receiptPrefix?: boolean
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: boolean
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: boolean
   dateFormat?: boolean
   runningDigits?: boolean
   resetPeriod?: boolean
@@ -628,6 +736,10 @@ export type DocumentNumberConfigSelectCreateManyAndReturn<ExtArgs extends runtim
   billingPrefix?: boolean
   receiptEnabled?: boolean
   receiptPrefix?: boolean
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: boolean
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: boolean
   dateFormat?: boolean
   runningDigits?: boolean
   resetPeriod?: boolean
@@ -643,6 +755,10 @@ export type DocumentNumberConfigSelectUpdateManyAndReturn<ExtArgs extends runtim
   billingPrefix?: boolean
   receiptEnabled?: boolean
   receiptPrefix?: boolean
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: boolean
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: boolean
   dateFormat?: boolean
   runningDigits?: boolean
   resetPeriod?: boolean
@@ -658,6 +774,10 @@ export type DocumentNumberConfigSelectScalar = {
   billingPrefix?: boolean
   receiptEnabled?: boolean
   receiptPrefix?: boolean
+  cashAdvanceEnabled?: boolean
+  cashAdvancePrefix?: boolean
+  cashAdvanceBillingEnabled?: boolean
+  cashAdvanceBillingPrefix?: boolean
   dateFormat?: boolean
   runningDigits?: boolean
   resetPeriod?: boolean
@@ -665,7 +785,7 @@ export type DocumentNumberConfigSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DocumentNumberConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vendorId" | "billingEnabled" | "billingPrefix" | "receiptEnabled" | "receiptPrefix" | "dateFormat" | "runningDigits" | "resetPeriod" | "createdAt" | "updatedAt", ExtArgs["result"]["documentNumberConfig"]>
+export type DocumentNumberConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vendorId" | "billingEnabled" | "billingPrefix" | "receiptEnabled" | "receiptPrefix" | "cashAdvanceEnabled" | "cashAdvancePrefix" | "cashAdvanceBillingEnabled" | "cashAdvanceBillingPrefix" | "dateFormat" | "runningDigits" | "resetPeriod" | "createdAt" | "updatedAt", ExtArgs["result"]["documentNumberConfig"]>
 export type DocumentNumberConfigInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
@@ -688,6 +808,10 @@ export type $DocumentNumberConfigPayload<ExtArgs extends runtime.Types.Extension
     billingPrefix: string
     receiptEnabled: boolean
     receiptPrefix: string
+    cashAdvanceEnabled: boolean
+    cashAdvancePrefix: string
+    cashAdvanceBillingEnabled: boolean
+    cashAdvanceBillingPrefix: string
     dateFormat: $Enums.DateFormat
     runningDigits: number
     resetPeriod: $Enums.ResetPeriod
@@ -1123,6 +1247,10 @@ export interface DocumentNumberConfigFieldRefs {
   readonly billingPrefix: Prisma.FieldRef<"DocumentNumberConfig", 'String'>
   readonly receiptEnabled: Prisma.FieldRef<"DocumentNumberConfig", 'Boolean'>
   readonly receiptPrefix: Prisma.FieldRef<"DocumentNumberConfig", 'String'>
+  readonly cashAdvanceEnabled: Prisma.FieldRef<"DocumentNumberConfig", 'Boolean'>
+  readonly cashAdvancePrefix: Prisma.FieldRef<"DocumentNumberConfig", 'String'>
+  readonly cashAdvanceBillingEnabled: Prisma.FieldRef<"DocumentNumberConfig", 'Boolean'>
+  readonly cashAdvanceBillingPrefix: Prisma.FieldRef<"DocumentNumberConfig", 'String'>
   readonly dateFormat: Prisma.FieldRef<"DocumentNumberConfig", 'DateFormat'>
   readonly runningDigits: Prisma.FieldRef<"DocumentNumberConfig", 'Int'>
   readonly resetPeriod: Prisma.FieldRef<"DocumentNumberConfig", 'ResetPeriod'>

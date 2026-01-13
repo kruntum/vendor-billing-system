@@ -30,5 +30,19 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    preview: {
+      port: 4173,
+      proxy: {
+        '/api': {
+          target: apiUrl,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+        '/public': {
+          target: apiUrl,
+          changeOrigin: true,
+        },
+      },
+    },
   }
 })

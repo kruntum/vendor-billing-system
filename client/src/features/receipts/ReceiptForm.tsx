@@ -34,7 +34,7 @@ export function ReceiptForm({ onClose, onSuccess }: ReceiptFormProps) {
     // Filter: billing notes that have no receipt AND are strictly APPROVED
     const availableBillingNotes = Array.isArray(billingResponse?.data)
         ? billingResponse.data.filter(
-            (b) => !b.receipt && b.status === "APPROVED"
+            (b) => !b.receipt && b.statusBillingNote === "APPROVED"
         )
         : [];
 
@@ -149,7 +149,7 @@ export function ReceiptForm({ onClose, onSuccess }: ReceiptFormProps) {
                                                             {safeFormatDate(note.billingDate, "dd/MM/yyyy")}
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
-                                                            {getStatusBadge(note.status)}
+                                                            {getStatusBadge(note.statusBillingNote)}
                                                         </td>
                                                         <td className="px-4 py-3 text-sm text-gray-900 text-right">
                                                             {formatCurrency(Number(note.netTotal))}
@@ -190,7 +190,7 @@ export function ReceiptForm({ onClose, onSuccess }: ReceiptFormProps) {
                                         </div>
                                         <div>
                                             <p className="text-gray-500">สถานะ</p>
-                                            {selectedBilling && getStatusBadge(selectedBilling.status)}
+                                            {selectedBilling && getStatusBadge(selectedBilling.statusBillingNote)}
                                         </div>
                                         <div>
                                             <p className="text-gray-500">ยอดสุทธิ</p>

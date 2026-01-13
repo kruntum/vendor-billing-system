@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, Fragment } from "react";
 import {
     Table,
     TableBody,
@@ -97,9 +97,8 @@ export function DataTable<T>({
                                 const id = rowKey(row);
                                 const isExpanded = expandedRows.has(id);
                                 return (
-                                    <>
+                                    <Fragment key={id}>
                                         <TableRow
-                                            key={id}
                                             className={`hover:bg-gray-50/50 ${isExpanded ? "bg-gray-50" : ""}`}
                                         >
                                             {renderSubComponent && (
@@ -145,7 +144,7 @@ export function DataTable<T>({
                                                 </TableCell>
                                             </TableRow>
                                         )}
-                                    </>
+                                    </Fragment>
                                 );
                             })
                         )}

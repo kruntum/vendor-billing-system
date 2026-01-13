@@ -109,3 +109,23 @@ export type DocumentNumberSequence = Prisma.DocumentNumberSequenceModel
  * 
  */
 export type PaymentVoucher = Prisma.PaymentVoucherModel
+/**
+ * Model CashAdvance
+ * 
+ */
+export type CashAdvance = Prisma.CashAdvanceModel
+/**
+ * Model CashAdvanceItem
+ * 
+ */
+export type CashAdvanceItem = Prisma.CashAdvanceItemModel
+/**
+ * Model CashAdvanceBilling
+ * 
+ */
+export type CashAdvanceBilling = Prisma.CashAdvanceBillingModel
+/**
+ * Model CashAdvancePayment
+ * 
+ */
+export type CashAdvancePayment = Prisma.CashAdvancePaymentModel

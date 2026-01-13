@@ -397,7 +397,11 @@ export const ModelName = {
   CompanySettings: 'CompanySettings',
   DocumentNumberConfig: 'DocumentNumberConfig',
   DocumentNumberSequence: 'DocumentNumberSequence',
-  PaymentVoucher: 'PaymentVoucher'
+  PaymentVoucher: 'PaymentVoucher',
+  CashAdvance: 'CashAdvance',
+  CashAdvanceItem: 'CashAdvanceItem',
+  CashAdvanceBilling: 'CashAdvanceBilling',
+  CashAdvancePayment: 'CashAdvancePayment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "role" | "vendor" | "user" | "job" | "jobItem" | "serviceCatalog" | "jobDescriptionCatalog" | "billingNote" | "vatConfigByVendor" | "receipt" | "companySettings" | "documentNumberConfig" | "documentNumberSequence" | "paymentVoucher"
+    modelProps: "role" | "vendor" | "user" | "job" | "jobItem" | "serviceCatalog" | "jobDescriptionCatalog" | "billingNote" | "vatConfigByVendor" | "receipt" | "companySettings" | "documentNumberConfig" | "documentNumberSequence" | "paymentVoucher" | "cashAdvance" | "cashAdvanceItem" | "cashAdvanceBilling" | "cashAdvancePayment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1453,6 +1457,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CashAdvance: {
+      payload: Prisma.$CashAdvancePayload<ExtArgs>
+      fields: Prisma.CashAdvanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashAdvanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashAdvanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>
+        }
+        findFirst: {
+          args: Prisma.CashAdvanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashAdvanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>
+        }
+        findMany: {
+          args: Prisma.CashAdvanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>[]
+        }
+        create: {
+          args: Prisma.CashAdvanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>
+        }
+        createMany: {
+          args: Prisma.CashAdvanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CashAdvanceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>[]
+        }
+        delete: {
+          args: Prisma.CashAdvanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>
+        }
+        update: {
+          args: Prisma.CashAdvanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>
+        }
+        deleteMany: {
+          args: Prisma.CashAdvanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashAdvanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CashAdvanceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>[]
+        }
+        upsert: {
+          args: Prisma.CashAdvanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePayload>
+        }
+        aggregate: {
+          args: Prisma.CashAdvanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashAdvance>
+        }
+        groupBy: {
+          args: Prisma.CashAdvanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashAdvanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvanceCountAggregateOutputType> | number
+        }
+      }
+    }
+    CashAdvanceItem: {
+      payload: Prisma.$CashAdvanceItemPayload<ExtArgs>
+      fields: Prisma.CashAdvanceItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashAdvanceItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashAdvanceItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>
+        }
+        findFirst: {
+          args: Prisma.CashAdvanceItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashAdvanceItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>
+        }
+        findMany: {
+          args: Prisma.CashAdvanceItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>[]
+        }
+        create: {
+          args: Prisma.CashAdvanceItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>
+        }
+        createMany: {
+          args: Prisma.CashAdvanceItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CashAdvanceItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>[]
+        }
+        delete: {
+          args: Prisma.CashAdvanceItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>
+        }
+        update: {
+          args: Prisma.CashAdvanceItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.CashAdvanceItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashAdvanceItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CashAdvanceItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.CashAdvanceItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceItemPayload>
+        }
+        aggregate: {
+          args: Prisma.CashAdvanceItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashAdvanceItem>
+        }
+        groupBy: {
+          args: Prisma.CashAdvanceItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvanceItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashAdvanceItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvanceItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    CashAdvanceBilling: {
+      payload: Prisma.$CashAdvanceBillingPayload<ExtArgs>
+      fields: Prisma.CashAdvanceBillingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashAdvanceBillingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashAdvanceBillingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>
+        }
+        findFirst: {
+          args: Prisma.CashAdvanceBillingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashAdvanceBillingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>
+        }
+        findMany: {
+          args: Prisma.CashAdvanceBillingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>[]
+        }
+        create: {
+          args: Prisma.CashAdvanceBillingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>
+        }
+        createMany: {
+          args: Prisma.CashAdvanceBillingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CashAdvanceBillingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>[]
+        }
+        delete: {
+          args: Prisma.CashAdvanceBillingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>
+        }
+        update: {
+          args: Prisma.CashAdvanceBillingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>
+        }
+        deleteMany: {
+          args: Prisma.CashAdvanceBillingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashAdvanceBillingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CashAdvanceBillingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>[]
+        }
+        upsert: {
+          args: Prisma.CashAdvanceBillingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvanceBillingPayload>
+        }
+        aggregate: {
+          args: Prisma.CashAdvanceBillingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashAdvanceBilling>
+        }
+        groupBy: {
+          args: Prisma.CashAdvanceBillingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvanceBillingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashAdvanceBillingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvanceBillingCountAggregateOutputType> | number
+        }
+      }
+    }
+    CashAdvancePayment: {
+      payload: Prisma.$CashAdvancePaymentPayload<ExtArgs>
+      fields: Prisma.CashAdvancePaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CashAdvancePaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CashAdvancePaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.CashAdvancePaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CashAdvancePaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>
+        }
+        findMany: {
+          args: Prisma.CashAdvancePaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>[]
+        }
+        create: {
+          args: Prisma.CashAdvancePaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>
+        }
+        createMany: {
+          args: Prisma.CashAdvancePaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CashAdvancePaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.CashAdvancePaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>
+        }
+        update: {
+          args: Prisma.CashAdvancePaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.CashAdvancePaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CashAdvancePaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CashAdvancePaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.CashAdvancePaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CashAdvancePaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.CashAdvancePaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCashAdvancePayment>
+        }
+        groupBy: {
+          args: Prisma.CashAdvancePaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvancePaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CashAdvancePaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CashAdvancePaymentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1624,13 +1924,18 @@ export const ReceiptScalarFieldEnum = {
   id: 'id',
   receiptRef: 'receiptRef',
   billingNoteId: 'billingNoteId',
+  paymentVoucherId: 'paymentVoucherId',
   receiptFile: 'receiptFile',
   receiptDate: 'receiptDate',
   statusReceipt: 'statusReceipt',
   vendorId: 'vendorId',
   pdfUrl: 'pdfUrl',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  paymentMethod: 'paymentMethod',
+  paymentRef: 'paymentRef',
+  bankInfo: 'bankInfo',
+  remark: 'remark'
 } as const
 
 export type ReceiptScalarFieldEnum = (typeof ReceiptScalarFieldEnum)[keyof typeof ReceiptScalarFieldEnum]
@@ -1658,6 +1963,10 @@ export const DocumentNumberConfigScalarFieldEnum = {
   billingPrefix: 'billingPrefix',
   receiptEnabled: 'receiptEnabled',
   receiptPrefix: 'receiptPrefix',
+  cashAdvanceEnabled: 'cashAdvanceEnabled',
+  cashAdvancePrefix: 'cashAdvancePrefix',
+  cashAdvanceBillingEnabled: 'cashAdvanceBillingEnabled',
+  cashAdvanceBillingPrefix: 'cashAdvanceBillingPrefix',
   dateFormat: 'dateFormat',
   runningDigits: 'runningDigits',
   resetPeriod: 'resetPeriod',
@@ -1691,14 +2000,83 @@ export const PaymentVoucherScalarFieldEnum = {
   totalWht: 'totalWht',
   netTotal: 'netTotal',
   remark: 'remark',
+  paymentMethod: 'paymentMethod',
+  paymentInfo: 'paymentInfo',
   pdfUrl: 'pdfUrl',
   status: 'status',
   createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentVoucherScalarFieldEnum = (typeof PaymentVoucherScalarFieldEnum)[keyof typeof PaymentVoucherScalarFieldEnum]
+
+
+export const CashAdvanceScalarFieldEnum = {
+  id: 'id',
+  advanceRef: 'advanceRef',
+  vendorId: 'vendorId',
+  advanceDate: 'advanceDate',
+  description: 'description',
+  refInvoiceNo: 'refInvoiceNo',
+  containerNo: 'containerNo',
+  truckPlate: 'truckPlate',
+  declarationNo: 'declarationNo',
+  totalAmount: 'totalAmount',
+  status: 'status',
+  cashAdvanceBillingId: 'cashAdvanceBillingId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type PaymentVoucherScalarFieldEnum = (typeof PaymentVoucherScalarFieldEnum)[keyof typeof PaymentVoucherScalarFieldEnum]
+export type CashAdvanceScalarFieldEnum = (typeof CashAdvanceScalarFieldEnum)[keyof typeof CashAdvanceScalarFieldEnum]
+
+
+export const CashAdvanceItemScalarFieldEnum = {
+  id: 'id',
+  cashAdvanceId: 'cashAdvanceId',
+  description: 'description',
+  amount: 'amount',
+  receiptFile: 'receiptFile',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAdvanceItemScalarFieldEnum = (typeof CashAdvanceItemScalarFieldEnum)[keyof typeof CashAdvanceItemScalarFieldEnum]
+
+
+export const CashAdvanceBillingScalarFieldEnum = {
+  id: 'id',
+  billingRef: 'billingRef',
+  vendorId: 'vendorId',
+  billingDate: 'billingDate',
+  totalAmount: 'totalAmount',
+  remark: 'remark',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAdvanceBillingScalarFieldEnum = (typeof CashAdvanceBillingScalarFieldEnum)[keyof typeof CashAdvanceBillingScalarFieldEnum]
+
+
+export const CashAdvancePaymentScalarFieldEnum = {
+  id: 'id',
+  paymentRef: 'paymentRef',
+  cashAdvanceBillingId: 'cashAdvanceBillingId',
+  paymentDate: 'paymentDate',
+  paymentMethod: 'paymentMethod',
+  amount: 'amount',
+  proofFile: 'proofFile',
+  chequeNo: 'chequeNo',
+  bankInfo: 'bankInfo',
+  remark: 'remark',
+  pdfUrl: 'pdfUrl',
+  approvedById: 'approvedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CashAdvancePaymentScalarFieldEnum = (typeof CashAdvancePaymentScalarFieldEnum)[keyof typeof CashAdvancePaymentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1823,6 +2201,20 @@ export type ListEnumStatusReceiptFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'PaymentMethod'
+ */
+export type EnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'PaymentMethod[]'
+ */
+export type ListEnumPaymentMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentMethod[]'>
+    
+
+
+/**
  * Reference to a field of type 'DateFormat'
  */
 export type EnumDateFormatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateFormat'>
@@ -1875,6 +2267,34 @@ export type EnumStatusPaymentVoucherFieldRefInput<$PrismaModel> = FieldRefInputT
  * Reference to a field of type 'StatusPaymentVoucher[]'
  */
 export type ListEnumStatusPaymentVoucherFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusPaymentVoucher[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusCashAdvance'
+ */
+export type EnumStatusCashAdvanceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusCashAdvance'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusCashAdvance[]'
+ */
+export type ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusCashAdvance[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusCashAdvanceBilling'
+ */
+export type EnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusCashAdvanceBilling'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusCashAdvanceBilling[]'
+ */
+export type ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusCashAdvanceBilling[]'>
     
 
 
@@ -2000,6 +2420,10 @@ export type GlobalOmitConfig = {
   documentNumberConfig?: Prisma.DocumentNumberConfigOmit
   documentNumberSequence?: Prisma.DocumentNumberSequenceOmit
   paymentVoucher?: Prisma.PaymentVoucherOmit
+  cashAdvance?: Prisma.CashAdvanceOmit
+  cashAdvanceItem?: Prisma.CashAdvanceItemOmit
+  cashAdvanceBilling?: Prisma.CashAdvanceBillingOmit
+  cashAdvancePayment?: Prisma.CashAdvancePaymentOmit
 }
 
 /* Types for Logging */

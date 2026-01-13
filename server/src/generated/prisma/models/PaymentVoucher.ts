@@ -50,11 +50,12 @@ export type PaymentVoucherMinAggregateOutputType = {
   totalWht: runtime.Decimal | null
   netTotal: runtime.Decimal | null
   remark: string | null
+  paymentMethod: $Enums.PaymentMethod | null
+  paymentInfo: string | null
   pdfUrl: string | null
   status: $Enums.StatusPaymentVoucher | null
   createdById: string | null
   createdAt: Date | null
-  updatedAt: Date | null
 }
 
 export type PaymentVoucherMaxAggregateOutputType = {
@@ -67,11 +68,12 @@ export type PaymentVoucherMaxAggregateOutputType = {
   totalWht: runtime.Decimal | null
   netTotal: runtime.Decimal | null
   remark: string | null
+  paymentMethod: $Enums.PaymentMethod | null
+  paymentInfo: string | null
   pdfUrl: string | null
   status: $Enums.StatusPaymentVoucher | null
   createdById: string | null
   createdAt: Date | null
-  updatedAt: Date | null
 }
 
 export type PaymentVoucherCountAggregateOutputType = {
@@ -84,11 +86,12 @@ export type PaymentVoucherCountAggregateOutputType = {
   totalWht: number
   netTotal: number
   remark: number
+  paymentMethod: number
+  paymentInfo: number
   pdfUrl: number
   status: number
   createdById: number
   createdAt: number
-  updatedAt: number
   _all: number
 }
 
@@ -117,11 +120,12 @@ export type PaymentVoucherMinAggregateInputType = {
   totalWht?: true
   netTotal?: true
   remark?: true
+  paymentMethod?: true
+  paymentInfo?: true
   pdfUrl?: true
   status?: true
   createdById?: true
   createdAt?: true
-  updatedAt?: true
 }
 
 export type PaymentVoucherMaxAggregateInputType = {
@@ -134,11 +138,12 @@ export type PaymentVoucherMaxAggregateInputType = {
   totalWht?: true
   netTotal?: true
   remark?: true
+  paymentMethod?: true
+  paymentInfo?: true
   pdfUrl?: true
   status?: true
   createdById?: true
   createdAt?: true
-  updatedAt?: true
 }
 
 export type PaymentVoucherCountAggregateInputType = {
@@ -151,11 +156,12 @@ export type PaymentVoucherCountAggregateInputType = {
   totalWht?: true
   netTotal?: true
   remark?: true
+  paymentMethod?: true
+  paymentInfo?: true
   pdfUrl?: true
   status?: true
   createdById?: true
   createdAt?: true
-  updatedAt?: true
   _all?: true
 }
 
@@ -255,11 +261,12 @@ export type PaymentVoucherGroupByOutputType = {
   totalWht: runtime.Decimal
   netTotal: runtime.Decimal
   remark: string | null
+  paymentMethod: $Enums.PaymentMethod | null
+  paymentInfo: string | null
   pdfUrl: string | null
   status: $Enums.StatusPaymentVoucher
   createdById: string
   createdAt: Date
-  updatedAt: Date
   _count: PaymentVoucherCountAggregateOutputType | null
   _avg: PaymentVoucherAvgAggregateOutputType | null
   _sum: PaymentVoucherSumAggregateOutputType | null
@@ -295,14 +302,16 @@ export type PaymentVoucherWhereInput = {
   totalWht?: Prisma.DecimalFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
+  paymentMethod?: Prisma.EnumPaymentMethodNullableFilter<"PaymentVoucher"> | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
   status?: Prisma.EnumStatusPaymentVoucherFilter<"PaymentVoucher"> | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFilter<"PaymentVoucher"> | string
   createdAt?: Prisma.DateTimeFilter<"PaymentVoucher"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"PaymentVoucher"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
   billingNotes?: Prisma.BillingNoteListRelationFilter
+  receipt?: Prisma.XOR<Prisma.ReceiptNullableScalarRelationFilter, Prisma.ReceiptWhereInput> | null
 }
 
 export type PaymentVoucherOrderByWithRelationInput = {
@@ -315,14 +324,16 @@ export type PaymentVoucherOrderByWithRelationInput = {
   totalWht?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentInfo?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
   createdBy?: Prisma.UserOrderByWithRelationInput
   vendor?: Prisma.VendorOrderByWithRelationInput
   billingNotes?: Prisma.BillingNoteOrderByRelationAggregateInput
+  receipt?: Prisma.ReceiptOrderByWithRelationInput
 }
 
 export type PaymentVoucherWhereUniqueInput = Prisma.AtLeast<{
@@ -338,14 +349,16 @@ export type PaymentVoucherWhereUniqueInput = Prisma.AtLeast<{
   totalWht?: Prisma.DecimalFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
+  paymentMethod?: Prisma.EnumPaymentMethodNullableFilter<"PaymentVoucher"> | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
   status?: Prisma.EnumStatusPaymentVoucherFilter<"PaymentVoucher"> | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFilter<"PaymentVoucher"> | string
   createdAt?: Prisma.DateTimeFilter<"PaymentVoucher"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"PaymentVoucher"> | Date | string
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
   billingNotes?: Prisma.BillingNoteListRelationFilter
+  receipt?: Prisma.XOR<Prisma.ReceiptNullableScalarRelationFilter, Prisma.ReceiptWhereInput> | null
 }, "id" | "voucherRef">
 
 export type PaymentVoucherOrderByWithAggregationInput = {
@@ -358,11 +371,12 @@ export type PaymentVoucherOrderByWithAggregationInput = {
   totalWht?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentInfo?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PaymentVoucherCountOrderByAggregateInput
   _avg?: Prisma.PaymentVoucherAvgOrderByAggregateInput
   _max?: Prisma.PaymentVoucherMaxOrderByAggregateInput
@@ -383,11 +397,12 @@ export type PaymentVoucherScalarWhereWithAggregatesInput = {
   totalWht?: Prisma.DecimalWithAggregatesFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalWithAggregatesFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.StringNullableWithAggregatesFilter<"PaymentVoucher"> | string | null
+  paymentMethod?: Prisma.EnumPaymentMethodNullableWithAggregatesFilter<"PaymentVoucher"> | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.StringNullableWithAggregatesFilter<"PaymentVoucher"> | string | null
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"PaymentVoucher"> | string | null
   status?: Prisma.EnumStatusPaymentVoucherWithAggregatesFilter<"PaymentVoucher"> | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringWithAggregatesFilter<"PaymentVoucher"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentVoucher"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PaymentVoucher"> | Date | string
 }
 
 export type PaymentVoucherCreateInput = {
@@ -399,13 +414,15 @@ export type PaymentVoucherCreateInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdAt?: Date | string
-  updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutPaymentVouchersInput
   vendor: Prisma.VendorCreateNestedOneWithoutPaymentVouchersInput
   billingNotes?: Prisma.BillingNoteCreateNestedManyWithoutPaymentVoucherInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherUncheckedCreateInput = {
@@ -418,12 +435,14 @@ export type PaymentVoucherUncheckedCreateInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdById: string
   createdAt?: Date | string
-  updatedAt?: Date | string
   billingNotes?: Prisma.BillingNoteUncheckedCreateNestedManyWithoutPaymentVoucherInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherUpdateInput = {
@@ -435,13 +454,15 @@ export type PaymentVoucherUpdateInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPaymentVouchersNestedInput
   vendor?: Prisma.VendorUpdateOneRequiredWithoutPaymentVouchersNestedInput
   billingNotes?: Prisma.BillingNoteUpdateManyWithoutPaymentVoucherNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherUncheckedUpdateInput = {
@@ -454,12 +475,14 @@ export type PaymentVoucherUncheckedUpdateInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingNotes?: Prisma.BillingNoteUncheckedUpdateManyWithoutPaymentVoucherNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherCreateManyInput = {
@@ -472,11 +495,12 @@ export type PaymentVoucherCreateManyInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdById: string
   createdAt?: Date | string
-  updatedAt?: Date | string
 }
 
 export type PaymentVoucherUpdateManyMutationInput = {
@@ -488,10 +512,11 @@ export type PaymentVoucherUpdateManyMutationInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentVoucherUncheckedUpdateManyInput = {
@@ -504,11 +529,12 @@ export type PaymentVoucherUncheckedUpdateManyInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentVoucherListRelationFilter = {
@@ -536,11 +562,12 @@ export type PaymentVoucherCountOrderByAggregateInput = {
   totalWht?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   remark?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentInfo?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentVoucherAvgOrderByAggregateInput = {
@@ -560,11 +587,12 @@ export type PaymentVoucherMaxOrderByAggregateInput = {
   totalWht?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   remark?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentInfo?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentVoucherMinOrderByAggregateInput = {
@@ -577,11 +605,12 @@ export type PaymentVoucherMinOrderByAggregateInput = {
   totalWht?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   remark?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentInfo?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
 }
 
 export type PaymentVoucherSumOrderByAggregateInput = {
@@ -691,6 +720,22 @@ export type PaymentVoucherUpdateOneWithoutBillingNotesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PaymentVoucherUpdateToOneWithWhereWithoutBillingNotesInput, Prisma.PaymentVoucherUpdateWithoutBillingNotesInput>, Prisma.PaymentVoucherUncheckedUpdateWithoutBillingNotesInput>
 }
 
+export type PaymentVoucherCreateNestedOneWithoutReceiptInput = {
+  create?: Prisma.XOR<Prisma.PaymentVoucherCreateWithoutReceiptInput, Prisma.PaymentVoucherUncheckedCreateWithoutReceiptInput>
+  connectOrCreate?: Prisma.PaymentVoucherCreateOrConnectWithoutReceiptInput
+  connect?: Prisma.PaymentVoucherWhereUniqueInput
+}
+
+export type PaymentVoucherUpdateOneWithoutReceiptNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentVoucherCreateWithoutReceiptInput, Prisma.PaymentVoucherUncheckedCreateWithoutReceiptInput>
+  connectOrCreate?: Prisma.PaymentVoucherCreateOrConnectWithoutReceiptInput
+  upsert?: Prisma.PaymentVoucherUpsertWithoutReceiptInput
+  disconnect?: Prisma.PaymentVoucherWhereInput | boolean
+  delete?: Prisma.PaymentVoucherWhereInput | boolean
+  connect?: Prisma.PaymentVoucherWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PaymentVoucherUpdateToOneWithWhereWithoutReceiptInput, Prisma.PaymentVoucherUpdateWithoutReceiptInput>, Prisma.PaymentVoucherUncheckedUpdateWithoutReceiptInput>
+}
+
 export type EnumStatusPaymentVoucherFieldUpdateOperationsInput = {
   set?: $Enums.StatusPaymentVoucher
 }
@@ -704,12 +749,14 @@ export type PaymentVoucherCreateWithoutVendorInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdAt?: Date | string
-  updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutPaymentVouchersInput
   billingNotes?: Prisma.BillingNoteCreateNestedManyWithoutPaymentVoucherInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherUncheckedCreateWithoutVendorInput = {
@@ -721,12 +768,14 @@ export type PaymentVoucherUncheckedCreateWithoutVendorInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdById: string
   createdAt?: Date | string
-  updatedAt?: Date | string
   billingNotes?: Prisma.BillingNoteUncheckedCreateNestedManyWithoutPaymentVoucherInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherCreateOrConnectWithoutVendorInput = {
@@ -768,11 +817,12 @@ export type PaymentVoucherScalarWhereInput = {
   totalWht?: Prisma.DecimalFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFilter<"PaymentVoucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
+  paymentMethod?: Prisma.EnumPaymentMethodNullableFilter<"PaymentVoucher"> | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"PaymentVoucher"> | string | null
   status?: Prisma.EnumStatusPaymentVoucherFilter<"PaymentVoucher"> | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFilter<"PaymentVoucher"> | string
   createdAt?: Prisma.DateTimeFilter<"PaymentVoucher"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"PaymentVoucher"> | Date | string
 }
 
 export type PaymentVoucherCreateWithoutCreatedByInput = {
@@ -784,12 +834,14 @@ export type PaymentVoucherCreateWithoutCreatedByInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdAt?: Date | string
-  updatedAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutPaymentVouchersInput
   billingNotes?: Prisma.BillingNoteCreateNestedManyWithoutPaymentVoucherInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherUncheckedCreateWithoutCreatedByInput = {
@@ -802,11 +854,13 @@ export type PaymentVoucherUncheckedCreateWithoutCreatedByInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdAt?: Date | string
-  updatedAt?: Date | string
   billingNotes?: Prisma.BillingNoteUncheckedCreateNestedManyWithoutPaymentVoucherInput
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherCreateOrConnectWithoutCreatedByInput = {
@@ -844,12 +898,14 @@ export type PaymentVoucherCreateWithoutBillingNotesInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdAt?: Date | string
-  updatedAt?: Date | string
   createdBy: Prisma.UserCreateNestedOneWithoutPaymentVouchersInput
   vendor: Prisma.VendorCreateNestedOneWithoutPaymentVouchersInput
+  receipt?: Prisma.ReceiptCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherUncheckedCreateWithoutBillingNotesInput = {
@@ -862,11 +918,13 @@ export type PaymentVoucherUncheckedCreateWithoutBillingNotesInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdById: string
   createdAt?: Date | string
-  updatedAt?: Date | string
+  receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutPaymentVoucherInput
 }
 
 export type PaymentVoucherCreateOrConnectWithoutBillingNotesInput = {
@@ -894,12 +952,14 @@ export type PaymentVoucherUpdateWithoutBillingNotesInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPaymentVouchersNestedInput
   vendor?: Prisma.VendorUpdateOneRequiredWithoutPaymentVouchersNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherUncheckedUpdateWithoutBillingNotesInput = {
@@ -912,11 +972,105 @@ export type PaymentVoucherUncheckedUpdateWithoutBillingNotesInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutPaymentVoucherNestedInput
+}
+
+export type PaymentVoucherCreateWithoutReceiptInput = {
+  id?: string
+  voucherRef: string
+  voucherDate: Date | string
+  subtotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalVat: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
+  pdfUrl?: string | null
+  status?: $Enums.StatusPaymentVoucher
+  createdAt?: Date | string
+  createdBy: Prisma.UserCreateNestedOneWithoutPaymentVouchersInput
+  vendor: Prisma.VendorCreateNestedOneWithoutPaymentVouchersInput
+  billingNotes?: Prisma.BillingNoteCreateNestedManyWithoutPaymentVoucherInput
+}
+
+export type PaymentVoucherUncheckedCreateWithoutReceiptInput = {
+  id?: string
+  voucherRef: string
+  vendorId: string
+  voucherDate: Date | string
+  subtotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalVat: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
+  pdfUrl?: string | null
+  status?: $Enums.StatusPaymentVoucher
+  createdById: string
+  createdAt?: Date | string
+  billingNotes?: Prisma.BillingNoteUncheckedCreateNestedManyWithoutPaymentVoucherInput
+}
+
+export type PaymentVoucherCreateOrConnectWithoutReceiptInput = {
+  where: Prisma.PaymentVoucherWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentVoucherCreateWithoutReceiptInput, Prisma.PaymentVoucherUncheckedCreateWithoutReceiptInput>
+}
+
+export type PaymentVoucherUpsertWithoutReceiptInput = {
+  update: Prisma.XOR<Prisma.PaymentVoucherUpdateWithoutReceiptInput, Prisma.PaymentVoucherUncheckedUpdateWithoutReceiptInput>
+  create: Prisma.XOR<Prisma.PaymentVoucherCreateWithoutReceiptInput, Prisma.PaymentVoucherUncheckedCreateWithoutReceiptInput>
+  where?: Prisma.PaymentVoucherWhereInput
+}
+
+export type PaymentVoucherUpdateToOneWithWhereWithoutReceiptInput = {
+  where?: Prisma.PaymentVoucherWhereInput
+  data: Prisma.XOR<Prisma.PaymentVoucherUpdateWithoutReceiptInput, Prisma.PaymentVoucherUncheckedUpdateWithoutReceiptInput>
+}
+
+export type PaymentVoucherUpdateWithoutReceiptInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherRef?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subtotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalVat?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutPaymentVouchersNestedInput
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutPaymentVouchersNestedInput
+  billingNotes?: Prisma.BillingNoteUpdateManyWithoutPaymentVoucherNestedInput
+}
+
+export type PaymentVoucherUncheckedUpdateWithoutReceiptInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherRef?: Prisma.StringFieldUpdateOperationsInput | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  subtotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalVat?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
+  createdById?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  billingNotes?: Prisma.BillingNoteUncheckedUpdateManyWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherCreateManyVendorInput = {
@@ -928,11 +1082,12 @@ export type PaymentVoucherCreateManyVendorInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdById: string
   createdAt?: Date | string
-  updatedAt?: Date | string
 }
 
 export type PaymentVoucherUpdateWithoutVendorInput = {
@@ -944,12 +1099,14 @@ export type PaymentVoucherUpdateWithoutVendorInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneRequiredWithoutPaymentVouchersNestedInput
   billingNotes?: Prisma.BillingNoteUpdateManyWithoutPaymentVoucherNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherUncheckedUpdateWithoutVendorInput = {
@@ -961,12 +1118,14 @@ export type PaymentVoucherUncheckedUpdateWithoutVendorInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingNotes?: Prisma.BillingNoteUncheckedUpdateManyWithoutPaymentVoucherNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherUncheckedUpdateManyWithoutVendorInput = {
@@ -978,11 +1137,12 @@ export type PaymentVoucherUncheckedUpdateManyWithoutVendorInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PaymentVoucherCreateManyCreatedByInput = {
@@ -995,10 +1155,11 @@ export type PaymentVoucherCreateManyCreatedByInput = {
   totalWht: runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: string | null
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentInfo?: string | null
   pdfUrl?: string | null
   status?: $Enums.StatusPaymentVoucher
   createdAt?: Date | string
-  updatedAt?: Date | string
 }
 
 export type PaymentVoucherUpdateWithoutCreatedByInput = {
@@ -1010,12 +1171,14 @@ export type PaymentVoucherUpdateWithoutCreatedByInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneRequiredWithoutPaymentVouchersNestedInput
   billingNotes?: Prisma.BillingNoteUpdateManyWithoutPaymentVoucherNestedInput
+  receipt?: Prisma.ReceiptUpdateOneWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherUncheckedUpdateWithoutCreatedByInput = {
@@ -1028,11 +1191,13 @@ export type PaymentVoucherUncheckedUpdateWithoutCreatedByInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingNotes?: Prisma.BillingNoteUncheckedUpdateManyWithoutPaymentVoucherNestedInput
+  receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutPaymentVoucherNestedInput
 }
 
 export type PaymentVoucherUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1045,10 +1210,11 @@ export type PaymentVoucherUncheckedUpdateManyWithoutCreatedByInput = {
   totalWht?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusPaymentVoucherFieldUpdateOperationsInput | $Enums.StatusPaymentVoucher
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1092,14 +1258,16 @@ export type PaymentVoucherSelect<ExtArgs extends runtime.Types.Extensions.Intern
   totalWht?: boolean
   netTotal?: boolean
   remark?: boolean
+  paymentMethod?: boolean
+  paymentInfo?: boolean
   pdfUrl?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
   billingNotes?: boolean | Prisma.PaymentVoucher$billingNotesArgs<ExtArgs>
+  receipt?: boolean | Prisma.PaymentVoucher$receiptArgs<ExtArgs>
   _count?: boolean | Prisma.PaymentVoucherCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentVoucher"]>
 
@@ -1113,11 +1281,12 @@ export type PaymentVoucherSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   totalWht?: boolean
   netTotal?: boolean
   remark?: boolean
+  paymentMethod?: boolean
+  paymentInfo?: boolean
   pdfUrl?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentVoucher"]>
@@ -1132,11 +1301,12 @@ export type PaymentVoucherSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   totalWht?: boolean
   netTotal?: boolean
   remark?: boolean
+  paymentMethod?: boolean
+  paymentInfo?: boolean
   pdfUrl?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["paymentVoucher"]>
@@ -1151,18 +1321,20 @@ export type PaymentVoucherSelectScalar = {
   totalWht?: boolean
   netTotal?: boolean
   remark?: boolean
+  paymentMethod?: boolean
+  paymentInfo?: boolean
   pdfUrl?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
-  updatedAt?: boolean
 }
 
-export type PaymentVoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherRef" | "vendorId" | "voucherDate" | "subtotal" | "totalVat" | "totalWht" | "netTotal" | "remark" | "pdfUrl" | "status" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentVoucher"]>
+export type PaymentVoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherRef" | "vendorId" | "voucherDate" | "subtotal" | "totalVat" | "totalWht" | "netTotal" | "remark" | "paymentMethod" | "paymentInfo" | "pdfUrl" | "status" | "createdById" | "createdAt", ExtArgs["result"]["paymentVoucher"]>
 export type PaymentVoucherInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
   billingNotes?: boolean | Prisma.PaymentVoucher$billingNotesArgs<ExtArgs>
+  receipt?: boolean | Prisma.PaymentVoucher$receiptArgs<ExtArgs>
   _count?: boolean | Prisma.PaymentVoucherCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PaymentVoucherIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1180,6 +1352,7 @@ export type $PaymentVoucherPayload<ExtArgs extends runtime.Types.Extensions.Inte
     createdBy: Prisma.$UserPayload<ExtArgs>
     vendor: Prisma.$VendorPayload<ExtArgs>
     billingNotes: Prisma.$BillingNotePayload<ExtArgs>[]
+    receipt: Prisma.$ReceiptPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1191,11 +1364,12 @@ export type $PaymentVoucherPayload<ExtArgs extends runtime.Types.Extensions.Inte
     totalWht: runtime.Decimal
     netTotal: runtime.Decimal
     remark: string | null
+    paymentMethod: $Enums.PaymentMethod | null
+    paymentInfo: string | null
     pdfUrl: string | null
     status: $Enums.StatusPaymentVoucher
     createdById: string
     createdAt: Date
-    updatedAt: Date
   }, ExtArgs["result"]["paymentVoucher"]>
   composites: {}
 }
@@ -1593,6 +1767,7 @@ export interface Prisma__PaymentVoucherClient<T, Null = never, ExtArgs extends r
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   vendor<T extends Prisma.VendorDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VendorDefaultArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   billingNotes<T extends Prisma.PaymentVoucher$billingNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PaymentVoucher$billingNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BillingNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receipt<T extends Prisma.PaymentVoucher$receiptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PaymentVoucher$receiptArgs<ExtArgs>>): Prisma.Prisma__ReceiptClient<runtime.Types.Result.GetResult<Prisma.$ReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1631,11 +1806,12 @@ export interface PaymentVoucherFieldRefs {
   readonly totalWht: Prisma.FieldRef<"PaymentVoucher", 'Decimal'>
   readonly netTotal: Prisma.FieldRef<"PaymentVoucher", 'Decimal'>
   readonly remark: Prisma.FieldRef<"PaymentVoucher", 'String'>
+  readonly paymentMethod: Prisma.FieldRef<"PaymentVoucher", 'PaymentMethod'>
+  readonly paymentInfo: Prisma.FieldRef<"PaymentVoucher", 'String'>
   readonly pdfUrl: Prisma.FieldRef<"PaymentVoucher", 'String'>
   readonly status: Prisma.FieldRef<"PaymentVoucher", 'StatusPaymentVoucher'>
   readonly createdById: Prisma.FieldRef<"PaymentVoucher", 'String'>
   readonly createdAt: Prisma.FieldRef<"PaymentVoucher", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"PaymentVoucher", 'DateTime'>
 }
     
 
@@ -2053,6 +2229,25 @@ export type PaymentVoucher$billingNotesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.BillingNoteScalarFieldEnum | Prisma.BillingNoteScalarFieldEnum[]
+}
+
+/**
+ * PaymentVoucher.receipt
+ */
+export type PaymentVoucher$receiptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Receipt
+   */
+  select?: Prisma.ReceiptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Receipt
+   */
+  omit?: Prisma.ReceiptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReceiptInclude<ExtArgs> | null
+  where?: Prisma.ReceiptWhereInput
 }
 
 /**

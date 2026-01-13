@@ -242,7 +242,7 @@ export const receiptRoutes = new Elysia({
                 });
 
                 // If reverting receipt to PENDING, also revert billing to PENDING
-                if (body.status === "PENDING" && body.revertBilling) {
+                if (body.status === "PENDING" && body.revertBilling && receipt.billingNoteId) {
                     await tx.billingNote.update({
                         where: { id: receipt.billingNoteId },
                         data: { statusBillingNote: "PENDING" },
@@ -289,30 +289,78 @@ export const receiptRoutes = new Elysia({
                 return { success: false, error: "Receipt not found" };
             }
 
-            // Remove related PDF files
-            const filesToDelete = [receipt.receiptFile, receipt.pdfUrl].filter(Boolean) as string[];
-            for (const fileUrl of filesToDelete) {
-                const filePath = path.join(process.cwd(), fileUrl);
-                if (existsSync(filePath)) {
-                    try {
-                        unlinkSync(filePath);
-                        console.log(`Deleted receipt file: ${filePath}`);
-                    } catch (err) {
-                        console.error(`Failed to delete receipt file (${filePath}):`, err);
+            // Determine if receipt is part of a Payment Voucher
+            let relatedReceipts: any[] = [receipt];
+            const paymentVoucherId = receipt.billingNote?.paymentVoucherId;
+
+            if (paymentVoucherId) {
+                // Find all billing notes (and their receipts) related to this PV
+                const otherNotes = await prisma.billingNote.findMany({
+                    where: { paymentVoucherId },
+                    include: { receipt: true }
+                });
+                // Extract unique receipts (filter out nulls)
+                relatedReceipts = otherNotes
+                    .map(n => n.receipt)
+                    .filter(r => r !== null);
+            }
+
+            // Remove related PDF files for ALL involved receipts
+            for (const r of relatedReceipts) {
+                const filesToDelete = [r.receiptFile, r.pdfUrl].filter(Boolean) as string[];
+                for (const fileUrl of filesToDelete) {
+                    const filePath = path.join(process.cwd(), fileUrl);
+                    if (existsSync(filePath)) {
+                        try {
+                            unlinkSync(filePath);
+                            console.log(`Deleted receipt file: ${filePath}`);
+                        } catch (err) {
+                            console.error(`Failed to delete receipt file (${filePath}):`, err);
+                        }
                     }
                 }
             }
 
-            // Transaction: Delete receipt and revert Billing Note status to PENDING
+            // Transaction: Handle deletion based on context
             await prisma.$transaction(async (tx) => {
-                await tx.billingNote.update({
-                    where: { id: receipt.billingNoteId },
-                    data: { statusBillingNote: "PENDING" },
-                });
+                if (paymentVoucherId) {
+                    // CASE 1: Linked to PV -> Delete PV, All Receipts, Revert Notes to SUBMITTED
 
-                await tx.receipt.delete({
-                    where: { id: params.id },
-                });
+                    // 1. Revert billing notes to SUBMITTED and Unlink PV
+                    await tx.billingNote.updateMany({
+                        where: { paymentVoucherId },
+                        data: {
+                            statusBillingNote: "SUBMITTED",
+                            paymentVoucherId: null
+                        },
+                    });
+
+                    // 2. Delete ALL related receipts
+                    const receiptIds = relatedReceipts.map(r => r.id);
+                    if (receiptIds.length > 0) {
+                        await tx.receipt.deleteMany({
+                            where: { id: { in: receiptIds } },
+                        });
+                    }
+
+                    // 3. Delete the Payment Voucher
+                    await tx.paymentVoucher.delete({
+                        where: { id: paymentVoucherId },
+                    });
+
+                } else {
+                    // CASE 2: Single Receipt -> Revert Note to PENDING
+                    if (receipt.billingNoteId) {
+                        await tx.billingNote.update({
+                            where: { id: receipt.billingNoteId },
+                            data: { statusBillingNote: "PENDING" },
+                        });
+                    }
+
+                    await tx.receipt.delete({
+                        where: { id: params.id },
+                    });
+                }
             });
 
             return { success: true, message: "Receipt deleted and billing note reverted to PENDING" };

@@ -27,9 +27,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-// PDF files: in dev use backend directly, in Docker use Nginx (empty prefix)
-const PDF_BASE_URL = import.meta.env.VITE_PDF_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8801" : "");
-
 // Helpers
 const safeFormatDate = (dateString: string | undefined | null, formatStr: string) => {
     if (!dateString) return "-";
@@ -58,11 +55,7 @@ const PrintIcon = () => (
     </svg>
 );
 
-const CancelIcon = () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-);
+
 
 export default function AdminVendorBillingPage() {
     const params = useParams({ strict: false });
@@ -100,11 +93,25 @@ export default function AdminVendorBillingPage() {
         },
     });
 
+    const rejectBillingMutation = useMutation({
+        mutationFn: (id: string) => billingApi.updateStatus(id, "PENDING"),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminBilling", vendorId] });
+            toast.success("ส่งคืนใบวางบิลกลับไปให้ Vendor แก้ไขเรียบร้อยแล้ว");
+        },
+        onError: () => {
+            toast.error("เกิดข้อผิดพลาดในการส่งคืนใบวางบิล");
+        },
+    });
+
     const billingNotes = billingData || [];
 
     // Filter Logic
     const filteredNotes = useMemo(() => {
         return billingNotes.filter((note) => {
+            // Hide PENDING notes (Vendor drafts)
+            if (note.statusBillingNote === "PENDING") return false;
+
             if (dateRange.start && dateRange.end) {
                 const noteDate = parseISO(note.billingDate);
                 const start = startOfDay(parseISO(dateRange.start));
@@ -125,13 +132,11 @@ export default function AdminVendorBillingPage() {
 
     const handleDownloadPdf = async (billingId: string) => {
         try {
-            const response = await pdfApi.generateBilling(billingId);
-            if (response.data.success && response.data.data) {
-                window.open(`${PDF_BASE_URL}${response.data.data.url}`, "_blank");
-                toast.success("เปิด PDF สำเร็จ");
-            } else {
-                toast.error("ไม่สามารถสร้าง PDF ได้");
-            }
+            const response = await pdfApi.getBillingPreview(billingId);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
+            toast.success("เปิด PDF สำเร็จ");
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดในการสร้าง PDF");
         }
@@ -168,24 +173,24 @@ export default function AdminVendorBillingPage() {
             className: "text-center",
             cell: (note) => (
                 <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.status === "PAID"
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.statusBillingNote === "PAID"
                         ? "bg-green-100 text-green-800"
-                        : note.status === "APPROVED"
+                        : note.statusBillingNote === "APPROVED"
                             ? "bg-emerald-100 text-emerald-800"
-                            : note.status === "SUBMITTED"
+                            : note.statusBillingNote === "SUBMITTED"
                                 ? "bg-blue-100 text-blue-800"
-                                : note.status === "CANCELLED"
+                                : note.statusBillingNote === "CANCELLED"
                                     ? "bg-gray-100 text-gray-800"
                                     : "bg-yellow-100 text-yellow-800"
                         }`}
                 >
-                    {note.status === "PAID"
+                    {note.statusBillingNote === "PAID"
                         ? "ชำระแล้ว"
-                        : note.status === "APPROVED"
+                        : note.statusBillingNote === "APPROVED"
                             ? "อนุมัติแล้ว"
-                            : note.status === "SUBMITTED"
+                            : note.statusBillingNote === "SUBMITTED"
                                 ? "ส่งแล้ว"
-                                : note.status === "CANCELLED"
+                                : note.statusBillingNote === "CANCELLED"
                                     ? "ยกเลิก"
                                     : "รอดำเนินการ"}
                 </span>
@@ -210,25 +215,67 @@ export default function AdminVendorBillingPage() {
                         </TooltipContent>
                     </Tooltip>
 
-                    {note.status === "PENDING" && (
+                    {note.statusBillingNote === "SUBMITTED" && !note.paymentVoucherId && (
+                        <AlertDialog>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <AlertDialogTrigger asChild>
+                                        <button className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                            </svg>
+                                        </button>
+                                    </AlertDialogTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>ส่งกลับแก้ไข</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>ส่งคืนใบวางบิล?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        ต้องการส่งคืนใบวางบิลเลขที่ {note.billingRef} กลับไปให้ Vendor แก้ไขใช่หรือไม่?
+                                        <br />
+                                        <span className="text-red-500 text-sm">* สถานะจะถูกเปลี่ยนกลับเป็น "รอดำเนินการ"</span>
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() => rejectBillingMutation.mutate(note.id)}
+                                        className="bg-orange-600 hover:bg-orange-700"
+                                    >
+                                        ยืนยันส่งคืน
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
+
+                    {note.statusBillingNote === "PENDING" && (
                         <AlertDialog>
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <AlertDialogTrigger asChild>
                                         <button className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors">
-                                            <CancelIcon />
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
                                         </button>
                                     </AlertDialogTrigger>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>Cancel</p>
+                                    <p>ลบใบวางบิล</p>
                                 </TooltipContent>
                             </Tooltip>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
-                                    <AlertDialogTitle>ยกเลิกใบวางบิล?</AlertDialogTitle>
+                                    <AlertDialogTitle>ลบใบวางบิล?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        ต้องการยกเลิกใบวางบิลเลขที่ {note.billingRef} ใช่หรือไม่?
+                                        ต้องการลบใบวางบิลเลขที่ {note.billingRef} ใช่หรือไม่?
+                                        <br />
+                                        <span className="text-red-500 text-sm">* การลบจะทำให้เลขที่ใบวางบิลหายไปจากระบบ</span>
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -237,7 +284,7 @@ export default function AdminVendorBillingPage() {
                                         onClick={() => cancelBillingMutation.mutate(note.id)}
                                         className="bg-red-600 hover:bg-red-700"
                                     >
-                                        ยืนยัน
+                                        ยืนยันลบ
                                     </AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
@@ -291,7 +338,7 @@ export default function AdminVendorBillingPage() {
                     }}
                     rowKey={(note) => note.id}
                     emptyMessage="ไม่พบข้อมูลใบวางบิล"
-                    maxHeight="calc(100vh - 350px)"
+                    maxHeight="calc(100vh - 365px)"
                     showIndex={true}
                 />
 

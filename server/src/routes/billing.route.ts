@@ -168,6 +168,9 @@ export const billingRoutes = new Elysia({
               include: { items: true },
             },
             receipt: true,
+            paymentVoucher: {
+              include: { receipt: true }
+            },
           },
           orderBy: { createdAt: "desc" },
           skip: (parseInt(page) - 1) * parseInt(limit),
@@ -220,6 +223,9 @@ export const billingRoutes = new Elysia({
             include: { items: true },
           },
           receipt: true,
+          paymentVoucher: {
+            include: { receipt: true }
+          },
           vendor: true,
         },
       });
@@ -419,6 +425,16 @@ export const billingRoutes = new Elysia({
         return { success: false, error: "Billing note not found" };
       }
 
+      // Check if reverting to PENDING/SUBMITTED while attached to PaymentVoucher
+      if ((body.status === "PENDING" || body.status === "SUBMITTED") && billing.paymentVoucherId) {
+        // Allow status update if it aligns with PV status (e.g. APPROVED -> APPROVED)?
+        // But here we are concerned about "Rejecting" (going back to PENDING/SUBMITTED).
+        // Actually, if it's attached to PV, it implies it's being processed.
+        // If user tries to set it to PENDING, we must block.
+        set.status = 400;
+        return { success: false, error: "Cannot change status while attached to Payment Voucher" };
+      }
+
       const updated = await prisma.billingNote.update({
         where: { id: params.id },
         data: { statusBillingNote: body.status },
@@ -471,22 +487,28 @@ export const billingRoutes = new Elysia({
 
       if (billing.receipt) {
         set.status = 400;
-        return { success: false, error: "Cannot cancel billing note with receipt" };
+        return { success: false, error: "Cannot delete billing note with receipt" };
       }
 
-      // Transaction: Update status to CANCELLED and release jobs
-      await prisma.$transaction(async (tx) => {
-        await tx.billingNote.update({
-          where: { id: billing.id },
-          data: { statusBillingNote: "CANCELLED" },
-        });
+      if (billing.paymentVoucherId) {
+        set.status = 400;
+        return { success: false, error: "Cannot delete billing note attached to payment voucher" };
+      }
 
+      // Transaction: Delete billing note and release jobs
+      await prisma.$transaction(async (tx) => {
+        // 1. Release jobs (Must be done before deleting parent if not cascading)
         await tx.job.updateMany({
           where: { billingNoteId: billing.id },
           data: {
             billingNoteId: null,
             statusJob: "PENDING",
           },
+        });
+
+        // 2. Delete BillingNote
+        await tx.billingNote.delete({
+          where: { id: billing.id },
         });
       });
 

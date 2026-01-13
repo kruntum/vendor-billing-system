@@ -209,6 +209,7 @@ export type UserWhereInput = {
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
   paymentVouchers?: Prisma.PaymentVoucherListRelationFilter
+  cashAdvancePayments?: Prisma.CashAdvancePaymentListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -223,6 +224,7 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.RoleOrderByWithRelationInput
   vendor?: Prisma.VendorOrderByWithRelationInput
   paymentVouchers?: Prisma.PaymentVoucherOrderByRelationAggregateInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -240,6 +242,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
   paymentVouchers?: Prisma.PaymentVoucherListRelationFilter
+  cashAdvancePayments?: Prisma.CashAdvancePaymentListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -280,6 +283,7 @@ export type UserCreateInput = {
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   vendor?: Prisma.VendorCreateNestedOneWithoutUsersInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutCreatedByInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -292,6 +296,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutCreatedByInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserUpdateInput = {
@@ -304,6 +309,7 @@ export type UserUpdateInput = {
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   vendor?: Prisma.VendorUpdateOneWithoutUsersNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutCreatedByNestedInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -316,6 +322,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutCreatedByNestedInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -499,6 +506,20 @@ export type UserUpdateOneRequiredWithoutPaymentVouchersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPaymentVouchersInput, Prisma.UserUpdateWithoutPaymentVouchersInput>, Prisma.UserUncheckedUpdateWithoutPaymentVouchersInput>
 }
 
+export type UserCreateNestedOneWithoutCashAdvancePaymentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCashAdvancePaymentsInput, Prisma.UserUncheckedCreateWithoutCashAdvancePaymentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCashAdvancePaymentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCashAdvancePaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCashAdvancePaymentsInput, Prisma.UserUncheckedCreateWithoutCashAdvancePaymentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCashAdvancePaymentsInput
+  upsert?: Prisma.UserUpsertWithoutCashAdvancePaymentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCashAdvancePaymentsInput, Prisma.UserUpdateWithoutCashAdvancePaymentsInput>, Prisma.UserUncheckedUpdateWithoutCashAdvancePaymentsInput>
+}
+
 export type UserCreateWithoutRoleInput = {
   id?: string
   email: string
@@ -508,6 +529,7 @@ export type UserCreateWithoutRoleInput = {
   updatedAt?: Date | string
   vendor?: Prisma.VendorCreateNestedOneWithoutUsersInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutCreatedByInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserUncheckedCreateWithoutRoleInput = {
@@ -519,6 +541,7 @@ export type UserUncheckedCreateWithoutRoleInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutCreatedByInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserCreateOrConnectWithoutRoleInput = {
@@ -570,6 +593,7 @@ export type UserCreateWithoutVendorInput = {
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutCreatedByInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserUncheckedCreateWithoutVendorInput = {
@@ -581,6 +605,7 @@ export type UserUncheckedCreateWithoutVendorInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutCreatedByInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserCreateOrConnectWithoutVendorInput = {
@@ -618,6 +643,7 @@ export type UserCreateWithoutPaymentVouchersInput = {
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   vendor?: Prisma.VendorCreateNestedOneWithoutUsersInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserUncheckedCreateWithoutPaymentVouchersInput = {
@@ -629,6 +655,7 @@ export type UserUncheckedCreateWithoutPaymentVouchersInput = {
   vendorId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedCreateNestedManyWithoutApprovedByInput
 }
 
 export type UserCreateOrConnectWithoutPaymentVouchersInput = {
@@ -656,6 +683,7 @@ export type UserUpdateWithoutPaymentVouchersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   vendor?: Prisma.VendorUpdateOneWithoutUsersNestedInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentVouchersInput = {
@@ -667,6 +695,71 @@ export type UserUncheckedUpdateWithoutPaymentVouchersInput = {
   vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedUpdateManyWithoutApprovedByNestedInput
+}
+
+export type UserCreateWithoutCashAdvancePaymentsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  vendor?: Prisma.VendorCreateNestedOneWithoutUsersInput
+  paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutCashAdvancePaymentsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name?: string | null
+  roleId: string
+  vendorId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutCashAdvancePaymentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCashAdvancePaymentsInput, Prisma.UserUncheckedCreateWithoutCashAdvancePaymentsInput>
+}
+
+export type UserUpsertWithoutCashAdvancePaymentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCashAdvancePaymentsInput, Prisma.UserUncheckedUpdateWithoutCashAdvancePaymentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCashAdvancePaymentsInput, Prisma.UserUncheckedCreateWithoutCashAdvancePaymentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCashAdvancePaymentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCashAdvancePaymentsInput, Prisma.UserUncheckedUpdateWithoutCashAdvancePaymentsInput>
+}
+
+export type UserUpdateWithoutCashAdvancePaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  vendor?: Prisma.VendorUpdateOneWithoutUsersNestedInput
+  paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCashAdvancePaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.StringFieldUpdateOperationsInput | string
+  vendorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyRoleInput = {
@@ -688,6 +781,7 @@ export type UserUpdateWithoutRoleInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneWithoutUsersNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutCreatedByNestedInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRoleInput = {
@@ -699,6 +793,7 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutCreatedByNestedInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutRoleInput = {
@@ -730,6 +825,7 @@ export type UserUpdateWithoutVendorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutCreatedByNestedInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVendorInput = {
@@ -741,6 +837,7 @@ export type UserUncheckedUpdateWithoutVendorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutCreatedByNestedInput
+  cashAdvancePayments?: Prisma.CashAdvancePaymentUncheckedUpdateManyWithoutApprovedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutVendorInput = {
@@ -760,10 +857,12 @@ export type UserUncheckedUpdateManyWithoutVendorInput = {
 
 export type UserCountOutputType = {
   paymentVouchers: number
+  cashAdvancePayments: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   paymentVouchers?: boolean | UserCountOutputTypeCountPaymentVouchersArgs
+  cashAdvancePayments?: boolean | UserCountOutputTypeCountCashAdvancePaymentsArgs
 }
 
 /**
@@ -783,6 +882,13 @@ export type UserCountOutputTypeCountPaymentVouchersArgs<ExtArgs extends runtime.
   where?: Prisma.PaymentVoucherWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCashAdvancePaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CashAdvancePaymentWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -796,6 +902,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   vendor?: boolean | Prisma.User$vendorArgs<ExtArgs>
   paymentVouchers?: boolean | Prisma.User$paymentVouchersArgs<ExtArgs>
+  cashAdvancePayments?: boolean | Prisma.User$cashAdvancePaymentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -841,6 +948,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   vendor?: boolean | Prisma.User$vendorArgs<ExtArgs>
   paymentVouchers?: boolean | Prisma.User$paymentVouchersArgs<ExtArgs>
+  cashAdvancePayments?: boolean | Prisma.User$cashAdvancePaymentsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -858,6 +966,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: Prisma.$RolePayload<ExtArgs>
     vendor: Prisma.$VendorPayload<ExtArgs> | null
     paymentVouchers: Prisma.$PaymentVoucherPayload<ExtArgs>[]
+    cashAdvancePayments: Prisma.$CashAdvancePaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1265,6 +1374,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   vendor<T extends Prisma.User$vendorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$vendorArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   paymentVouchers<T extends Prisma.User$paymentVouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$paymentVouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cashAdvancePayments<T extends Prisma.User$cashAdvancePaymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$cashAdvancePaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashAdvancePaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1738,6 +1848,30 @@ export type User$paymentVouchersArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.PaymentVoucherScalarFieldEnum | Prisma.PaymentVoucherScalarFieldEnum[]
+}
+
+/**
+ * User.cashAdvancePayments
+ */
+export type User$cashAdvancePaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CashAdvancePayment
+   */
+  select?: Prisma.CashAdvancePaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CashAdvancePayment
+   */
+  omit?: Prisma.CashAdvancePaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CashAdvancePaymentInclude<ExtArgs> | null
+  where?: Prisma.CashAdvancePaymentWhereInput
+  orderBy?: Prisma.CashAdvancePaymentOrderByWithRelationInput | Prisma.CashAdvancePaymentOrderByWithRelationInput[]
+  cursor?: Prisma.CashAdvancePaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CashAdvancePaymentScalarFieldEnum | Prisma.CashAdvancePaymentScalarFieldEnum[]
 }
 
 /**

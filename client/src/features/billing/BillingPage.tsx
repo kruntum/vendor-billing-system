@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { billingApi, pdfApi, receiptApi, BillingNote } from "@/lib/api";
+import { billingApi, pdfApi, receiptApi, paymentVoucherApi, BillingNote } from "@/lib/api";
 import { BillingForm } from "./BillingForm";
 import { BillingDetailModal } from "./BillingDetailModal";
 import { ReceiptDateModal } from "./ReceiptDateModal";
+import { BillingNotePreviewDialog } from "./BillingNotePreviewDialog";
 import { format, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
 import {
     Tooltip,
@@ -26,9 +27,6 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// PDF files: in dev use backend directly, in Docker use Nginx (empty prefix)
-const PDF_BASE_URL = import.meta.env.VITE_PDF_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8801" : "");
-
 // Icons
 const EditIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,8 +42,7 @@ const CancelIcon = () => (
 
 const ViewIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
 );
 
@@ -67,11 +64,18 @@ const SendIcon = () => (
     </svg>
 );
 
+const PreviewIcon = () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
+    </svg>
+);
+
 export default function BillingPage() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedBilling, setSelectedBilling] = useState<BillingNote | null>(null);
     const [isPdfGenerating, setIsPdfGenerating] = useState(false);
     const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+    const [previewBilling, setPreviewBilling] = useState<BillingNote | null>(null);
 
     // Filter & Pagination State
     const [searchTerm, setSearchTerm] = useState("");
@@ -232,13 +236,10 @@ export default function BillingPage() {
 
         setIsPdfGenerating(true);
         try {
-            const response = await pdfApi.generateBilling(selectedBilling.id);
-            if (response.data.success && response.data.data) {
-                const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
-                window.open(pdfUrl, "_blank");
-            } else {
-                toast.error("ไม่สามารถสร้างไฟล์ PDF ได้");
-            }
+            const response = await pdfApi.getBillingPreview(selectedBilling.id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
         } catch (error) {
             console.error("PDF generation error:", error);
             toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
@@ -250,14 +251,10 @@ export default function BillingPage() {
     const handlePrintDirect = async (note: BillingNote) => {
         setIsPdfGenerating(true);
         try {
-            const response = await pdfApi.generateBilling(note.id);
-            if (response.data.success && response.data.data) {
-                const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
-                window.open(pdfUrl, "_blank");
-            } else {
-                console.error("API returned error:", response.data.error);
-                toast.error("ไม่สามารถสร้างไฟล์ PDF ใบวางบิลได้");
-            }
+            const response = await pdfApi.getBillingPreview(note.id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
         } catch (error: any) {
             console.error("PDF generation error:", error);
             console.error("Error response:", error?.response?.data);
@@ -267,20 +264,61 @@ export default function BillingPage() {
         }
     };
 
+    const renderJobsTable = (note: BillingNote) => {
+        if (!note.jobs || note.jobs.length === 0) return <div className="p-4 text-center text-gray-500 text-sm">ไม่มีรายการงาน</div>;
+
+        return (
+            <div className="pl-12 pr-4 py-2 bg-gray-100/50">
+                <h4 className="text-xs font-semibold text-gray-500 mb-2">รายการงาน (Jobs)</h4>
+                <div className="bg-white border rounded-lg overflow-hidden shadow-sm">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase w-10">#</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Container No</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Truck Plate</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Invoice No</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Declaration No</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                                <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {note.jobs.map((job: any, index: number) => {
+                                // Note: job.items calculation might be needed if amount is not directly available or depends on items
+                                // Based on PaymentVoucherPage checking if amount is available directly or needs summing
+                                const amount = job.totalAmount || (job.items?.reduce((sum: number, item: any) => sum + Number(item.amount), 0) || 0);
+                                return (
+                                    <tr key={job.id}>
+                                        <td className="px-4 py-2 text-sm text-gray-500">{index + 1}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.containerNo || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.truckPlate || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.refInvoiceNo || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.declarationNo || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900">{job.description || "-"}</td>
+                                        <td className="px-4 py-2 text-sm text-gray-900 text-right">{Number(amount).toLocaleString()} ฿</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
+
     const handlePrintReceipt = async () => {
-        if (!selectedBilling?.receipt) return;
+        const receipt = selectedBilling?.receipt || selectedBilling?.paymentVoucher?.receipt;
+        if (!receipt) return;
 
         setIsPdfGenerating(true);
         try {
-            const response = await pdfApi.generateReceipt(selectedBilling.receipt.id);
-            if (response.data.success && response.data.data) {
-                const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
-                window.open(pdfUrl, "_blank");
-            } else {
-                toast.error("ไม่สามารถสร้างไฟล์ PDF ใบเสร็จได้");
-            }
+            const response = await pdfApi.getReceiptPreview(receipt.id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
         } catch (error) {
-            console.error("PDF generation error:", error);
+            console.error("Receipt PDF generation error:", error);
             toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF ใบเสร็จ");
         } finally {
             setIsPdfGenerating(false);
@@ -288,18 +326,16 @@ export default function BillingPage() {
     };
 
     const handlePrintReceiptDirect = async (note: BillingNote) => {
-        if (!note.receipt) return;
+        const receipt = note.receipt || note.paymentVoucher?.receipt;
+        if (!receipt) return;
         setIsPdfGenerating(true);
         try {
-            const response = await pdfApi.generateReceipt(note.receipt.id);
-            if (response.data.success && response.data.data) {
-                const pdfUrl = `${PDF_BASE_URL}${response.data.data.url}`;
-                window.open(pdfUrl, "_blank");
-            } else {
-                toast.error("ไม่สามารถสร้างไฟล์ PDF ใบเสร็จได้");
-            }
+            const response = await pdfApi.getReceiptPreview(receipt.id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
         } catch (error) {
-            console.error("PDF generation error:", error);
+            console.error("Receipt PDF generation error:", error);
             toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF ใบเสร็จ");
         } finally {
             setIsPdfGenerating(false);
@@ -310,18 +346,26 @@ export default function BillingPage() {
         setIsReceiptModalOpen(true);
     };
 
-    const handleConfirmReceipt = async (date: string) => {
+    const handleConfirmReceipt = async (data: any) => {
         if (!selectedBilling) return;
 
         try {
-            await receiptApi.create(selectedBilling.id, new Date(date).toISOString());
+            if (selectedBilling.paymentVoucherId) {
+                // New flow: Confirm Payment on PV
+                await paymentVoucherApi.confirmPayment(selectedBilling.paymentVoucherId, data);
+            } else {
+                // Legacy flow: Create Receipt on Billing Note
+                await receiptApi.create(selectedBilling.id, data.paymentDate);
+            }
+
             queryClient.invalidateQueries({ queryKey: ["billing"] });
             queryClient.invalidateQueries({ queryKey: ["jobs"] });
-            toast.success("ออกใบเสร็จเรียบร้อยแล้ว");
+            setIsReceiptModalOpen(false);
+            toast.success("บันทึกการรับเงินและออกใบเสร็จเรียบร้อยแล้ว");
             handleCloseDetails();
         } catch (error) {
-            console.error("Issue receipt error:", error);
-            toast.error("เกิดข้อผิดพลาดในการออกใบเสร็จ");
+            console.error("Receipt creation error:", error);
+            toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
         }
     };
 
@@ -358,24 +402,24 @@ export default function BillingPage() {
             className: "text-center",
             cell: (note) => (
                 <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.status === "PAID"
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${note.statusBillingNote === "PAID"
                         ? "bg-green-100 text-green-800"
-                        : note.status === "APPROVED"
+                        : note.statusBillingNote === "APPROVED"
                             ? "bg-emerald-100 text-emerald-800"
-                            : note.status === "SUBMITTED"
+                            : note.statusBillingNote === "SUBMITTED"
                                 ? "bg-blue-100 text-blue-800"
-                                : note.status === "CANCELLED"
+                                : note.statusBillingNote === "CANCELLED"
                                     ? "bg-gray-100 text-gray-800"
                                     : "bg-yellow-100 text-yellow-800"
                         }`}
                 >
-                    {note.status === "PAID"
-                        ? "ชำระแล้ว"
-                        : note.status === "APPROVED"
+                    {note.statusBillingNote === "PAID"
+                        ? "ออกใบเสร็จแล้ว"
+                        : note.statusBillingNote === "APPROVED"
                             ? "อนุมัติแล้ว"
-                            : note.status === "SUBMITTED"
+                            : note.statusBillingNote === "SUBMITTED"
                                 ? "ส่งแล้ว"
-                                : note.status === "CANCELLED"
+                                : note.statusBillingNote === "CANCELLED"
                                     ? "ยกเลิก"
                                     : "รอดำเนินการ"}
                 </span>
@@ -384,20 +428,22 @@ export default function BillingPage() {
         {
             header: "ใบเสร็จ",
             className: "text-center",
-            cell: (note) => (
-                note.receipt ? (
-                    <span className="text-xs text-green-600">{note.receipt.receiptRef}</span>
+            cell: (note) => {
+                const receipt = note.receipt || note.paymentVoucher?.receipt;
+                return receipt ? (
+                    <span className="text-xs text-green-600">{receipt.receiptRef}</span>
                 ) : (
                     <span className="text-xs text-gray-400">-</span>
-                )
-            ),
+                );
+            },
         },
         {
             header: "จัดการ",
             className: "text-center",
             cell: (note) => {
-                const canEdit = note.status === "PENDING";
-                const hasReceipt = !!note.receipt;
+                const canEdit = note.statusBillingNote === "PENDING";
+                const hasReceipt = !!(note.receipt || note.paymentVoucher?.receipt);
+                const canConfirm = note.statusBillingNote === "APPROVED" && !hasReceipt; // Approved = Waiting for Payment/Receipt
 
                 return (
                     <div className="flex items-center justify-center gap-2">
@@ -450,6 +496,20 @@ export default function BillingPage() {
                                 </AlertDialogContent>
                             </AlertDialog>
                         )}
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button
+                                    onClick={() => setPreviewBilling(note)}
+                                    className="p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-colors"
+                                >
+                                    <PreviewIcon />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>ดูตัวอย่าง PDF</p>
+                            </TooltipContent>
+                        </Tooltip>
 
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -532,6 +592,28 @@ export default function BillingPage() {
                                 </AlertDialog>
                             </>
                         )}
+
+                        {canConfirm && (
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedBilling(note);
+                                            setIsReceiptModalOpen(true);
+                                        }}
+                                        className="h-8 px-3 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md shadow-sm transition-colors flex items-center gap-1.5 whitespace-nowrap"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        ยืนยันรับเงิน
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>บันทึกการรับเงินและออกใบเสร็จ</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        )}
                     </div>
                 );
             },
@@ -580,8 +662,9 @@ export default function BillingPage() {
                     onPageSizeChange={handlePageSizeChange}
                     rowKey={(note) => note.id}
                     emptyMessage="ไม่พบข้อมูลใบวางบิล"
-                    maxHeight="calc(100vh - 350px)"
+                    maxHeight="calc(100vh - 365px)"
                     showIndex={true}
+                    renderSubComponent={renderJobsTable}
                 />
 
                 {isFormOpen && (
@@ -621,6 +704,11 @@ export default function BillingPage() {
                 />
 
             </div>
+            {/* Other Modals */}
+            <BillingNotePreviewDialog
+                billing={previewBilling}
+                onClose={() => setPreviewBilling(null)}
+            />
         </TooltipProvider>
     );
 }

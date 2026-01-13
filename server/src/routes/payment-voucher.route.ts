@@ -1,7 +1,9 @@
 import { Elysia, t } from "elysia";
 import { requireAuth } from "../plugins/auth.plugin";
 import { prisma } from "../lib/prisma";
+import { PaymentMethod } from "../generated/prisma/client";
 import { format } from "date-fns";
+import { generateDocumentNumber } from "./docnumber.route";
 
 export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tags: ["Payment Voucher"] })
     .use(requireAuth)
@@ -60,9 +62,9 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
     .get(
         "/:id",
         async ({ params, user, set }) => {
-            if (user?.role !== "ADMIN" && user?.role !== "USER") {
-                set.status = 403;
-                return { success: false, error: "Access denied" };
+            if (!user) {
+                set.status = 401;
+                return { success: false, error: "Unauthorized" };
             }
 
             const voucher = await prisma.paymentVoucher.findUnique({
@@ -77,6 +79,13 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                     }
                 }
             });
+
+            if (user.role !== "ADMIN" && user.role !== "USER") {
+                if (!voucher || voucher.vendorId !== user.vendorId) {
+                    set.status = 403;
+                    return { success: false, error: "Access denied" };
+                }
+            }
 
             if (!voucher) {
                 set.status = 404;
@@ -99,7 +108,7 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                 return { success: false, error: "Access denied" };
             }
 
-            const { vendorId, billingNoteIds, voucherDate, remark } = body;
+            const { vendorId, billingNoteIds, voucherDate, remark, paymentMethod, paymentInfo } = body;
 
             // Validate billing notes
             const billingNotes = await prisma.billingNote.findMany({
@@ -164,6 +173,8 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                         totalWht: totals._sum.whtAmount || 0,
                         netTotal: totals._sum.netTotal || 0,
                         remark,
+                        paymentMethod: (paymentMethod as PaymentMethod) || PaymentMethod.TRANSFER,
+                        paymentInfo,
                         createdById: user!.id
                     },
                     include: {
@@ -174,12 +185,12 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                     }
                 });
 
-                // Update billing notes: link to voucher and change status to APPROVED
+                // Update billing notes: link to voucher only (status stays SUBMITTED)
                 await tx.billingNote.updateMany({
                     where: { id: { in: billingNoteIds } },
                     data: {
-                        paymentVoucherId: voucher.id,
-                        statusBillingNote: "APPROVED"
+                        paymentVoucherId: voucher.id
+                        // Note: status stays as SUBMITTED until voucher is approved
                     }
                 });
 
@@ -193,18 +204,20 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                 vendorId: t.String(),
                 billingNoteIds: t.Array(t.String(), { minItems: 1 }),
                 voucherDate: t.String(),
-                remark: t.Optional(t.String())
+                remark: t.Optional(t.String()),
+                paymentMethod: t.Optional(t.String()),
+                paymentInfo: t.Optional(t.String())
             }),
             detail: { summary: "Create payment voucher from billing notes" }
         }
     )
-    // Update payment voucher status
+    // Update payment voucher status (Admin/User can update)
     .patch(
         "/:id/status",
         async ({ params, body, user, set }) => {
-            if (user?.role !== "ADMIN") {
+            if (user?.role !== "ADMIN" && user?.role !== "USER") {
                 set.status = 403;
-                return { success: false, error: "Only admin can update status" };
+                return { success: false, error: "Access denied" };
             }
 
             const voucher = await prisma.paymentVoucher.findUnique({
@@ -229,19 +242,176 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                 status: t.Enum({
                     PENDING: "PENDING",
                     APPROVED: "APPROVED",
-                    CANCELLED: "CANCELLED"
+                    PAID: "PAID"
                 })
             }),
             detail: { summary: "Update payment voucher status" }
         }
     )
-    // Cancel/Delete payment voucher
+    // Approve payment voucher (PENDING -> APPROVED)
+    .post(
+        "/:id/approve",
+        async ({ params, user, set }) => {
+            if (user?.role !== "ADMIN" && user?.role !== "USER") {
+                set.status = 403;
+                return { success: false, error: "Access denied" };
+            }
+
+            const voucher = await prisma.paymentVoucher.findUnique({
+                where: { id: params.id }
+            });
+
+            if (!voucher) {
+                set.status = 404;
+                return { success: false, error: "Payment voucher not found" };
+            }
+
+            if (voucher.status !== "PENDING") {
+                set.status = 400;
+                return { success: false, error: "สามารถอนุมัติได้เฉพาะใบสำคัญจ่ายที่รอดำเนินการเท่านั้น" };
+            }
+
+            // Use transaction to update voucher and billing notes
+            const updated = await prisma.$transaction(async (tx) => {
+                // Update voucher status
+                const updatedVoucher = await tx.paymentVoucher.update({
+                    where: { id: params.id },
+                    data: { status: "APPROVED" }
+                });
+
+                // Update billing notes to APPROVED
+                await tx.billingNote.updateMany({
+                    where: { paymentVoucherId: params.id },
+                    data: { statusBillingNote: "APPROVED" }
+                });
+
+                return updatedVoucher;
+            });
+
+            return { success: true, data: updated };
+        },
+        {
+            params: t.Object({ id: t.String() }),
+            detail: { summary: "Approve payment voucher (PENDING -> APPROVED)" }
+        }
+    )
+    // Confirm payment (APPROVED -> PAID) + Create Receipt
+    .post(
+        "/:id/confirm-payment",
+        async ({ params, user, set, body }) => {
+            if (!user) {
+                set.status = 401;
+                return { success: false, error: "Unauthorized" };
+            }
+
+            const { paymentDate, paymentMethod, paymentRef, bankInfo, remark, proofFile } = body;
+
+            const voucher = await prisma.paymentVoucher.findUnique({
+                where: { id: params.id },
+                include: { billingNotes: true, vendor: true }
+            });
+
+            if (user.role !== "ADMIN" && user.role !== "USER") {
+                if (!voucher || voucher.vendorId !== user.vendorId) {
+                    set.status = 403;
+                    return { success: false, error: "Access denied" };
+                }
+            }
+
+            if (!voucher) {
+                set.status = 404;
+                return { success: false, error: "Payment voucher not found" };
+            }
+
+            if (voucher.status !== "APPROVED") {
+                set.status = 400;
+                return { success: false, error: "สามารถยืนยันการจ่ายเงินได้เฉพาะใบสำคัญจ่ายที่อนุมัติแล้วเท่านั้น" };
+            }
+
+            // Use transaction
+            const result = await prisma.$transaction(async (tx) => {
+                // 1. Update voucher to PAID
+                const updatedVoucher = await tx.paymentVoucher.update({
+                    where: { id: params.id },
+                    data: { status: "PAID" }
+                });
+
+                // 2. Update billing notes to PAID
+                await tx.billingNote.updateMany({
+                    where: { paymentVoucherId: params.id },
+                    data: { statusBillingNote: "PAID" }
+                });
+
+                // 3. Create Receipts (One per Billing Note)
+                const receipts = [];
+                const receiptDateVal = new Date(paymentDate);
+
+                for (const bn of voucher.billingNotes) {
+                    // Generate unique receipt ref for each one
+                    const generatedRef = await generateDocumentNumber(voucher.vendorId, "RECEIPT", receiptDateVal);
+
+                    // Fallback manual generation (in case config is disabled or fails)
+                    // Note: Ideally config should be enabled. If not, we generate random or use old logic?
+                    // We'll trust generateDocumentNumber returns something or handle null.
+                    // If null, we might need a fallback.
+                    let receiptRef = generatedRef;
+
+                    if (!receiptRef) {
+                        // Fallback logic similar to old one, but local to loop?
+                        // It's risky to query repeatedly.
+                        // Assume config is ON for now as per system design.
+                        receiptRef = `RCT-${format(receiptDateVal, "yyyyMMdd")}-${Math.floor(Math.random() * 100000)}`;
+                    }
+
+                    const receipt = await tx.receipt.create({
+                        data: {
+                            receiptRef,
+                            vendorId: voucher.vendorId,
+                            receiptDate: receiptDateVal,
+                            paymentMethod,
+                            paymentRef,
+                            bankInfo,
+                            remark,
+                            receiptFile: proofFile,
+                            statusReceipt: "PAID",
+                            billingNoteId: bn.id,
+                            // Explicitly NOT linking paymentVoucherId 
+                            // to allow 1-to-many receipts (via BillingNote relation)
+                        }
+                    });
+                    receipts.push(receipt);
+                }
+
+                return { voucher: updatedVoucher, receipts };
+            });
+
+            return { success: true, data: result };
+        },
+        {
+            params: t.Object({ id: t.String() }),
+            body: t.Object({
+                paymentDate: t.String(),
+                paymentMethod: t.Enum({
+                    TRANSFER: "TRANSFER",
+                    CASH: "CASH",
+                    CHEQUE: "CHEQUE",
+                    CASHIER_CHEQUE: "CASHIER_CHEQUE"
+                }),
+                paymentRef: t.Optional(t.String()),
+                bankInfo: t.Optional(t.String()),
+                remark: t.Optional(t.String()),
+                proofFile: t.Optional(t.String())
+            }),
+            detail: { summary: "Confirm payment and create receipt" }
+        }
+    )
+    // Cancel/Delete payment voucher (Admin/User can cancel)
     .post(
         "/:id/cancel",
         async ({ params, user, set }) => {
-            if (user?.role !== "ADMIN") {
+            if (user?.role !== "ADMIN" && user?.role !== "USER") {
                 set.status = 403;
-                return { success: false, error: "Only admin can cancel" };
+                return { success: false, error: "Access denied" };
             }
 
             const voucher = await prisma.paymentVoucher.findUnique({

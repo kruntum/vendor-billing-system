@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { jobApi, Job, CreateJobInput } from "@/lib/api";
+import { JobDetailModal } from "./JobDetailModal";
 import { JobForm } from "./JobForm";
 import { format, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
 import {
@@ -13,6 +14,12 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { SearchToolbar } from "@/components/ui/search-toolbar";
 
 // Icons
+const ViewIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
 const CopyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
@@ -40,6 +47,7 @@ const TrashIcon = () => (
 export default function JobsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [viewingJob, setViewingJob] = useState<Job | null>(null);
   const [initialFormValues, setInitialFormValues] = useState<Partial<CreateJobInput> | null>(null);
 
   // Filter & Pagination State
@@ -220,6 +228,20 @@ export default function JobsPage() {
           <Tooltip>
             <TooltipTrigger asChild>
               <button
+                onClick={() => setViewingJob(job)}
+                className="p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-colors"
+              >
+                <ViewIcon />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>ดูรายละเอียด</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
                 onClick={() => handleCopy(job)}
                 className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
               >
@@ -307,7 +329,7 @@ export default function JobsPage() {
           onPageSizeChange={handlePageSizeChange}
           rowKey={(job) => job.id}
           emptyMessage="ไม่พบข้อมูลงาน"
-          maxHeight="calc(100vh - 350px)"
+          maxHeight="calc(100vh - 365px)"
           showIndex={true}
         />
 
@@ -322,6 +344,11 @@ export default function JobsPage() {
             }}
           />
         )}
+
+        <JobDetailModal
+          job={viewingJob}
+          onClose={() => setViewingJob(null)}
+        />
       </div>
     </TooltipProvider>
   );

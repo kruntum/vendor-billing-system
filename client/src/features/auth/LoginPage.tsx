@@ -142,23 +142,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center mb-3">
-              ทดสอบระบบด้วยบัญชีตัวอย่าง:
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="font-medium text-gray-700">Admin</p>
-                <p className="text-gray-500">admin@system.com</p>
-              </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="font-medium text-gray-700">Vendor</p>
-                <p className="text-gray-500">vendor@logistics.com</p>
-              </div>
-            </div>
-            <p className="text-xs text-gray-400 text-center mt-2">
-              Password: password123
+          {/* Version Info */}
+          <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+            <p className="text-xs text-gray-400">
+              Vendor Billing System v1.0.0
             </p>
           </div>
         </div>

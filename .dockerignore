@@ -1,26 +1,43 @@
-# Dependencies
-node_modules
-client/node_modules
-server/node_modules
-
-# Environment Variables (IMPORTANT: Do not leak local envs to production build)
-.env
-.env.local
-client/.env
-client/.env.local
-server/.env
-server/.env.local
-
 # Git
 .git
 .gitignore
+.gitattributes
 
-# Build Artifacts
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+bun.lockb
+!server/bun.lockb
+!client/bun.lockb
+
+# Environment Variables
+.env
+.env.*
+**/.env.local
+client/.env.local
+server/.env.local
+
+# Build Output
 dist
 build
 coverage
-test-results
+public/pdfs
 
-# Generated files
-generated/
-server/src/generated/prisma
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.yml
+docker-compose.hub.yml
+Dockerfile
+DEPLOYMENT.md
+USER_MANUAL.md
+README.md
+
+# Ignore separate node_modules to ensure clean install
+server/node_modules
+client/node_modules
+client/dist
+server/dist

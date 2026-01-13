@@ -670,11 +670,6 @@ export type BillingNoteSumOrderByAggregateInput = {
   netTotal?: Prisma.SortOrder
 }
 
-export type BillingNoteScalarRelationFilter = {
-  is?: Prisma.BillingNoteWhereInput
-  isNot?: Prisma.BillingNoteWhereInput
-}
-
 export type BillingNoteCreateNestedManyWithoutVendorInput = {
   create?: Prisma.XOR<Prisma.BillingNoteCreateWithoutVendorInput, Prisma.BillingNoteUncheckedCreateWithoutVendorInput> | Prisma.BillingNoteCreateWithoutVendorInput[] | Prisma.BillingNoteUncheckedCreateWithoutVendorInput[]
   connectOrCreate?: Prisma.BillingNoteCreateOrConnectWithoutVendorInput | Prisma.BillingNoteCreateOrConnectWithoutVendorInput[]
@@ -743,10 +738,12 @@ export type BillingNoteCreateNestedOneWithoutReceiptInput = {
   connect?: Prisma.BillingNoteWhereUniqueInput
 }
 
-export type BillingNoteUpdateOneRequiredWithoutReceiptNestedInput = {
+export type BillingNoteUpdateOneWithoutReceiptNestedInput = {
   create?: Prisma.XOR<Prisma.BillingNoteCreateWithoutReceiptInput, Prisma.BillingNoteUncheckedCreateWithoutReceiptInput>
   connectOrCreate?: Prisma.BillingNoteCreateOrConnectWithoutReceiptInput
   upsert?: Prisma.BillingNoteUpsertWithoutReceiptInput
+  disconnect?: Prisma.BillingNoteWhereInput | boolean
+  delete?: Prisma.BillingNoteWhereInput | boolean
   connect?: Prisma.BillingNoteWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.BillingNoteUpdateToOneWithWhereWithoutReceiptInput, Prisma.BillingNoteUpdateWithoutReceiptInput>, Prisma.BillingNoteUncheckedUpdateWithoutReceiptInput>
 }

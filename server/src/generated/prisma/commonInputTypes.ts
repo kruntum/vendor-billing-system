@@ -218,6 +218,13 @@ export type EnumStatusReceiptFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumStatusReceiptFilter<$PrismaModel> | $Enums.StatusReceipt
 }
 
+export type EnumPaymentMethodNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPaymentMethodNullableFilter<$PrismaModel> | $Enums.PaymentMethod | null
+}
+
 export type EnumStatusReceiptWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.StatusReceipt | Prisma.EnumStatusReceiptFieldRefInput<$PrismaModel>
   in?: $Enums.StatusReceipt[] | Prisma.ListEnumStatusReceiptFieldRefInput<$PrismaModel>
@@ -226,6 +233,16 @@ export type EnumStatusReceiptWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStatusReceiptFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStatusReceiptFilter<$PrismaModel>
+}
+
+export type EnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPaymentMethodNullableFilter<$PrismaModel>
 }
 
 export type EnumDateFormatFilter<$PrismaModel = never> = {
@@ -304,6 +321,57 @@ export type EnumStatusPaymentVoucherWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
+}
+
+export type EnumStatusCashAdvanceFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvance | Prisma.EnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceFilter<$PrismaModel> | $Enums.StatusCashAdvance
+}
+
+export type EnumStatusCashAdvanceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvance | Prisma.EnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceWithAggregatesFilter<$PrismaModel> | $Enums.StatusCashAdvance
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusCashAdvanceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusCashAdvanceFilter<$PrismaModel>
+}
+
+export type EnumStatusCashAdvanceBillingFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvanceBilling | Prisma.EnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceBillingFilter<$PrismaModel> | $Enums.StatusCashAdvanceBilling
+}
+
+export type EnumStatusCashAdvanceBillingWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvanceBilling | Prisma.EnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceBillingWithAggregatesFilter<$PrismaModel> | $Enums.StatusCashAdvanceBilling
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusCashAdvanceBillingFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusCashAdvanceBillingFilter<$PrismaModel>
+}
+
+export type EnumPaymentMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel> | $Enums.PaymentMethod
+}
+
+export type EnumPaymentMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPaymentMethodWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
 }
 
 export type NestedStringFilter<$PrismaModel = never> = {
@@ -523,6 +591,13 @@ export type NestedEnumStatusReceiptFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumStatusReceiptFilter<$PrismaModel> | $Enums.StatusReceipt
 }
 
+export type NestedEnumPaymentMethodNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPaymentMethodNullableFilter<$PrismaModel> | $Enums.PaymentMethod | null
+}
+
 export type NestedEnumStatusReceiptWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.StatusReceipt | Prisma.EnumStatusReceiptFieldRefInput<$PrismaModel>
   in?: $Enums.StatusReceipt[] | Prisma.ListEnumStatusReceiptFieldRefInput<$PrismaModel>
@@ -531,6 +606,16 @@ export type NestedEnumStatusReceiptWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStatusReceiptFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStatusReceiptFilter<$PrismaModel>
+}
+
+export type NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPaymentMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPaymentMethodNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPaymentMethodNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumDateFormatFilter<$PrismaModel = never> = {
@@ -609,6 +694,57 @@ export type NestedEnumStatusPaymentVoucherWithAggregatesFilter<$PrismaModel = ne
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStatusPaymentVoucherFilter<$PrismaModel>
+}
+
+export type NestedEnumStatusCashAdvanceFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvance | Prisma.EnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceFilter<$PrismaModel> | $Enums.StatusCashAdvance
+}
+
+export type NestedEnumStatusCashAdvanceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvance | Prisma.EnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvance[] | Prisma.ListEnumStatusCashAdvanceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceWithAggregatesFilter<$PrismaModel> | $Enums.StatusCashAdvance
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusCashAdvanceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusCashAdvanceFilter<$PrismaModel>
+}
+
+export type NestedEnumStatusCashAdvanceBillingFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvanceBilling | Prisma.EnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceBillingFilter<$PrismaModel> | $Enums.StatusCashAdvanceBilling
+}
+
+export type NestedEnumStatusCashAdvanceBillingWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusCashAdvanceBilling | Prisma.EnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusCashAdvanceBilling[] | Prisma.ListEnumStatusCashAdvanceBillingFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusCashAdvanceBillingWithAggregatesFilter<$PrismaModel> | $Enums.StatusCashAdvanceBilling
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusCashAdvanceBillingFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusCashAdvanceBillingFilter<$PrismaModel>
+}
+
+export type NestedEnumPaymentMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel> | $Enums.PaymentMethod
+}
+
+export type NestedEnumPaymentMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PaymentMethod | Prisma.EnumPaymentMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PaymentMethod[] | Prisma.ListEnumPaymentMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPaymentMethodWithAggregatesFilter<$PrismaModel> | $Enums.PaymentMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPaymentMethodFilter<$PrismaModel>
 }
 
 

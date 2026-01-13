@@ -44,7 +44,7 @@ function getPeriodKey(date: Date, resetPeriod: ResetPeriod, dateFormat: DateForm
 // Generate next document number
 export async function generateDocumentNumber(
     vendorId: string,
-    documentType: "BILLING" | "RECEIPT",
+    documentType: "BILLING" | "RECEIPT" | "CASH_ADVANCE_BILLING",
     date: Date = new Date()
 ): Promise<string | null> {
     // Get vendor's document number config
@@ -55,10 +55,17 @@ export async function generateDocumentNumber(
     if (!config) return null;
 
     // Check if auto-numbering is enabled for this document type
-    const isEnabled = documentType === "BILLING" ? config.billingEnabled : config.receiptEnabled;
+    const isEnabled =
+        documentType === "BILLING" ? config.billingEnabled :
+            documentType === "RECEIPT" ? config.receiptEnabled :
+                documentType === "CASH_ADVANCE_BILLING" ? config.cashAdvanceBillingEnabled : false;
+
     if (!isEnabled) return null;
 
-    const prefix = documentType === "BILLING" ? config.billingPrefix : config.receiptPrefix;
+    const prefix =
+        documentType === "BILLING" ? config.billingPrefix :
+            documentType === "RECEIPT" ? config.receiptPrefix :
+                documentType === "CASH_ADVANCE_BILLING" ? config.cashAdvanceBillingPrefix : "";
     const datePart = formatDatePart(date, config.dateFormat);
     const periodKey = getPeriodKey(date, config.resetPeriod, config.dateFormat);
 
@@ -91,7 +98,7 @@ export async function generateDocumentNumber(
 // Generate preview document number (without incrementing)
 export async function previewDocumentNumber(
     vendorId: string,
-    documentType: "BILLING" | "RECEIPT",
+    documentType: "BILLING" | "RECEIPT" | "CASH_ADVANCE_BILLING",
     date: Date = new Date()
 ): Promise<string | null> {
     const config = await prisma.documentNumberConfig.findUnique({
@@ -100,15 +107,25 @@ export async function previewDocumentNumber(
 
     if (!config) {
         // Return default preview
-        const defaultPrefix = documentType === "BILLING" ? "B" : "R";
+        const defaultPrefix =
+            documentType === "BILLING" ? "B" :
+                documentType === "RECEIPT" ? "R" :
+                    documentType === "CASH_ADVANCE_BILLING" ? "CAB" : "?";
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
         return `${defaultPrefix}${year}${month}${day}001`;
     }
 
-    const isEnabled = documentType === "BILLING" ? config.billingEnabled : config.receiptEnabled;
-    const prefix = documentType === "BILLING" ? config.billingPrefix : config.receiptPrefix;
+    const isEnabled =
+        documentType === "BILLING" ? config.billingEnabled :
+            documentType === "RECEIPT" ? config.receiptEnabled :
+                documentType === "CASH_ADVANCE_BILLING" ? config.cashAdvanceBillingEnabled : false;
+
+    const prefix =
+        documentType === "BILLING" ? config.billingPrefix :
+            documentType === "RECEIPT" ? config.receiptPrefix :
+                documentType === "CASH_ADVANCE_BILLING" ? config.cashAdvanceBillingPrefix : "";
     const datePart = formatDatePart(date, config.dateFormat);
     const periodKey = getPeriodKey(date, config.resetPeriod, config.dateFormat);
 
@@ -150,6 +167,10 @@ export const documentNumberRoutes = new Elysia({ prefix: "/document-number" })
                 billingPrefix: "B",
                 receiptEnabled: false,
                 receiptPrefix: "R",
+                cashAdvanceEnabled: false,
+                cashAdvancePrefix: "CA",
+                cashAdvanceBillingEnabled: false,
+                cashAdvanceBillingPrefix: "CAB",
                 dateFormat: "YYYYMMDD" as DateFormat,
                 runningDigits: 3,
                 resetPeriod: "DAILY" as ResetPeriod,
@@ -165,6 +186,10 @@ export const documentNumberRoutes = new Elysia({ prefix: "/document-number" })
                 billingPrefix: config.billingPrefix,
                 receiptEnabled: config.receiptEnabled,
                 receiptPrefix: config.receiptPrefix,
+                cashAdvanceEnabled: config.cashAdvanceEnabled,
+                cashAdvancePrefix: config.cashAdvancePrefix,
+                cashAdvanceBillingEnabled: config.cashAdvanceBillingEnabled,
+                cashAdvanceBillingPrefix: config.cashAdvanceBillingPrefix,
                 dateFormat: config.dateFormat,
                 runningDigits: config.runningDigits,
                 resetPeriod: config.resetPeriod,
@@ -187,6 +212,10 @@ export const documentNumberRoutes = new Elysia({ prefix: "/document-number" })
                     billingPrefix: body.billingPrefix,
                     receiptEnabled: body.receiptEnabled,
                     receiptPrefix: body.receiptPrefix,
+                    cashAdvanceEnabled: body.cashAdvanceEnabled,
+                    cashAdvancePrefix: body.cashAdvancePrefix,
+                    cashAdvanceBillingEnabled: body.cashAdvanceBillingEnabled,
+                    cashAdvanceBillingPrefix: body.cashAdvanceBillingPrefix,
                     dateFormat: body.dateFormat as DateFormat,
                     runningDigits: body.runningDigits,
                     resetPeriod: body.resetPeriod as ResetPeriod,
@@ -196,6 +225,10 @@ export const documentNumberRoutes = new Elysia({ prefix: "/document-number" })
                     billingPrefix: body.billingPrefix,
                     receiptEnabled: body.receiptEnabled,
                     receiptPrefix: body.receiptPrefix,
+                    cashAdvanceEnabled: body.cashAdvanceEnabled,
+                    cashAdvancePrefix: body.cashAdvancePrefix,
+                    cashAdvanceBillingEnabled: body.cashAdvanceBillingEnabled,
+                    cashAdvanceBillingPrefix: body.cashAdvanceBillingPrefix,
                     dateFormat: body.dateFormat as DateFormat,
                     runningDigits: body.runningDigits,
                     resetPeriod: body.resetPeriod as ResetPeriod,
@@ -209,6 +242,10 @@ export const documentNumberRoutes = new Elysia({ prefix: "/document-number" })
                     billingPrefix: config.billingPrefix,
                     receiptEnabled: config.receiptEnabled,
                     receiptPrefix: config.receiptPrefix,
+                    cashAdvanceEnabled: config.cashAdvanceEnabled,
+                    cashAdvancePrefix: config.cashAdvancePrefix,
+                    cashAdvanceBillingEnabled: config.cashAdvanceBillingEnabled,
+                    cashAdvanceBillingPrefix: config.cashAdvanceBillingPrefix,
                     dateFormat: config.dateFormat,
                     runningDigits: config.runningDigits,
                     resetPeriod: config.resetPeriod,
@@ -221,6 +258,10 @@ export const documentNumberRoutes = new Elysia({ prefix: "/document-number" })
                 billingPrefix: t.String({ minLength: 1, maxLength: 10 }),
                 receiptEnabled: t.Boolean(),
                 receiptPrefix: t.String({ minLength: 1, maxLength: 10 }),
+                cashAdvanceEnabled: t.Boolean(),
+                cashAdvancePrefix: t.String({ minLength: 1, maxLength: 10 }),
+                cashAdvanceBillingEnabled: t.Boolean(),
+                cashAdvanceBillingPrefix: t.String({ minLength: 1, maxLength: 10 }),
                 dateFormat: t.Union([
                     t.Literal("YYYYMMDD"),
                     t.Literal("YYYYMM"),
@@ -242,7 +283,7 @@ export const documentNumberRoutes = new Elysia({ prefix: "/document-number" })
             return { success: false, error: "Vendor not found" };
         }
 
-        const documentType = (query.type as "BILLING" | "RECEIPT") || "BILLING";
+        const documentType = (query.type as "BILLING" | "RECEIPT" | "CASH_ADVANCE_BILLING") || "BILLING";
         const preview = await previewDocumentNumber(user.vendorId, documentType);
 
         return {

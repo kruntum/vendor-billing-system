@@ -691,6 +691,10 @@ function DocumentNumberForm() {
       billingPrefix: "B",
       receiptEnabled: false,
       receiptPrefix: "R",
+      cashAdvanceEnabled: false,
+      cashAdvancePrefix: "CA",
+      cashAdvanceBillingEnabled: false,
+      cashAdvanceBillingPrefix: "CAB",
       dateFormat: "YYYYMMDD",
       runningDigits: 3,
       resetPeriod: "DAILY",
@@ -726,6 +730,8 @@ function DocumentNumberForm() {
   const billingPrefix = watch("billingPrefix");
   const receiptEnabled = watch("receiptEnabled");
   const receiptPrefix = watch("receiptPrefix");
+  const cashAdvanceBillingEnabled = watch("cashAdvanceBillingEnabled");
+  const cashAdvanceBillingPrefix = watch("cashAdvanceBillingPrefix");
   const dateFormat = watch("dateFormat");
   const runningDigits = watch("runningDigits");
 
@@ -835,6 +841,78 @@ function DocumentNumberForm() {
                 <span className="text-sm text-gray-600">ตัวอย่าง: </span>
                 <span className="font-mono font-medium text-primary">
                   {generatePreview(receiptPrefix || "R")}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Cash Advance Settings */}
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-gray-900">สำรองเงินสด (Cash Advance)</h3>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  {...register("cashAdvanceEnabled")}
+                  className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
+                />
+                <span className="text-sm text-gray-700">เปิดใช้งาน</span>
+              </label>
+            </div>
+
+            <div className={!watch("cashAdvanceEnabled") ? "opacity-50 pointer-events-none" : ""}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ตัวอักษรนำหน้า (Prefix)
+              </label>
+              <input
+                {...register("cashAdvancePrefix")}
+                maxLength={10}
+                className="w-32 rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary border p-2"
+                placeholder="CA"
+              />
+            </div>
+
+            {watch("cashAdvanceEnabled") && (
+              <div className="bg-gray-50 rounded-lg p-3">
+                <span className="text-sm text-gray-600">ตัวอย่าง: </span>
+                <span className="font-mono font-medium text-primary">
+                  {generatePreview(watch("cashAdvancePrefix") || "CA")}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Cash Advance Billing Settings */}
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-gray-900">วางบิลสำรองเงินสด (Cash Advance Billing)</h3>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  {...register("cashAdvanceBillingEnabled")}
+                  className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
+                />
+                <span className="text-sm text-gray-700">เปิดใช้งาน</span>
+              </label>
+            </div>
+
+            <div className={!cashAdvanceBillingEnabled ? "opacity-50 pointer-events-none" : ""}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                ตัวอักษรนำหน้า (Prefix)
+              </label>
+              <input
+                {...register("cashAdvanceBillingPrefix")}
+                maxLength={10}
+                className="w-32 rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary border p-2"
+                placeholder="CAB"
+              />
+            </div>
+
+            {cashAdvanceBillingEnabled && (
+              <div className="bg-gray-50 rounded-lg p-3">
+                <span className="text-sm text-gray-600">ตัวอย่าง: </span>
+                <span className="font-mono font-medium text-primary">
+                  {generatePreview(cashAdvanceBillingPrefix || "CAB")}
                 </span>
               </div>
             )}

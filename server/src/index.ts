@@ -14,13 +14,15 @@ import { pdfRoutes } from "./routes/pdf.route";
 import { documentNumberRoutes } from "./routes/docnumber.route";
 import { vendorRoutes } from "./routes/vendor.route";
 import { paymentVoucherRoutes } from "./routes/payment-voucher.route";
+import { cashAdvanceRoutes } from "./routes/cash-advance.route";
+import { cashAdvanceBillingRoutes } from "./routes/cash-advance-billing.route";
 
 const app = new Elysia()
   // CORS Configuration
   .use(
     cors({
       origin: process.env.NODE_ENV === "production"
-        ? ["http://localhost:8802"]
+        ? (process.env.CLIENT_URL || "http://localhost:8802")
         : true,
       credentials: true,
     })
@@ -52,6 +54,7 @@ const app = new Elysia()
           { name: "PDF", description: "PDF generation" },
           { name: "Document Number", description: "Document numbering configuration" },
           { name: "Payment Voucher", description: "Payment voucher management" },
+          { name: "Cash Advance", description: "Cash advance management" },
         ],
       },
     })
@@ -76,6 +79,8 @@ const app = new Elysia()
   .use(documentNumberRoutes)
   .use(vendorRoutes)
   .use(paymentVoucherRoutes)
+  .use(cashAdvanceRoutes)
+  .use(cashAdvanceBillingRoutes)
   // Start Server
   .listen(process.env.PORT || 8801);
 

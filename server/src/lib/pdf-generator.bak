@@ -1,0 +1,806 @@
+﻿import PDFDocument from "pdfkit";
+import { format } from "date-fns";
+import { BahtText } from "./bahttext";
+
+// Constants
+const PRIMARY_COLOR = "#000000";
+const TEXT_DARK = "#000000";
+const TEXT_GRAY = "#4b5563";
+const BORDER_COLOR = "#C0C0C0";
+const BOX_BORDER_COLOR = "#C0C0C0";
+const TABLE_BORDER_WIDTH = 0.5;
+const ROW_BORDER_COLOR = "#DCDCDC";
+
+export async function generateDetailedPaymentVoucherPDF(
+    doc: PDFKit.PDFDocument,
+    voucher: any,
+    companySettings: any,
+    thaiFontPath: string,
+    chineseFontPath: string
+) {
+    // Register Fonts
+    doc.registerFont("Sarabun", thaiFontPath);
+    doc.registerFont("Sarabun-Bold", thaiFontPath);
+    doc.registerFont("NotoSansSC", chineseFontPath);
+
+    const margin = 25;
+    const marginTop = 15;
+    const pageWidth = 595.28;
+    const pageHeight = 841.89;
+    const contentWidth = pageWidth - (margin * 2);
+
+    const colWidths = [30, 140, 90, 85, 60, 60, 80];
+    const colX = [margin];
+    for (let i = 1; i < colWidths.length; i++) {
+        colX.push(colX[i - 1] + colWidths[i - 1]);
+    }
+    const tableWidth = colWidths.reduce((a, b) => a + b, 0);
+
+    const drawMixedText = (text: string, x: number, y: number, options: any = {}) => {
+        const parts = text.split(/([\u4e00-\u9fa5]+)/g).filter(Boolean);
+        const fontSizes = options.size || 8;
+        const baseFont = options.bold ? "Sarabun-Bold" : "Sarabun";
+        const cnFont = "NotoSansSC";
+
+        let startX = x;
+        if (options.align === "center" || options.align === "right") {
+            let totalWidth = 0;
+            parts.forEach(part => {
+                const isChinese = /[\u4e00-\u9fa5]/.test(part);
+                doc.font(isChinese ? cnFont : baseFont).fontSize(fontSizes);
+                totalWidth += doc.widthOfString(part);
+            });
+            if (options.align === "center") startX = x + (options.width - totalWidth) / 2;
+            if (options.align === "right") startX = x + options.width - totalWidth;
+        }
+
+        let currentX = startX;
+        parts.forEach(part => {
+            const isChinese = /[\u4e00-\u9fa5]/.test(part);
+            doc.font(isChinese ? cnFont : baseFont).fontSize(fontSizes).fillColor(options.color || TEXT_DARK);
+            doc.text(part, currentX, y, { lineBreak: false });
+            currentX += doc.widthOfString(part);
+        });
+        doc.font(baseFont).fontSize(fontSizes);
+    };
+
+    // Helper to separate header drawing for multi-page support
+    const drawHeader = (doc: PDFKit.PDFDocument) => {
+        let currentY = marginTop;
+
+        // 1. Company Header
+        doc.font("Sarabun").fontSize(12).fillColor(TEXT_DARK);
+        doc.text(companySettings?.companyName || "ASIA THAI SHIPPING SERVICE CO., LTD", margin, currentY, { width: contentWidth, align: "center" });
+        currentY += 14;
+
+        doc.fontSize(8).fillColor(TEXT_GRAY);
+        doc.text(companySettings?.companyAddress || "62 SOI SUPAPONG 3, YAK 8, NONG BON SUBDISTRICT, PRAWET DISTRICT, BANGKOK 10250", margin, currentY, { width: contentWidth, align: "center" });
+        currentY += 20;
+
+        // Title
+        drawMixedText("เนเธเธชเธณเธเธฑเธเธเนเธฒเธข (เนเธเธเธฅเธฐเน€เธญเธตเธขเธ”) / DETAILED PAYMENT VOUCHER", margin, currentY, { width: contentWidth, align: "center", size: 12, color: TEXT_DARK });
+        currentY += 30;
+
+        // 2. Info Grid
+        const labelX = margin;
+        const valueX = margin + 120;
+        const rightLabelX = pageWidth - margin - 180;
+        const rightValueX = pageWidth - margin - 80;
+
+        // Row 1: Customer | Date
+        doc.fontSize(8).fillColor(TEXT_DARK);
+        drawMixedText("เธฅเธนเธเธเนเธฒ (The customer) ไปๆฌพไบบ :", labelX, currentY);
+        doc.fillColor(TEXT_GRAY).text(companySettings?.companyName || "-", valueX, currentY);
+        doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+
+        drawMixedText("เธงเธฑเธเธ—เธตเนเน€เธญเธเธชเธฒเธฃ (DATE) ๆ—ฅๆ :", rightLabelX, currentY);
+        doc.fillColor(TEXT_GRAY).text(format(new Date(voucher.voucherDate), "dd/MM/yyyy"), rightValueX, currentY, { align: "right", width: 80 });
+        doc.moveTo(rightValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+        currentY += 18;
+
+        // Row 2: Paid To | Voucher No
+        drawMixedText("เธเนเธฒเธขเนเธซเน (Paid To) ๆ”ถๆฌพไบบ :", labelX, currentY);
+        doc.fillColor(TEXT_GRAY).text(voucher.vendor.companyName, valueX, currentY);
+        doc.moveTo(valueX, currentY + 10).lineTo(rightLabelX - 10, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+
+        drawMixedText("VOUCHER NO. ๅ•ๆฎๅท :", rightLabelX, currentY);
+        doc.fillColor(TEXT_GRAY).text(voucher.voucherRef, rightValueX, currentY, { align: "right", width: 80 });
+        doc.moveTo(rightValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+        currentY += 18;
+
+        // Row 3: Paid For
+        drawMixedText("เน€เธเธทเนเธญเธเธณเธฃเธฐ (Paid For) ๆฌพ้กน็”จ้€” :", labelX, currentY);
+        const paidForText = "เธเนเธฒเน€เธ”เธดเธเธเธดเธเธตเธเธฒเธฃเธ•เธฃเธงเธเธเธฅเนเธญเธขเนเธฅเธฐเธชเธณเธฃเธญเธเนเธเธญเธเธธเธเธฒเธ•";
+        doc.fillColor(TEXT_GRAY).text(paidForText, valueX, currentY);
+        doc.moveTo(valueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+        currentY += 18;
+
+        // Row 4: Account Bank / No
+        const accLabel = "เธเธทเนเธญเธเธฑเธเธเธต/เน€เธฅเธเธเธฑเธเธเธต (Account Name/Account No.) ้“ถ่กๅ็งฐ/้“ถ่ก่ดฆๅท :";
+        doc.fillColor(TEXT_DARK);
+        drawMixedText(accLabel, labelX, currentY);
+        const accValueX = margin + 250;
+        const bankInfo = `${voucher.vendor.bankName || ""} ${voucher.vendor.bankAccount || ""}`.trim() || "-";
+
+        doc.fillColor(TEXT_GRAY).text(bankInfo, accValueX, currentY);
+        doc.moveTo(accValueX, currentY + 10).lineTo(pageWidth - margin, currentY + 10).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+        currentY += 18;
+
+        // Row 5: Payment Method (CHECKBOXES)
+        doc.fontSize(7).fillColor(TEXT_DARK);
+        drawMixedText("เธเนเธญเธเธ—เธฒเธเธเธณเธฃเธฐเน€เธเธดเธ PAYMENT METHOD ไปๆฌพๆ–นๅผ", labelX, currentY);
+
+        const checkboxY = currentY + 3;
+        const drawCheckbox = (x: number, label: string, checked: boolean = false) => {
+            doc.rect(x, checkboxY, 10, 10).stroke(TEXT_DARK);
+            if (checked) {
+                doc.moveTo(x + 2, checkboxY + 2).lineTo(x + 8, checkboxY + 8).lineWidth(1).stroke(TEXT_DARK);
+                doc.moveTo(x + 8, checkboxY + 2).lineTo(x + 2, checkboxY + 8).lineWidth(1).stroke(TEXT_DARK);
+            }
+            drawMixedText(label, x + 15, checkboxY + 1, { size: 7 });
+            return x + 95;
+        };
+
+        let nextX = valueX + 60;
+        nextX = drawCheckbox(nextX - 10, "Bank Transfer ่ฝฌ่ดฆ", true);
+        nextX = drawCheckbox(nextX - 10, "CHQUE ๆ”ฏ็ฅจ", false);
+        nextX = drawCheckbox(nextX - 10, "CASH เน€เธเธดเธเธชเธ” ็ฐ้‘", false);
+        drawCheckbox(nextX - 10, "CASHIER CHQUE ็ฐ้‘ๆ”ฏ็ฅจ", false);
+
+        currentY += 20;
+
+        // --- TABLE HEADER ---
+        doc.rect(margin, currentY, tableWidth, 25).fillAndStroke("#e5e7eb", BORDER_COLOR);
+
+        // Vertical lines for header
+        colX.forEach((x, i) => {
+            if (i > 0) doc.moveTo(x, currentY).lineTo(x, currentY + 25).lineWidth(0.5).stroke(BORDER_COLOR);
+        });
+
+        doc.fillColor(TEXT_DARK).fontSize(8).font("Sarabun-Bold");
+
+        const headers = [
+            "เธฅเธณเธ”เธฑเธ", "เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”เธเธฒเธ", "เน€เธเธญเธฃเนเธ•เธนเน", "เน€เธฅเธเธ—เธตเนเธญเนเธฒเธเธญเธดเธ", "เธ เธฒเธฉเธตเธกเธนเธฅเธเนเธฒเน€เธเธดเนเธก", "เธซเธฑเธ เธ“ เธ—เธตเนเธเนเธฒเธข", "เธเธณเธเธงเธเน€เธเธดเธ"
+        ];
+        headers.forEach((h, i) => {
+            const align = i === 1 ? "left" : (i >= 4 ? "right" : "center");
+            doc.text(h, colX[i] + 2, currentY + 8, { width: colWidths[i] - 4, align: align as any });
+        });
+        doc.font("Sarabun");
+
+        currentY += 25;
+        return currentY;
+    };
+
+    // Initial Header
+    let currentY = drawHeader(doc);
+
+    // Helper to draw lines
+    const drawVerticalLines = (startY: number, endY: number) => {
+        colX.forEach((x, i) => {
+            if (i > 0) doc.moveTo(x, startY).lineTo(x, endY).lineWidth(0.5).stroke(BORDER_COLOR);
+        });
+        doc.moveTo(margin, startY).lineTo(margin, endY).lineWidth(0.5).stroke(BORDER_COLOR);
+        doc.moveTo(margin + tableWidth, startY).lineTo(margin + tableWidth, endY).lineWidth(0.5).stroke(BORDER_COLOR);
+    };
+
+    // --- TABLE BODY ---
+    let rowIndex = 1;
+    let tableStartY = currentY;
+
+    const footerHeight = 260; // Reduced height to push content down
+    const pageBottomLimit = pageHeight - margin;
+    const footerTriggerY = pageBottomLimit - footerHeight;
+
+    const drawFooter = (startY: number) => {
+        let fY = startY;
+
+        // Draw top border of Footer (closing the table)
+        doc.moveTo(margin, fY).lineTo(margin + tableWidth, fY).lineWidth(0.5).stroke(BORDER_COLOR);
+
+        // --- SUMMARY (Bottom Right) ---
+        const summaryW = 200;
+        const summaryX = pageWidth - margin - summaryW;
+        fY += 10;
+
+        const drawSummaryLine = (label: string, value: string, isBold = false, isGreen = false) => {
+            const size = isBold ? 9 : 8;
+            doc.fontSize(size).fillColor(TEXT_DARK);
+            if (isGreen) doc.fillColor("#166534");
+            drawMixedText(label, summaryX, fY, { size, color: isGreen ? "#166534" : TEXT_DARK });
+            doc.fillColor(isGreen ? "#166534" : TEXT_GRAY).text(value, summaryX, fY, { width: summaryW, align: "right" });
+            fY += 14;
+        };
+
+        drawSummaryLine("TOTAL VALUE BEFORE VAT :", Number(voucher.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }));
+        drawSummaryLine(`VAT ${(voucher.billingNotes?.[0]?.vatRateText || "7")}% :`, Number(voucher.totalVat).toLocaleString("th-TH", { minimumFractionDigits: 2 }));
+        const totalWithVat = Number(voucher.subtotal) + Number(voucher.totalVat);
+        drawSummaryLine("TOTAL ๆ€ป่ฎก :", totalWithVat.toLocaleString("th-TH", { minimumFractionDigits: 2 }));
+        drawSummaryLine(`WHT ${(voucher.billingNotes?.[0]?.whtRateText || "3")}% :`, Number(voucher.totalWht) > 0 ? `-${Number(voucher.totalWht).toLocaleString("th-TH", { minimumFractionDigits: 2 })}` : "0.00");
+
+        doc.rect(summaryX - 5, fY - 2, summaryW + 5, 20).fill("#f0fdf4");
+        doc.fillColor("#166534");
+        drawSummaryLine("NET TOTAL ๆ€ป่ฎก :", Number(voucher.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), true, true);
+
+        // Thai Text
+        const thaiText = BahtText(Number(voucher.netTotal));
+        doc.fontSize(8);
+        drawMixedText(thaiText, summaryX, fY + 8, { width: summaryW, align: "right", color: TEXT_GRAY });
+
+        // ========== SIGNATURES ==========
+        // Disable bottom margin to allow drawing into the margin area
+        const oldBottomMargin = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0;
+
+        // Fixed position at bottom
+        const sigBoxH = 70;
+        const sigTotalHeight = sigBoxH * 2;
+        const sigStartY = pageHeight - margin - sigTotalHeight;
+
+        // --- REMARK BOX (Left) ---
+        // Fixed position relative to Footer Start 
+        const remarkY = startY + 10;
+        // Calculate dynamic height: From remarkY to top of Signatures (minus padding)
+        const remarkHeight = sigStartY - remarkY - 10;
+
+        doc.rect(margin, remarkY, pageWidth - margin - summaryW - 15 - margin, remarkHeight).stroke(BORDER_COLOR);
+        doc.fillColor(TEXT_DARK).fontSize(8);
+        drawMixedText("REMARK ๅคๆณจ", margin + 5, remarkY + 5, { size: 8 });
+        doc.text(voucher.remark || "-", margin + 5, remarkY + 20, { width: 300 });
+
+        const boxW = (contentWidth) / 4;
+
+        const sigLabels = [
+            // Row 1
+            { en: "PERSON IN CHARGE", cn: "็ปๅไบบ" },
+            { en: "DEPARTMENT IN CHARGE", cn: "้จ้—จ่ด่ดฃไบบ" },
+            { en: "AUTHORIZED BY (ACCOUNT)", cn: "่ดขๅกๅคๆ ธไบบ" },
+            { en: "ACCOUNTING IN CHARGE", cn: "่ดขๅก่ด่ดฃไบบ" },
+            // Row 2
+            { en: "COMPANY IN CHARGE", cn: "ๅ…ฌๅธ่ด่ดฃไบบ" },
+            { en: "FINANCIAL IN CHARGE", cn: "่ต้‘้จ่ด่ดฃไบบ" },
+            { en: "CASHIER", cn: "ๅบ็บณ" },
+            { en: "", cn: "" }
+        ];
+
+        sigLabels.forEach((l, i) => {
+            const row = Math.floor(i / 4);
+            const col = i % 4;
+            const bx = margin + (col * boxW);
+            const by = sigStartY + (row * sigBoxH);
+
+            // Box Border
+            doc.rect(bx, by, boxW, sigBoxH).lineWidth(TABLE_BORDER_WIDTH).stroke(BOX_BORDER_COLOR);
+
+            // Line
+            doc.moveTo(bx + 10, by + 45).lineTo(bx + boxW - 10, by + 45).lineWidth(0.3).dash(1, { space: 2 }).stroke(TEXT_GRAY).undash();
+
+            doc.fontSize(6).fillColor(TEXT_GRAY);
+            let signatureText = "";
+            if (l.en === "PERSON IN CHARGE" && voucher.createdBy) {
+                signatureText = voucher.createdBy.name || "";
+            }
+            if (l.en === "DEPARTMENT IN CHARGE") {
+                signatureText = "Mr. Chalermrit Thongkham";
+            }
+            doc.text("Signature : " + signatureText, bx + 10, by + 50);
+            doc.text("DATE : ", bx + 10, by + 60);
+
+            doc.fillColor(TEXT_DARK).fontSize(6);
+            if (l.en) doc.text(l.en, bx, by + 3, { width: boxW, align: "center" });
+            if (l.cn) {
+                doc.font("NotoSansSC");
+                doc.text(l.cn, bx, by + 9, { width: boxW, align: "center" });
+                doc.font("Sarabun");
+            }
+        });
+
+        // Reset bottom margin
+        doc.page.margins.bottom = oldBottomMargin;
+    };
+
+    const changePage = () => {
+        // Extend lines to bottom of current page
+        drawVerticalLines(tableStartY, pageBottomLimit);
+        doc.moveTo(margin, pageBottomLimit).lineTo(margin + tableWidth, pageBottomLimit).lineWidth(0.5).stroke(BORDER_COLOR);
+
+        doc.addPage();
+        currentY = drawHeader(doc);
+        tableStartY = currentY;
+    };
+
+    for (const bn of voucher.billingNotes!) {
+        // Check BN header space (20 height)
+        if (currentY + 20 > footerTriggerY) { // Check against footerTriggerY
+            changePage();
+        }
+
+        // ... Billing Note Header Logic ...
+        doc.fillColor(PRIMARY_COLOR).fontSize(8).font("Sarabun-Bold");
+        doc.text(`เนเธเธงเธฒเธเธเธดเธฅ: ${bn.billingRef}`, colX[1] + 2, currentY + 6, { width: colWidths[1] - 4, align: "left" });
+        doc.text(`เธงเธฑเธเธ—เธตเน: ${format(new Date(bn.billingDate), "dd/MM/yyyy")}`, colX[3] + 2, currentY + 6, { width: colWidths[3] - 4, align: "center" });
+        doc.text(Number(bn.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[6], currentY + 6, { width: colWidths[6] - 4, align: "right" });
+        doc.moveTo(margin, currentY + 20).lineTo(margin + tableWidth, currentY + 20).lineWidth(0.2).dash(1, { space: 2 }).stroke(BORDER_COLOR).undash();
+        doc.font("Sarabun");
+        currentY += 20;
+
+        if (bn.jobs) {
+            const vatRate = parseFloat(bn.vatRateText || "7");
+            const whtRate = parseFloat(bn.whtRateText || "3");
+
+            for (const job of bn.jobs) {
+                const amt = job.items.reduce((s: number, it: any) => s + Number(it.amount), 0);
+                let jobVat = 0;
+                let jobWht = 0;
+                if (Number(bn.vatAmount) > 0) {
+                    jobVat = amt * (vatRate / 100);
+                }
+                if (Number(bn.whtAmount) > 0) {
+                    jobWht = amt * (whtRate / 100);
+                }
+
+                if (currentY + 18 > footerTriggerY) { // Check against footerTriggerY
+                    changePage();
+                }
+
+                doc.fillColor(TEXT_DARK).fontSize(8);
+                doc.text(String(rowIndex++), colX[0], currentY + 4, { width: colWidths[0], align: "center" });
+                doc.text(job.description || "-", colX[1] + 5, currentY + 4, { width: colWidths[1] - 8, lineBreak: false, ellipsis: true });
+                const container = job.containerNo || job.truckPlate || "-";
+                doc.text(container, colX[2] + 2, currentY + 4, { width: colWidths[2] - 4, align: "center" });
+                doc.text(job.refInvoiceNo || "-", colX[3] + 2, currentY + 4, { width: colWidths[3] - 4, align: "center" });
+                doc.text(jobVat > 0 ? jobVat.toLocaleString("th-TH", { minimumFractionDigits: 2 }) : "-", colX[4], currentY + 4, { width: colWidths[4] - 4, align: "right" });
+                doc.text(jobWht > 0 ? jobWht.toLocaleString("th-TH", { minimumFractionDigits: 2 }) : "-", colX[5], currentY + 4, { width: colWidths[5] - 4, align: "right" });
+                doc.text(amt.toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[6], currentY + 4, { width: colWidths[6] - 4, align: "right" });
+                doc.moveTo(margin, currentY + 18).lineTo(margin + tableWidth, currentY + 18).lineWidth(0.2).dash(1, { space: 2 }).stroke(BORDER_COLOR).undash();
+
+                currentY += 18;
+            }
+        }
+    }
+
+    // --- FINAL FOOTER CHECK ---
+    // Footer Top Y position
+    const footerY = pageBottomLimit - footerHeight;
+
+    if (currentY > footerY) {
+        // Not enough space for footer on current page
+        changePage();
+        // On new page, draw lines from currentY (after header) down to footerY
+        drawVerticalLines(currentY, footerY);
+        drawFooter(footerY);
+    } else {
+        // Space available on current page
+        drawVerticalLines(tableStartY, footerY);
+        drawFooter(footerY);
+    }
+
+    // --- FOOTER (Page No) ---
+    const range = doc.bufferedPageRange();
+    for (let i = range.start; i < range.start + range.count; i++) {
+        doc.switchToPage(i);
+        // The drawFooter function already handles setting/resetting doc.page.margins.bottom
+        // for the signature block. For page numbers, we can temporarily set it to 0.
+        const oldBottomMarginForPageNum = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0;
+
+        doc.fontSize(6).fillColor(TEXT_GRAY);
+        doc.text(`เธเธดเธกเธเนเน€เธกเธทเนเธญ: ${format(new Date(), "dd/MM/yyyy HH:mm")}`, margin, pageHeight - 15, { align: "left" });
+        doc.text(`เธซเธเนเธฒ ${i + 1} / ${range.count}`, pageWidth - margin - 100, pageHeight - 15, { width: 100, align: "right" });
+
+        doc.page.margins.bottom = oldBottomMarginForPageNum;
+    }
+
+    doc.end();
+}
+
+export async function generateBillingNotePDF(
+    doc: PDFKit.PDFDocument,
+    billing: any,
+    companySettings: any,
+    thaiFontPath: string
+) {
+    // ------------------------------------------------------------------
+    // เธเธฒเธฃเธ•เธฑเนเธเธเนเธฒเธชเธต (Colors Configuration)
+    // ------------------------------------------------------------------
+    const PRIMARY_COLOR = "#000000";
+    const COMPANY_NAME_COLOR = "#000000";
+    const TEXT_DARK = "#000000";
+    const TEXT_GRAY = "#4b5563";
+    const BORDER_COLOR = "#C0C0C0";
+    const BOX_BORDER_COLOR = "#C0C0C0";
+    const BOX_BACKGROUND_COLOR = "#f9fafb";
+    const TABLE_BORDER_WIDTH = 0.5;
+    const ROW_BORDER_COLOR = "#DCDCDC";
+
+    // Register Font (if not already registered)
+    // safe because pdfkit allows re-register
+    doc.registerFont("Sarabun", thaiFontPath);
+    doc.registerFont("Sarabun-Bold", thaiFontPath);
+
+    const margin = 25;
+    const marginTop = 15;
+    const pageWidth = 595.28;
+    const pageHeight = 841.89;
+    const contentWidth = pageWidth - (margin * 2);
+
+    // เธเธฃเธฑเธเธเธงเธฒเธกเธเธงเนเธฒเธเธเธญเธฅเธฑเธกเธเนเธชเธณเธซเธฃเธฑเธเน€เธเธทเนเธญเธซเธฒเธ—เธตเนเธเธงเนเธฒเธเธเธถเนเธ (เธฃเธงเธก ~545)
+    // เนเธซเธกเน: [30, 45, 180, 145, 80, 50] = 545
+    // เธเธณเธซเธเธ”เธเธงเธฒเธกเธเธงเนเธฒเธเนเธฅเธฐเธ•เธณเนเธซเธเนเธเธเธญเธเธเธญเธฅเธฑเธกเธเน (เธฃเธงเธก ~545)
+    const colW = [30, 45, 185, 145, 80, 60];
+    const colX = [
+        margin,
+        margin + colW[0],
+        margin + colW[0] + colW[1],
+        margin + colW[0] + colW[1] + colW[2],
+        margin + colW[0] + colW[1] + colW[2] + colW[3],
+        margin + colW[0] + colW[1] + colW[2] + colW[3] + colW[4]
+    ];
+
+    // เธซเธฑเธงเธเนเธญเธ•เธฒเธฃเธฒเธ 2 เธ เธฒเธฉเธฒ (เนเธ—เธข/เธญเธฑเธเธเธคเธฉ)
+    const headers = [
+        { th: "#", en: "" },
+        { th: "เธงเธฑเธเธ—เธตเน", en: "Date" },
+        { th: "เธฃเธฒเธขเธฅเธฐเน€เธญเธตเธขเธ”", en: "Description" },
+        { th: "เน€เธเธญเธฃเนเธ•เธนเน/เธ—เธฐเน€เธเธตเธขเธเธฃเธ–", en: "Container / License Plate" },
+        { th: "เน€เธฅเธเธ—เธตเนเธญเนเธฒเธเธญเธดเธ", en: "Ref No." },
+        { th: "เธเธณเธเธงเธเน€เธเธดเธ", en: "Amount" }
+    ];
+    const cellPadding = 5;
+
+    // เธเธณเธซเธเธ”เธ•เธณเนเธซเธเนเธเธเธญเธเธฅเนเธฒเธเธเธญเธเธ•เธฒเธฃเธฒเธ (Fixed Table Bottom)
+    // Adjusted to fit ~20 items (pageHeight - 270)
+    const fixedTableBottomY = pageHeight - 280;
+
+    // เธเธฑเธเธเนเธเธฑเธเธงเธฒเธ”เธชเนเธงเธเธซเธฑเธงเธเธฃเธฐเธ”เธฒเธฉ (Header) เนเธฅเธฐเธเธทเธเธเนเธฒเธ•เธณเนเธซเธเนเธเนเธเธ Y เธ—เธตเนเธเธฃเนเธญเธกเน€เธเธตเธขเธเน€เธเธทเนเธญเธซเธฒเธ•เนเธญ
+    const drawHeader = () => {
+        // ========== เนเธ–เธงเธ—เธตเน 1: เธเนเธญเธกเธนเธฅเธเธฃเธดเธฉเธฑเธ— (เธเนเธฒเธข) & เธซเธฑเธงเธเนเธญ (เธเธงเธฒ) ==========
+        const row1Y = marginTop;
+
+        // เธเนเธฒเธข: เธเนเธญเธกเธนเธฅเธเธฃเธดเธฉเธฑเธ—
+        doc.font("Sarabun").fontSize(14).fillColor(COMPANY_NAME_COLOR);
+        doc.text(billing.vendor.companyName || "Company Name", margin, row1Y);
+
+        doc.fontSize(9).fillColor(TEXT_GRAY);
+        let leftY = row1Y + 20;
+        if (billing.vendor.companyAddress) {
+            doc.text(billing.vendor.companyAddress, margin, leftY, { width: 300 });
+            leftY = doc.y;
+        }
+        doc.text(`เน€เธฅเธเธเธฃเธฐเธเธณเธ•เธฑเธงเธเธนเนเน€เธชเธตเธขเธ เธฒเธฉเธต: ${billing.vendor.taxId || "-"}`, margin, leftY);
+        leftY = doc.y;
+
+        // เธเธงเธฒ: เธซเธฑเธงเธเนเธญ (เนเธเธงเธฒเธเธเธดเธฅ)
+        const titleW = 200;
+        const titleX = pageWidth - margin - titleW;
+
+        doc.fontSize(18).fillColor(PRIMARY_COLOR);
+        doc.text("เนเธเธงเธฒเธเธเธดเธฅ", titleX, row1Y, { width: titleW, align: "center" });
+        doc.fontSize(10);
+        doc.text("Billing Note", titleX, row1Y + 25, { width: titleW, align: "center" });
+
+        // ========== เนเธ–เธงเธ—เธตเน 2: เธเธฅเนเธญเธเธฅเธนเธเธเนเธฒ (เธเนเธฒเธข) & เธเธฅเนเธญเธเธเนเธญเธกเธนเธฅเน€เธญเธเธชเธฒเธฃ (เธเธงเธฒ) ==========
+        const row2Y = Math.max(leftY + 15, row1Y + 50);
+        const gap = 10;
+        const rightBoxW = 200;
+        const leftBoxW = contentWidth - rightBoxW - gap;
+        const leftBoxX = margin;
+        const rightBoxX = margin + leftBoxW + gap;
+
+        // --- 1. เธเธณเธเธงเธ“เธเธงเธฒเธกเธชเธนเธเธเธญเธเธเธฅเนเธญเธ (Calculate Box Heights) ---
+        const padding = 10;
+
+        // เธเธณเธเธงเธ“เธเธงเธฒเธกเธชเธนเธเธเธฅเนเธญเธเธเนเธฒเธข (เธฅเธนเธเธเนเธฒ)
+        let calcLeftH = padding; // เน€เธฃเธดเนเธกเธ•เนเธ padding เธเธ
+        calcLeftH += 18; // เธซเธฑเธงเธเนเธญ "เธฅเธนเธเธเนเธฒ / Customer"
+
+        doc.fontSize(10); // เธ•เธฑเนเธเธเนเธฒเธเธญเธเธ•เนเธชเธณเธซเธฃเธฑเธเธเธฒเธฃเธเธณเธเธงเธ“
+        if (companySettings) {
+            calcLeftH += 14; // เธเธทเนเธญเธเธฃเธดเธฉเธฑเธ—
+            if (companySettings.companyAddress) {
+                const addrH = doc.heightOfString(companySettings.companyAddress, { width: leftBoxW - (padding * 2) });
+                calcLeftH += addrH + 4; // เธ—เธตเนเธญเธขเธนเน + เน€เธงเนเธเธเธฃเธฃเธ—เธฑเธ”
+            }
+            calcLeftH += 14; // เน€เธฅเธเธเธนเนเน€เธชเธตเธขเธ เธฒเธฉเธต
+        } else {
+            calcLeftH += 14; // เธเธฃเธ“เธตเนเธกเนเธกเธตเธเนเธญเธกเธนเธฅ
+        }
+        const leftBoxH = calcLeftH + 5; // เธเธงเธ padding เธฅเนเธฒเธเธเธดเธ”เธซเธเนเธญเธข (+5 เธ•เธฒเธก Code เน€เธ”เธดเธก)
+
+        // เธเธณเธเธงเธ“เธเธงเธฒเธกเธชเธนเธเธเธฅเนเธญเธเธเธงเธฒ (เน€เธญเธเธชเธฒเธฃ)
+        const rightBoxH = padding + 16 + 16 + 5;
+
+        const finalBoxH = Math.max(leftBoxH, rightBoxH);
+
+        // --- 2. เธงเธฒเธ”เธเธฅเนเธญเธเธเธทเนเธเธซเธฅเธฑเธเธเนเธญเธ (Draw Background Boxes First) ---
+        doc.roundedRect(leftBoxX, row2Y, leftBoxW, finalBoxH, 5).stroke(BOX_BORDER_COLOR);
+        doc.roundedRect(rightBoxX, row2Y, rightBoxW, finalBoxH, 5).stroke(BOX_BORDER_COLOR);
+
+        // --- 3. เธงเธฒเธ”เธเนเธญเธเธงเธฒเธกเธ—เธฑเธเธฅเธเนเธ (Draw Text Content) ---
+
+        // --- Left Box Content ---
+        let custContentY = row2Y + padding;
+        const custTextW = leftBoxW - (padding * 2); // Width constraint for text
+        doc.fontSize(10).fillColor(PRIMARY_COLOR);
+        doc.text("เธฅเธนเธเธเนเธฒ / Customer", leftBoxX + padding, custContentY);
+        custContentY += 16;
+
+        doc.fontSize(9).fillColor(TEXT_GRAY);
+        if (companySettings) {
+            doc.text(companySettings.companyName || "-", leftBoxX + padding, custContentY, { width: custTextW });
+            custContentY += 13;
+            if (companySettings.companyAddress) {
+                doc.text(companySettings.companyAddress, leftBoxX + padding, custContentY, { width: custTextW });
+                custContentY = doc.y + 3;
+            }
+            doc.fontSize(8).fillColor(TEXT_GRAY);
+            doc.text(`เน€เธฅเธเธเธฃเธฐเธเธณเธ•เธฑเธงเธเธนเนเน€เธชเธตเธขเธ เธฒเธฉเธต: ${companySettings.taxId || "-"}`, leftBoxX + padding, custContentY, { width: custTextW });
+        } else {
+            doc.text("(เธขเธฑเธเนเธกเนเนเธ”เนเธ•เธฑเนเธเธเนเธฒเธเนเธญเธกเธนเธฅเธเธฃเธดเธฉเธฑเธ—)", leftBoxX + padding, custContentY);
+        }
+
+        // --- Right Box Content ---
+        let docContentY = row2Y + padding;
+
+        const labelX = rightBoxX + padding;
+        const valueX = rightBoxX + 60;
+        const valueW = rightBoxW - 60 - padding;
+
+        doc.fontSize(9).fillColor(PRIMARY_COLOR);
+        doc.text("เน€เธฅเธเธ—เธตเน / No:", labelX, docContentY);
+        doc.fontSize(9).fillColor(TEXT_GRAY);
+        doc.text(billing.billingRef || "-", valueX, docContentY, { width: valueW, align: "right" });
+        docContentY += 16;
+
+        doc.fontSize(9).fillColor(PRIMARY_COLOR);
+        doc.text("เธงเธฑเธเธ—เธตเน / Date:", labelX, docContentY);
+        doc.fontSize(9).fillColor(TEXT_GRAY);
+        doc.text(format(new Date(billing.billingDate), "dd/MM/yyyy"), valueX, docContentY, { width: valueW, align: "right" });
+
+        // ========== เธชเนเธงเธเธซเธฑเธงเธ•เธฒเธฃเธฒเธ ==========
+        const tableY = row2Y + finalBoxH + 15;
+        const headerHeight = 35; // เน€เธเธดเนเธกเธเธงเธฒเธกเธชเธนเธเธชเธณเธซเธฃเธฑเธ 2 เธเธฃเธฃเธ—เธฑเธ”
+
+        // เธเธทเนเธเธซเธฅเธฑเธเนเธฅเธฐเน€เธชเนเธเธเธญเธเธซเธฑเธงเธ•เธฒเธฃเธฒเธ
+        doc.rect(margin, tableY, contentWidth, headerHeight).fillAndStroke(BOX_BACKGROUND_COLOR, BORDER_COLOR);
+
+        // เธงเธฒเธ”เน€เธชเนเธเนเธเธงเธ•เธฑเนเธเธขเธฒเธงเธฅเธเนเธเธเธเธ–เธถเธ fixedTableBottomY เน€เธฅเธข
+        colX.forEach((x, i) => {
+            if (i > 0) {
+                doc.moveTo(x, tableY).lineTo(x, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+            }
+        });
+        // เธเธญเธเธเนเธฒเธขเธเธงเธฒ
+        doc.moveTo(margin, tableY).lineTo(margin, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+        doc.moveTo(margin + contentWidth, tableY).lineTo(margin + contentWidth, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+        doc.font("Sarabun");
+        headers.forEach((h, i) => {
+            // Center align for ALL headers
+            const align = "center";
+            const cellY = tableY + 5;
+
+            // Thai Line
+            doc.fontSize(9).fillColor(TEXT_DARK).text(h.th, colX[i] + 2, cellY, { width: colW[i] - 4, align: align as any });
+
+            // English Line
+            if (h.en) {
+                doc.fontSize(8).fillColor(TEXT_GRAY).text(h.en, colX[i] + 2, cellY + 12, { width: colW[i] - 4, align: align as any });
+            }
+        });
+
+        // เน€เธฃเธดเนเธกเธงเธฒเธ”เธ•เธฒเธฃเธฒเธ
+        return tableY + headerHeight;
+    };
+
+    // เน€เธฃเธตเธขเธเนเธเนเธงเธฒเธ”เธชเนเธงเธเธซเธฑเธงเธเธฃเธฑเนเธเนเธฃเธ
+    let rowY = drawHeader();
+    doc.fontSize(8);
+
+    const fullPageBottom = pageHeight - margin - 30;
+    let isExtended = false;
+
+    // เธงเธเธฅเธนเธเธงเธฒเธ”เธฃเธฒเธขเธเธฒเธฃเธเธฒเธ (Jobs)
+    billing.jobs.forEach((job: any, index: number) => {
+        // Need to calculate amount if items are populated, otherwise use what's available
+        // Similar to existing logic
+        const amt = job.items ? job.items.reduce((s: number, it: any) => s + Number(it.amount), 0) : 0;
+
+        // เธฃเธงเธกเธเนเธญเธกเธนเธฅเธ•เธนเนเธเธญเธเน€เธ—เธเน€เธเธญเธฃเนเนเธฅเธฐเธ—เธฐเน€เธเธตเธขเธเธฃเธ–
+        const parts = [];
+        if (job.containerNo) parts.push(job.containerNo);
+        if (job.truckPlate) parts.push(job.truckPlate);
+        const itemsInfo = parts.join(" / ");
+
+        const rowHeight = 18;
+
+        // 1. เธ•เธฃเธงเธเธชเธญเธเธเธฒเธฃเธเธขเธฒเธข: เธซเธฒเธเน€เธเธดเธเธเธทเนเธเธ—เธตเนเธชเนเธงเธเธ—เนเธฒเธขเธ—เธตเนเธเธณเธซเธเธ”
+        if (rowY + rowHeight > fixedTableBottomY && !isExtended) {
+            // เธฅเธฒเธเน€เธชเนเธเนเธเธงเธ•เธฑเนเธเธขเธฒเธงเธฅเธเนเธเธเธเธชเธธเธ”เธเธญเธเธฅเนเธฒเธเธเธญเธเธซเธเนเธฒเธเธฃเธฐเธ”เธฒเธฉเธชเธณเธซเธฃเธฑเธเธซเธเนเธฒเธฃเธฐเธซเธงเนเธฒเธเธ—เธฒเธเธเธตเน
+            colX.forEach((x, i) => {
+                if (i > 0) doc.moveTo(x, fixedTableBottomY).lineTo(x, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+            });
+            doc.moveTo(margin, fixedTableBottomY).lineTo(margin, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+            doc.moveTo(margin + contentWidth, fixedTableBottomY).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+            isExtended = true;
+        }
+
+        // 2. เธ•เธฃเธงเธเธชเธญเธเธเธฒเธฃเธเธถเนเธเธซเธเนเธฒเนเธซเธกเน: เธซเธฒเธเธ–เธถเธเธเธญเธเธฅเนเธฒเธเธเธญเธเธซเธเนเธฒเธเธฃเธฐเธ”เธฒเธฉ
+        if (rowY + rowHeight > fullPageBottom) {
+            // เธเธดเธ”เธซเธเนเธฒเธเธฑเธเธเธธเธเธฑเธ
+            doc.moveTo(margin, fullPageBottom).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+            doc.addPage();
+            doc.font("Sarabun");
+            rowY = drawHeader();
+            doc.fontSize(8);
+            isExtended = false; // เธฃเธตเน€เธเนเธ•เธชเธ–เธฒเธเธฐเธชเธณเธซเธฃเธฑเธเธซเธเนเธฒเนเธซเธกเน
+        }
+
+        // เน€เธชเนเธเธเธญเธเธฅเนเธฒเธ (เน€เธชเนเธเธเธฃเธฐ) เธชเธณเธซเธฃเธฑเธเนเธ•เนเธฅเธฐเนเธ–เธง
+        doc.moveTo(margin, rowY + rowHeight).lineTo(margin + contentWidth, rowY + rowHeight)
+            .lineWidth(TABLE_BORDER_WIDTH).dash(2, { space: 2 }).stroke(ROW_BORDER_COLOR).undash();
+
+        doc.fillColor(TEXT_GRAY);
+        doc.text(String(index + 1), colX[0] + cellPadding, rowY + 6, { width: colW[0] - (cellPadding * 2), align: "center" });
+        doc.text(format(new Date(job.clearanceDate), "dd/MM/yy"), colX[1] + cellPadding, rowY + 6, { width: colW[1] - (cellPadding * 2) });
+        doc.text(job.description || "-", colX[2] + cellPadding, rowY + 6, { width: colW[2] - (cellPadding * 2) });
+        doc.text(itemsInfo || "-", colX[3] + cellPadding, rowY + 6, { width: colW[3] - (cellPadding * 2) });
+        doc.text(job.refInvoiceNo || "-", colX[4] + cellPadding, rowY + 6, { width: colW[4] - (cellPadding * 2) });
+        doc.text(amt.toLocaleString("th-TH", { minimumFractionDigits: 2 }), colX[5] + cellPadding, rowY + 6, { width: colW[5] - (cellPadding * 2), align: "right" });
+
+        rowY += rowHeight;
+    });
+
+    // --- เธเธเธฅเธนเธ ---
+    // เธเธฑเธ”เธเธฒเธฃเธเธฃเธ“เธตเน€เธเธทเนเธญเธซเธฒเน€เธเธดเธเธชเนเธงเธเธ—เนเธฒเธขเนเธฅเธฐเธเธดเธ”เธ•เธฒเธฃเธฒเธ
+    if (rowY > fixedTableBottomY) {
+        // เน€เธเธทเนเธญเธซเธฒเน€เธเธดเธเธเธทเนเธเธ—เธตเนเธชเนเธงเธเธ—เนเธฒเธข
+        if (!isExtended) {
+            colX.forEach((x, i) => { if (i > 0) doc.moveTo(x, fixedTableBottomY).lineTo(x, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR); });
+            doc.moveTo(margin, fixedTableBottomY).lineTo(margin, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+            doc.moveTo(margin + contentWidth, fixedTableBottomY).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+        }
+        // เธเธดเธ”เธซเธเนเธฒเธเธตเนเนเธซเนเธชเธกเธเธนเธฃเธ“เน
+        doc.moveTo(margin, fullPageBottom).lineTo(margin + contentWidth, fullPageBottom).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+        // เน€เธเธดเนเธกเธซเธเนเธฒเนเธซเธกเนเธชเธณเธซเธฃเธฑเธเธชเนเธงเธเธ—เนเธฒเธข
+        doc.addPage();
+        rowY = drawHeader();
+    }
+
+    // เธเธดเธ”เธเธฃเธญเธเธ•เธฒเธฃเธฒเธเธ—เธตเน fixedTableBottomY (เธเธฒเธฃเธเธเนเธเธเธเธเธ•เธด)
+    doc.moveTo(margin, fixedTableBottomY).lineTo(margin + contentWidth, fixedTableBottomY).lineWidth(TABLE_BORDER_WIDTH).stroke(BORDER_COLOR);
+
+    // เธเธทเนเธเธ—เธตเนเน€เธฃเธดเนเธกเธเธฒเธเนเธ•เนเธ•เธฒเธฃเธฒเธ (Fixed Bottom)
+    const footerY = fixedTableBottomY + 10;
+    // const splitX = (colX[3] + colX[4]) / 2; // เนเธเนเนเธเธงเน€เธ”เธตเธขเธงเธเธฑเธเน€เธฅเธเธ—เธตเนเธญเนเธฒเธเธญเธดเธเน€เธเนเธเธเธธเธ”เนเธเนเธ (เธเธฃเธฐเธกเธฒเธ“ 50/50)
+    const splitX = 300;
+
+    // --- LEFT: Payment Info ---
+    const paymentW = splitX - margin - 10; // เน€เธงเนเธเธฃเธฐเธขเธฐ 10
+    const paymentH = 110;
+
+    // Background Box
+    doc.roundedRect(margin, footerY, paymentW, paymentH, 5).stroke(BORDER_COLOR);
+
+    doc.fillColor(PRIMARY_COLOR).fontSize(9);
+    doc.text("เธเนเธญเธกเธนเธฅเธเธฒเธฃเธเธณเธฃเธฐเน€เธเธดเธ", margin + 10, footerY + 10);
+
+    const paymentTextW = paymentW - 20; // Add width constraint
+    doc.fillColor(TEXT_GRAY).fontSize(8);
+    doc.text(`เธเธเธฒเธเธฒเธฃ: ${billing.vendor.bankName || "-"}`, margin + 10, footerY + 28, { width: paymentTextW });
+    doc.text(`เธชเธฒเธเธฒ: ${billing.vendor.bankBranch || "-"}`, margin + 10, footerY + 42, { width: paymentTextW });
+    doc.text(`เน€เธฅเธเธ—เธตเนเธเธฑเธเธเธต: ${billing.vendor.bankAccount || "-"}`, margin + 10, footerY + 56, { width: paymentTextW });
+    doc.text(`เธเธทเนเธญเธเธฑเธเธเธต: ${billing.vendor.companyName || "-"}`, margin + 10, footerY + 70, { width: paymentTextW });
+
+    // Show Remark here if exists
+    if (billing.remark) {
+        doc.fillColor(PRIMARY_COLOR).fontSize(8);
+        doc.text("เธซเธกเธฒเธขเน€เธซเธ•เธธ: " + billing.remark, margin + 10, footerY + 88, { width: paymentTextW });
+    }
+
+    // --- RIGHT: Summary ---
+    // เนเธเนเธเธทเนเธเธ—เธตเนเธเธฒเธ splitX เนเธเธเธเธชเธธเธ”เธเธญเธเธเธงเธฒ
+    const rightColX = splitX + 10; // เธเธขเธฑเธเน€เธเนเธฒเธกเธฒเธเธดเธ”เธเธถเธ
+    const rightColW = (margin + contentWidth) - rightColX;
+    let sY = footerY;
+
+    doc.fontSize(9).fillColor(TEXT_GRAY);
+
+    const drawSummaryRow = (label: string, value: string, isBold: boolean = false) => {
+        const y = sY;
+        doc.fillColor(TEXT_GRAY);
+        if (isBold) doc.font("Sarabun-Bold").fontSize(11).fillColor("#166534");
+        else doc.font("Sarabun").fontSize(9);
+
+        doc.text(label, rightColX, y);
+        doc.text(value, rightColX, y, { width: rightColW, align: "right" });
+
+        if (isBold) doc.font("Sarabun").fontSize(9); // Reset
+        sY += 20;
+    };
+
+    // เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ
+    drawSummaryRow("เธฃเธงเธกเน€เธเนเธเน€เธเธดเธ:", `${Number(billing.subtotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })} เธเธฒเธ—`);
+
+    // เธกเธนเธฅเธเนเธฒเธเนเธญเธเธ เธฒเธฉเธตเธกเธนเธฅเธเนเธฒเน€เธเธดเนเธก
+    if (billing.priceBeforeVat) {
+        drawSummaryRow("เธกเธนเธฅเธเนเธฒเธเนเธญเธเธ เธฒเธฉเธตเธกเธนเธฅเธเนเธฒเน€เธเธดเนเธก:", `${Number(billing.priceBeforeVat).toLocaleString("th-TH", { minimumFractionDigits: 2 })} เธเธฒเธ—`);
+    }
+
+    // เธ เธฒเธฉเธตเธกเธนเธฅเธเนเธฒเน€เธเธดเนเธก
+    const vatRate = billing.vatRateText || "7";
+    drawSummaryRow(`เธ เธฒเธฉเธตเธกเธนเธฅเธเนเธฒเน€เธเธดเนเธก ${vatRate}%:`, `${Number(billing.vatAmount).toLocaleString("th-TH", { minimumFractionDigits: 2 })} เธเธฒเธ—`);
+
+    // เธซเธฑเธ เธ“ เธ—เธตเนเธเนเธฒเธข
+    const whtRate = billing.whtRateText || "3";
+    drawSummaryRow(`เธซเธฑเธ เธ“ เธ—เธตเนเธเนเธฒเธข ${whtRate}%:`, `-${Number(billing.whtAmount).toLocaleString("th-TH", { minimumFractionDigits: 2 })} เธเธฒเธ—`);
+
+    // เน€เธชเนเธเธเธตเธ”เธเธฑเนเธ
+    sY -= 5;
+    doc.moveTo(rightColX, sY).lineTo(margin + contentWidth, sY).lineWidth(0.5).stroke(BORDER_COLOR);
+    sY += 8;
+
+    // เธขเธญเธ”เธชเธธเธ—เธเธดเธเธฃเนเธญเธกเธเธทเนเธเธซเธฅเธฑเธ
+    // เธงเธฒเธ”เธเธทเนเธเธซเธฅเธฑเธเธเนเธญเธ
+    doc.roundedRect(rightColX - 5, sY - 5, rightColW + 5, 17, 5).fill("#f0fdf4");
+    doc.fillColor("#166534"); // Green text works better on light green bg
+
+    // เธงเธฒเธเธ•เธณเนเธซเธเนเธเธเนเธญเธเธงเธฒเธกเน€เธญเธเน€เธเธทเนเธญเธ—เธณเธ•เธฑเธงเธซเธเธฒเนเธ”เธขเนเธกเนเธ•เนเธญเธเนเธเน helper
+    doc.fontSize(11).text("เธขเธญเธ”เธชเธธเธ—เธเธด:", rightColX, sY - 5);
+    doc.text(`${Number(billing.netTotal).toLocaleString("th-TH", { minimumFractionDigits: 2 })} เธเธฒเธ—`, rightColX, sY - 5, { width: rightColW, align: "right" });
+
+    // เน€เธเธดเนเธกเธเธณเธญเนเธฒเธเธ เธฒเธฉเธฒเนเธ—เธข (เน€เธเนเธ เธซเธเธถเนเธเธฃเนเธญเธขเธเธฒเธ—เธ–เนเธงเธ)
+    const thaiText = BahtText(Number(billing.netTotal));
+    doc.fontSize(9).fillColor(TEXT_GRAY);
+    doc.text(thaiText, rightColX, sY + 17, { width: rightColW, align: "right" });
+
+    // ========== เธชเนเธงเธเธฅเธเธฅเธฒเธขเธกเธทเธญเธเธทเนเธญ (SIGNATURE SECTION) ==========
+    const sigY = pageHeight - 140;
+    const sigWidth = 180;
+
+    // เธฅเธฒเธขเน€เธเนเธเธเธฑเนเธเธเนเธฒเธข (เธเธนเนเธงเธฒเธเธเธดเธฅ)
+    doc.fontSize(7).fillColor(TEXT_GRAY);
+    doc.text("เนเธเธเธฒเธก " + (billing.vendor.companyName || ""), margin, sigY, { width: sigWidth, align: "center" });
+    // doc.text("", margin, sigY + 45, { width: sigWidth, align: "center" });
+    doc.moveTo(margin, sigY + 55).lineTo(margin + sigWidth, sigY + 55).stroke(BORDER_COLOR);
+    doc.fontSize(8);
+    doc.text("เธเธนเนเธงเธฒเธเธเธดเธฅ", margin, sigY + 60, { width: sigWidth, align: "center" });
+    doc.fontSize(7);
+    doc.text("เธงเธฑเธเธ—เธตเน ______/______/______", margin, sigY + 73, { width: sigWidth, align: "center" });
+
+    // เธฅเธฒเธขเน€เธเนเธเธเธฑเนเธเธเธงเธฒ (เธเธนเนเธฃเธฑเธเธงเธฒเธเธเธดเธฅ - เธฅเธนเธเธเนเธฒ)
+    const rightSigX = pageWidth - margin - sigWidth;
+    doc.fontSize(7);
+    doc.text("เนเธเธเธฒเธก " + (companySettings?.companyName || "เธเธฃเธดเธฉเธฑเธ—"), rightSigX, sigY, { width: sigWidth, align: "center" });
+    // doc.text("", rightSigX, sigY + 45, { width: sigWidth, align: "center" });
+    doc.moveTo(rightSigX, sigY + 55).lineTo(rightSigX + sigWidth, sigY + 55).stroke(BORDER_COLOR);
+    doc.fontSize(8);
+    doc.text("เธเธนเนเธฃเธฑเธเธงเธฒเธเธเธดเธฅ", rightSigX, sigY + 60, { width: sigWidth, align: "center" });
+    doc.fontSize(7);
+    doc.text("เธงเธฑเธเธ—เธตเน ______/______/______", rightSigX, sigY + 73, { width: sigWidth, align: "center" });
+
+    // ========== เธชเนเธงเธเธ—เนเธฒเธขเธเธฃเธฐเธ”เธฒเธฉเธฃเธงเธก (เน€เธฅเธเธซเธเนเธฒ & เธงเธฑเธเธ—เธตเน) ==========
+    const range = doc.bufferedPageRange();
+    for (let i = range.start; i < range.start + range.count; i++) {
+        doc.switchToPage(i);
+
+        // Temporarily disable bottom margin to prevent auto-page-add
+        const oldBottomMargin = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0;
+
+        doc.fontSize(6).fillColor(TEXT_GRAY);
+
+        // เธฅเนเธฒเธเธเนเธฒเธข: เธงเธฑเธเธ—เธตเนเธเธดเธกเธเน
+        doc.text(
+            `เธเธดเธกเธเนเน€เธกเธทเนเธญ: ${format(new Date(), "dd/MM/yyyy HH:mm")}`,
+            margin,
+            pageHeight - 20,
+            { align: "left" }
+        );
+
+        doc.page.margins.bottom = oldBottomMargin;
+    }
+
+    doc.end();
+}

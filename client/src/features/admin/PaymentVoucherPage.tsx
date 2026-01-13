@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import {
     PaymentVoucher,
     paymentVoucherApi,
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { PaymentVoucherForm } from "./PaymentVoucherForm";
+import { PdfPreviewDialog } from "./PdfPreviewDialog";
 
 // Helpers
 const safeFormatDate = (dateString: string | undefined | null, formatStr: string) => {
@@ -56,8 +58,7 @@ const PlusIcon = () => (
 
 const EyeIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
 );
 
@@ -69,14 +70,15 @@ const CancelIcon = () => (
 
 const PrintIcon = () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
     </svg>
 );
 
 const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { label: string; color: string }> = {
-        PENDING: { label: "รอดำเนินการ", color: "bg-yellow-100 text-yellow-800" },
-        APPROVED: { label: "อนุมัติแล้ว", color: "bg-green-100 text-green-800" },
+        PENDING: { label: "รออนุมัติ", color: "bg-yellow-100 text-yellow-800" },
+        APPROVED: { label: "รอจ่ายเงิน", color: "bg-blue-100 text-blue-800" },
+        PAID: { label: "จ่ายแล้ว", color: "bg-green-100 text-green-800" },
         CANCELLED: { label: "ยกเลิก", color: "bg-gray-100 text-gray-800" },
     };
     const info = statusMap[status] || { label: status, color: "bg-gray-100 text-gray-800" };
@@ -99,7 +101,9 @@ export default function PaymentVoucherPage() {
     const [pageSize, setPageSize] = useState(30);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedVoucher, setSelectedVoucher] = useState<PaymentVoucher | null>(null);
+    const [previewVoucher, setPreviewVoucher] = useState<PaymentVoucher | null>(null);
     const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+    const [activeTab, setActiveTab] = useState<"pending" | "approved" | "history">("pending");
 
     // Queries
     const { data: vendorData } = useQuery({
@@ -112,11 +116,22 @@ export default function PaymentVoucherPage() {
         queryFn: () => paymentVoucherApi.list({ vendorId: selectedVendorId || undefined }).then((res) => res.data.data),
     });
 
+    const approveMutation = useMutation({
+        mutationFn: (id: string) => paymentVoucherApi.approve(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["payment-vouchers"] });
+            toast.success("อนุมัติใบสำคัญจ่ายเรียบร้อยแล้ว");
+        },
+        onError: () => {
+            toast.error("เกิดข้อผิดพลาดในการอนุมัติ");
+        },
+    });
+
     const cancelMutation = useMutation({
         mutationFn: (id: string) => paymentVoucherApi.cancel(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["payment-vouchers"] });
-            toast.success("ยกเลิกใบสำคัญจ่ายเรียบร้อยแล้ว");
+            toast.success("ยกเลิกและลบใบสำคัญจ่ายเรียบร้อยแล้ว");
         },
         onError: () => {
             toast.error("เกิดข้อผิดพลาดในการยกเลิก");
@@ -126,15 +141,26 @@ export default function PaymentVoucherPage() {
     const handlePrint = async (voucher: PaymentVoucher) => {
         setIsPdfGenerating(true);
         try {
-            const response = await paymentVoucherApi.generatePdf(voucher.id);
-            if (response.data.success && response.data.data?.url) {
-                const apiBase = import.meta.env.VITE_API_URL || "";
-                window.open(`${apiBase}${response.data.data.url}`, "_blank");
-            } else {
-                toast.error("ไม่สามารถสร้าง PDF ได้");
-            }
+            const response = await paymentVoucherApi.getPreview(voucher.id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
         } catch (error) {
             toast.error("เกิดข้อผิดพลาดในการสร้าง PDF");
+        } finally {
+            setIsPdfGenerating(false);
+        }
+    };
+
+    const handlePrintDetailed = async (voucher: PaymentVoucher) => {
+        setIsPdfGenerating(true);
+        try {
+            const response = await paymentVoucherApi.getDetailedPreview(voucher.id);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
+        } catch (error) {
+            toast.error("เกิดข้อผิดพลาดในการสร้าง PDF แบบละเอียด");
         } finally {
             setIsPdfGenerating(false);
         }
@@ -143,9 +169,15 @@ export default function PaymentVoucherPage() {
     const vouchers = Array.isArray(voucherData) ? voucherData : [];
     const vendors = Array.isArray(vendorData) ? vendorData : [];
 
+
     // Filter Logic
     const filteredVouchers = useMemo(() => {
         return vouchers.filter((voucher) => {
+            // Filter by tab
+            if (activeTab === "pending" && voucher.status !== "PENDING") return false;
+            if (activeTab === "approved" && voucher.status !== "APPROVED") return false;
+            if (activeTab === "history" && voucher.status !== "PAID") return false;
+
             if (dateRange.start && dateRange.end) {
                 const voucherDate = parseISO(voucher.voucherDate);
                 const start = startOfDay(parseISO(dateRange.start));
@@ -158,7 +190,7 @@ export default function PaymentVoucherPage() {
                 voucher.vendor?.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         });
-    }, [vouchers, searchTerm, dateRange]);
+    }, [vouchers, searchTerm, dateRange, activeTab]);
 
     // Pagination
     const totalPages = Math.ceil(filteredVouchers.length / pageSize);
@@ -304,11 +336,82 @@ export default function PaymentVoucherPage() {
                             </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p>พิมพ์ PDF</p>
+                            <p>พิมพ์ PDF (ปกติ)</p>
                         </TooltipContent>
                     </Tooltip>
 
-                    {voucher.status !== "CANCELLED" && user?.role === "ADMIN" && (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button
+                                onClick={() => handlePrintDetailed(voucher)}
+                                disabled={isPdfGenerating}
+                                className="p-2 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>พิมพ์ PDF (ละเอียด)</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <button
+                                onClick={() => setPreviewVoucher(voucher)}
+                                className="p-2 text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded-lg transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
+                                </svg>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>ตัวอย่าง PDF</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    {/* Approve Button - only for PENDING */}
+                    {voucher.status === "PENDING" && (
+                        <AlertDialog>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <AlertDialogTrigger asChild>
+                                        <button className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                    </AlertDialogTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>อนุมัติ</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>อนุมัติใบสำคัญจ่าย?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        ต้องการอนุมัติใบสำคัญจ่ายเลขที่ {voucher.voucherRef} ใช่หรือไม่?
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() => approveMutation.mutate(voucher.id)}
+                                        className="bg-green-600 hover:bg-green-700"
+                                    >
+                                        อนุมัติ
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
+
+                    {/* Cancel Button - for PENDING and APPROVED (admin/user can cancel) */}
+                    {(voucher.status === "PENDING" || voucher.status === "APPROVED") && (
                         <AlertDialog>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -319,14 +422,14 @@ export default function PaymentVoucherPage() {
                                     </AlertDialogTrigger>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>ยกเลิก</p>
+                                    <p>ลบและย้อนสถานะ</p>
                                 </TooltipContent>
                             </Tooltip>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
-                                    <AlertDialogTitle>ยกเลิกใบสำคัญจ่าย?</AlertDialogTitle>
+                                    <AlertDialogTitle>ลบใบสำคัญจ่าย?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        ต้องการยกเลิกใบสำคัญจ่ายเลขที่ {voucher.voucherRef} ใช่หรือไม่?
+                                        ต้องการลบใบสำคัญจ่ายเลขที่ {voucher.voucherRef} ใช่หรือไม่?
                                         ใบวางบิลที่เกี่ยวข้องจะกลับไปเป็นสถานะ "ส่งแล้ว"
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
@@ -336,7 +439,7 @@ export default function PaymentVoucherPage() {
                                         onClick={() => cancelMutation.mutate(voucher.id)}
                                         className="bg-red-600 hover:bg-red-700"
                                     >
-                                        ยืนยัน
+                                        ลบ
                                     </AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
@@ -365,6 +468,37 @@ export default function PaymentVoucherPage() {
                     >
                         <PlusIcon />
                         สร้างใบสำคัญจ่าย
+                    </button>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setActiveTab("pending")}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === "pending"
+                            ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
+                            : "text-gray-600 hover:bg-gray-100"
+                            }`}
+                    >
+                        รออนุมัติ
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("approved")}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === "approved"
+                            ? "bg-blue-100 text-blue-800 border border-blue-300"
+                            : "text-gray-600 hover:bg-gray-100"
+                            }`}
+                    >
+                        รอจ่ายเงิน
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("history")}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === "history"
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "text-gray-600 hover:bg-gray-100"
+                            }`}
+                    >
+                        ประวัติ
                     </button>
                 </div>
 
@@ -408,7 +542,7 @@ export default function PaymentVoucherPage() {
                     onPageSizeChange={setPageSize}
                     rowKey={(row) => row.id}
                     emptyMessage="ไม่พบข้อมูลใบสำคัญจ่าย"
-                    maxHeight="calc(100vh - 400px)"
+                    maxHeight="calc(100vh - 500px)"
                     showIndex
                     renderSubComponent={renderBillingNotesTable}
                 />
@@ -426,8 +560,8 @@ export default function PaymentVoucherPage() {
                 )}
 
                 {/* Detail Modal */}
-                {selectedVoucher && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                {selectedVoucher && createPortal(
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                         <div className="bg-white rounded-xl shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
                             <div className="p-6">
                                 <div className="flex justify-between items-start mb-6">
@@ -509,8 +643,15 @@ export default function PaymentVoucherPage() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
+
+                {/* PDF Preview Modal */}
+                <PdfPreviewDialog
+                    voucher={previewVoucher}
+                    onClose={() => setPreviewVoucher(null)}
+                />
             </div>
         </TooltipProvider>
     );

@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { userApi, User, CreateUserInput, UpdateUserInput, getRoleName } from "@/lib/api";
@@ -105,9 +106,9 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+  const modalContent = (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100]">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
         <h2 className="text-xl font-bold mb-4">
           {user ? "แก้ไขผู้ใช้งาน" : "เพิ่มผู้ใช้งาน"}
         </h2>
@@ -222,4 +223,6 @@ export function UserForm({ user, onClose, onSuccess }: UserFormProps) {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

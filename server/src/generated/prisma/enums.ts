@@ -39,6 +39,7 @@ export type StatusReceipt = (typeof StatusReceipt)[keyof typeof StatusReceipt]
 export const StatusPaymentVoucher = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
+  PAID: 'PAID',
   CANCELLED: 'CANCELLED'
 } as const
 
@@ -62,3 +63,33 @@ export const ResetPeriod = {
 } as const
 
 export type ResetPeriod = (typeof ResetPeriod)[keyof typeof ResetPeriod]
+
+
+export const StatusCashAdvance = {
+  DRAFT: 'DRAFT',
+  PENDING: 'PENDING',
+  BILLED: 'BILLED'
+} as const
+
+export type StatusCashAdvance = (typeof StatusCashAdvance)[keyof typeof StatusCashAdvance]
+
+
+export const StatusCashAdvanceBilling = {
+  PENDING: 'PENDING',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  PAID: 'PAID',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type StatusCashAdvanceBilling = (typeof StatusCashAdvanceBilling)[keyof typeof StatusCashAdvanceBilling]
+
+
+export const PaymentMethod = {
+  TRANSFER: 'TRANSFER',
+  CASH: 'CASH',
+  CHEQUE: 'CHEQUE',
+  CASHIER_CHEQUE: 'CASHIER_CHEQUE'
+} as const
+
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod]

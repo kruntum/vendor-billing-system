@@ -222,6 +222,8 @@ export type VendorWhereInput = {
   serviceCatalog?: Prisma.ServiceCatalogListRelationFilter
   jobDescriptions?: Prisma.JobDescriptionCatalogListRelationFilter
   paymentVouchers?: Prisma.PaymentVoucherListRelationFilter
+  cashAdvances?: Prisma.CashAdvanceListRelationFilter
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingListRelationFilter
   documentNumberConfig?: Prisma.XOR<Prisma.DocumentNumberConfigNullableScalarRelationFilter, Prisma.DocumentNumberConfigWhereInput> | null
 }
 
@@ -243,6 +245,8 @@ export type VendorOrderByWithRelationInput = {
   serviceCatalog?: Prisma.ServiceCatalogOrderByRelationAggregateInput
   jobDescriptions?: Prisma.JobDescriptionCatalogOrderByRelationAggregateInput
   paymentVouchers?: Prisma.PaymentVoucherOrderByRelationAggregateInput
+  cashAdvances?: Prisma.CashAdvanceOrderByRelationAggregateInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingOrderByRelationAggregateInput
   documentNumberConfig?: Prisma.DocumentNumberConfigOrderByWithRelationInput
 }
 
@@ -267,6 +271,8 @@ export type VendorWhereUniqueInput = Prisma.AtLeast<{
   serviceCatalog?: Prisma.ServiceCatalogListRelationFilter
   jobDescriptions?: Prisma.JobDescriptionCatalogListRelationFilter
   paymentVouchers?: Prisma.PaymentVoucherListRelationFilter
+  cashAdvances?: Prisma.CashAdvanceListRelationFilter
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingListRelationFilter
   documentNumberConfig?: Prisma.XOR<Prisma.DocumentNumberConfigNullableScalarRelationFilter, Prisma.DocumentNumberConfigWhereInput> | null
 }, "id" | "taxId">
 
@@ -318,6 +324,8 @@ export type VendorCreateInput = {
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -339,6 +347,8 @@ export type VendorUncheckedCreateInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -360,6 +370,8 @@ export type VendorUpdateInput = {
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -381,6 +393,8 @@ export type VendorUncheckedUpdateInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -594,6 +608,34 @@ export type VendorUpdateOneRequiredWithoutPaymentVouchersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.VendorUpdateToOneWithWhereWithoutPaymentVouchersInput, Prisma.VendorUpdateWithoutPaymentVouchersInput>, Prisma.VendorUncheckedUpdateWithoutPaymentVouchersInput>
 }
 
+export type VendorCreateNestedOneWithoutCashAdvancesInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvancesInput, Prisma.VendorUncheckedCreateWithoutCashAdvancesInput>
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCashAdvancesInput
+  connect?: Prisma.VendorWhereUniqueInput
+}
+
+export type VendorUpdateOneRequiredWithoutCashAdvancesNestedInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvancesInput, Prisma.VendorUncheckedCreateWithoutCashAdvancesInput>
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCashAdvancesInput
+  upsert?: Prisma.VendorUpsertWithoutCashAdvancesInput
+  connect?: Prisma.VendorWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VendorUpdateToOneWithWhereWithoutCashAdvancesInput, Prisma.VendorUpdateWithoutCashAdvancesInput>, Prisma.VendorUncheckedUpdateWithoutCashAdvancesInput>
+}
+
+export type VendorCreateNestedOneWithoutCashAdvanceBillingsInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvanceBillingsInput, Prisma.VendorUncheckedCreateWithoutCashAdvanceBillingsInput>
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCashAdvanceBillingsInput
+  connect?: Prisma.VendorWhereUniqueInput
+}
+
+export type VendorUpdateOneRequiredWithoutCashAdvanceBillingsNestedInput = {
+  create?: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvanceBillingsInput, Prisma.VendorUncheckedCreateWithoutCashAdvanceBillingsInput>
+  connectOrCreate?: Prisma.VendorCreateOrConnectWithoutCashAdvanceBillingsInput
+  upsert?: Prisma.VendorUpsertWithoutCashAdvanceBillingsInput
+  connect?: Prisma.VendorWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VendorUpdateToOneWithWhereWithoutCashAdvanceBillingsInput, Prisma.VendorUpdateWithoutCashAdvanceBillingsInput>, Prisma.VendorUncheckedUpdateWithoutCashAdvanceBillingsInput>
+}
+
 export type VendorCreateWithoutUsersInput = {
   id?: string
   companyName: string
@@ -611,6 +653,8 @@ export type VendorCreateWithoutUsersInput = {
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -631,6 +675,8 @@ export type VendorUncheckedCreateWithoutUsersInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -667,6 +713,8 @@ export type VendorUpdateWithoutUsersInput = {
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -687,6 +735,8 @@ export type VendorUncheckedUpdateWithoutUsersInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -707,6 +757,8 @@ export type VendorCreateWithoutJobsInput = {
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -727,6 +779,8 @@ export type VendorUncheckedCreateWithoutJobsInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -763,6 +817,8 @@ export type VendorUpdateWithoutJobsInput = {
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -783,6 +839,8 @@ export type VendorUncheckedUpdateWithoutJobsInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -803,6 +861,8 @@ export type VendorCreateWithoutServiceCatalogInput = {
   vatConfig?: Prisma.VatConfigByVendorCreateNestedOneWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -823,6 +883,8 @@ export type VendorUncheckedCreateWithoutServiceCatalogInput = {
   vatConfig?: Prisma.VatConfigByVendorUncheckedCreateNestedOneWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -859,6 +921,8 @@ export type VendorUpdateWithoutServiceCatalogInput = {
   vatConfig?: Prisma.VatConfigByVendorUpdateOneWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -879,6 +943,8 @@ export type VendorUncheckedUpdateWithoutServiceCatalogInput = {
   vatConfig?: Prisma.VatConfigByVendorUncheckedUpdateOneWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -899,6 +965,8 @@ export type VendorCreateWithoutJobDescriptionsInput = {
   vatConfig?: Prisma.VatConfigByVendorCreateNestedOneWithoutVendorInput
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -919,6 +987,8 @@ export type VendorUncheckedCreateWithoutJobDescriptionsInput = {
   vatConfig?: Prisma.VatConfigByVendorUncheckedCreateNestedOneWithoutVendorInput
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -955,6 +1025,8 @@ export type VendorUpdateWithoutJobDescriptionsInput = {
   vatConfig?: Prisma.VatConfigByVendorUpdateOneWithoutVendorNestedInput
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -975,6 +1047,8 @@ export type VendorUncheckedUpdateWithoutJobDescriptionsInput = {
   vatConfig?: Prisma.VatConfigByVendorUncheckedUpdateOneWithoutVendorNestedInput
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -995,6 +1069,8 @@ export type VendorCreateWithoutBillingNotesInput = {
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -1015,6 +1091,8 @@ export type VendorUncheckedCreateWithoutBillingNotesInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -1051,6 +1129,8 @@ export type VendorUpdateWithoutBillingNotesInput = {
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -1071,6 +1151,8 @@ export type VendorUncheckedUpdateWithoutBillingNotesInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -1091,6 +1173,8 @@ export type VendorCreateWithoutVatConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -1111,6 +1195,8 @@ export type VendorUncheckedCreateWithoutVatConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -1147,6 +1233,8 @@ export type VendorUpdateWithoutVatConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -1167,6 +1255,8 @@ export type VendorUncheckedUpdateWithoutVatConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -1187,6 +1277,8 @@ export type VendorCreateWithoutReceiptsInput = {
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -1207,6 +1299,8 @@ export type VendorUncheckedCreateWithoutReceiptsInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -1243,6 +1337,8 @@ export type VendorUpdateWithoutReceiptsInput = {
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -1263,6 +1359,8 @@ export type VendorUncheckedUpdateWithoutReceiptsInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -1284,6 +1382,8 @@ export type VendorCreateWithoutDocumentNumberConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
 }
 
 export type VendorUncheckedCreateWithoutDocumentNumberConfigInput = {
@@ -1304,6 +1404,8 @@ export type VendorUncheckedCreateWithoutDocumentNumberConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
 }
 
 export type VendorCreateOrConnectWithoutDocumentNumberConfigInput = {
@@ -1340,6 +1442,8 @@ export type VendorUpdateWithoutDocumentNumberConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
 }
 
 export type VendorUncheckedUpdateWithoutDocumentNumberConfigInput = {
@@ -1360,6 +1464,8 @@ export type VendorUncheckedUpdateWithoutDocumentNumberConfigInput = {
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
   paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
 }
 
 export type VendorCreateWithoutPaymentVouchersInput = {
@@ -1379,6 +1485,8 @@ export type VendorCreateWithoutPaymentVouchersInput = {
   vatConfig?: Prisma.VatConfigByVendorCreateNestedOneWithoutVendorInput
   serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
 }
 
@@ -1399,6 +1507,8 @@ export type VendorUncheckedCreateWithoutPaymentVouchersInput = {
   vatConfig?: Prisma.VatConfigByVendorUncheckedCreateNestedOneWithoutVendorInput
   serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
 }
 
@@ -1435,6 +1545,8 @@ export type VendorUpdateWithoutPaymentVouchersInput = {
   vatConfig?: Prisma.VatConfigByVendorUpdateOneWithoutVendorNestedInput
   serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
 }
 
@@ -1455,6 +1567,216 @@ export type VendorUncheckedUpdateWithoutPaymentVouchersInput = {
   vatConfig?: Prisma.VatConfigByVendorUncheckedUpdateOneWithoutVendorNestedInput
   serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
   jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
+}
+
+export type VendorCreateWithoutCashAdvancesInput = {
+  id?: string
+  companyName: string
+  companyAddress: string
+  taxId: string
+  bankAccount: string
+  bankName: string
+  bankBranch: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutVendorInput
+  jobs?: Prisma.JobCreateNestedManyWithoutVendorInput
+  billingNotes?: Prisma.BillingNoteCreateNestedManyWithoutVendorInput
+  receipts?: Prisma.ReceiptCreateNestedManyWithoutVendorInput
+  vatConfig?: Prisma.VatConfigByVendorCreateNestedOneWithoutVendorInput
+  serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
+  paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingCreateNestedManyWithoutVendorInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
+}
+
+export type VendorUncheckedCreateWithoutCashAdvancesInput = {
+  id?: string
+  companyName: string
+  companyAddress: string
+  taxId: string
+  bankAccount: string
+  bankName: string
+  bankBranch: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutVendorInput
+  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutVendorInput
+  billingNotes?: Prisma.BillingNoteUncheckedCreateNestedManyWithoutVendorInput
+  receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVendorInput
+  vatConfig?: Prisma.VatConfigByVendorUncheckedCreateNestedOneWithoutVendorInput
+  serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
+  paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedCreateNestedManyWithoutVendorInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
+}
+
+export type VendorCreateOrConnectWithoutCashAdvancesInput = {
+  where: Prisma.VendorWhereUniqueInput
+  create: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvancesInput, Prisma.VendorUncheckedCreateWithoutCashAdvancesInput>
+}
+
+export type VendorUpsertWithoutCashAdvancesInput = {
+  update: Prisma.XOR<Prisma.VendorUpdateWithoutCashAdvancesInput, Prisma.VendorUncheckedUpdateWithoutCashAdvancesInput>
+  create: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvancesInput, Prisma.VendorUncheckedCreateWithoutCashAdvancesInput>
+  where?: Prisma.VendorWhereInput
+}
+
+export type VendorUpdateToOneWithWhereWithoutCashAdvancesInput = {
+  where?: Prisma.VendorWhereInput
+  data: Prisma.XOR<Prisma.VendorUpdateWithoutCashAdvancesInput, Prisma.VendorUncheckedUpdateWithoutCashAdvancesInput>
+}
+
+export type VendorUpdateWithoutCashAdvancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  companyAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  taxId?: Prisma.StringFieldUpdateOperationsInput | string
+  bankAccount?: Prisma.StringFieldUpdateOperationsInput | string
+  bankName?: Prisma.StringFieldUpdateOperationsInput | string
+  bankBranch?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutVendorNestedInput
+  jobs?: Prisma.JobUpdateManyWithoutVendorNestedInput
+  billingNotes?: Prisma.BillingNoteUpdateManyWithoutVendorNestedInput
+  receipts?: Prisma.ReceiptUpdateManyWithoutVendorNestedInput
+  vatConfig?: Prisma.VatConfigByVendorUpdateOneWithoutVendorNestedInput
+  serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
+  paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUpdateManyWithoutVendorNestedInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
+}
+
+export type VendorUncheckedUpdateWithoutCashAdvancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  companyAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  taxId?: Prisma.StringFieldUpdateOperationsInput | string
+  bankAccount?: Prisma.StringFieldUpdateOperationsInput | string
+  bankName?: Prisma.StringFieldUpdateOperationsInput | string
+  bankBranch?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutVendorNestedInput
+  jobs?: Prisma.JobUncheckedUpdateManyWithoutVendorNestedInput
+  billingNotes?: Prisma.BillingNoteUncheckedUpdateManyWithoutVendorNestedInput
+  receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutVendorNestedInput
+  vatConfig?: Prisma.VatConfigByVendorUncheckedUpdateOneWithoutVendorNestedInput
+  serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
+  paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvanceBillings?: Prisma.CashAdvanceBillingUncheckedUpdateManyWithoutVendorNestedInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
+}
+
+export type VendorCreateWithoutCashAdvanceBillingsInput = {
+  id?: string
+  companyName: string
+  companyAddress: string
+  taxId: string
+  bankAccount: string
+  bankName: string
+  bankBranch: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutVendorInput
+  jobs?: Prisma.JobCreateNestedManyWithoutVendorInput
+  billingNotes?: Prisma.BillingNoteCreateNestedManyWithoutVendorInput
+  receipts?: Prisma.ReceiptCreateNestedManyWithoutVendorInput
+  vatConfig?: Prisma.VatConfigByVendorCreateNestedOneWithoutVendorInput
+  serviceCatalog?: Prisma.ServiceCatalogCreateNestedManyWithoutVendorInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogCreateNestedManyWithoutVendorInput
+  paymentVouchers?: Prisma.PaymentVoucherCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceCreateNestedManyWithoutVendorInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigCreateNestedOneWithoutVendorInput
+}
+
+export type VendorUncheckedCreateWithoutCashAdvanceBillingsInput = {
+  id?: string
+  companyName: string
+  companyAddress: string
+  taxId: string
+  bankAccount: string
+  bankName: string
+  bankBranch: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutVendorInput
+  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutVendorInput
+  billingNotes?: Prisma.BillingNoteUncheckedCreateNestedManyWithoutVendorInput
+  receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVendorInput
+  vatConfig?: Prisma.VatConfigByVendorUncheckedCreateNestedOneWithoutVendorInput
+  serviceCatalog?: Prisma.ServiceCatalogUncheckedCreateNestedManyWithoutVendorInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedCreateNestedManyWithoutVendorInput
+  paymentVouchers?: Prisma.PaymentVoucherUncheckedCreateNestedManyWithoutVendorInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedCreateNestedManyWithoutVendorInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedCreateNestedOneWithoutVendorInput
+}
+
+export type VendorCreateOrConnectWithoutCashAdvanceBillingsInput = {
+  where: Prisma.VendorWhereUniqueInput
+  create: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvanceBillingsInput, Prisma.VendorUncheckedCreateWithoutCashAdvanceBillingsInput>
+}
+
+export type VendorUpsertWithoutCashAdvanceBillingsInput = {
+  update: Prisma.XOR<Prisma.VendorUpdateWithoutCashAdvanceBillingsInput, Prisma.VendorUncheckedUpdateWithoutCashAdvanceBillingsInput>
+  create: Prisma.XOR<Prisma.VendorCreateWithoutCashAdvanceBillingsInput, Prisma.VendorUncheckedCreateWithoutCashAdvanceBillingsInput>
+  where?: Prisma.VendorWhereInput
+}
+
+export type VendorUpdateToOneWithWhereWithoutCashAdvanceBillingsInput = {
+  where?: Prisma.VendorWhereInput
+  data: Prisma.XOR<Prisma.VendorUpdateWithoutCashAdvanceBillingsInput, Prisma.VendorUncheckedUpdateWithoutCashAdvanceBillingsInput>
+}
+
+export type VendorUpdateWithoutCashAdvanceBillingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  companyAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  taxId?: Prisma.StringFieldUpdateOperationsInput | string
+  bankAccount?: Prisma.StringFieldUpdateOperationsInput | string
+  bankName?: Prisma.StringFieldUpdateOperationsInput | string
+  bankBranch?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutVendorNestedInput
+  jobs?: Prisma.JobUpdateManyWithoutVendorNestedInput
+  billingNotes?: Prisma.BillingNoteUpdateManyWithoutVendorNestedInput
+  receipts?: Prisma.ReceiptUpdateManyWithoutVendorNestedInput
+  vatConfig?: Prisma.VatConfigByVendorUpdateOneWithoutVendorNestedInput
+  serviceCatalog?: Prisma.ServiceCatalogUpdateManyWithoutVendorNestedInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogUpdateManyWithoutVendorNestedInput
+  paymentVouchers?: Prisma.PaymentVoucherUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUpdateManyWithoutVendorNestedInput
+  documentNumberConfig?: Prisma.DocumentNumberConfigUpdateOneWithoutVendorNestedInput
+}
+
+export type VendorUncheckedUpdateWithoutCashAdvanceBillingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  companyAddress?: Prisma.StringFieldUpdateOperationsInput | string
+  taxId?: Prisma.StringFieldUpdateOperationsInput | string
+  bankAccount?: Prisma.StringFieldUpdateOperationsInput | string
+  bankName?: Prisma.StringFieldUpdateOperationsInput | string
+  bankBranch?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutVendorNestedInput
+  jobs?: Prisma.JobUncheckedUpdateManyWithoutVendorNestedInput
+  billingNotes?: Prisma.BillingNoteUncheckedUpdateManyWithoutVendorNestedInput
+  receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutVendorNestedInput
+  vatConfig?: Prisma.VatConfigByVendorUncheckedUpdateOneWithoutVendorNestedInput
+  serviceCatalog?: Prisma.ServiceCatalogUncheckedUpdateManyWithoutVendorNestedInput
+  jobDescriptions?: Prisma.JobDescriptionCatalogUncheckedUpdateManyWithoutVendorNestedInput
+  paymentVouchers?: Prisma.PaymentVoucherUncheckedUpdateManyWithoutVendorNestedInput
+  cashAdvances?: Prisma.CashAdvanceUncheckedUpdateManyWithoutVendorNestedInput
   documentNumberConfig?: Prisma.DocumentNumberConfigUncheckedUpdateOneWithoutVendorNestedInput
 }
 
@@ -1471,6 +1793,8 @@ export type VendorCountOutputType = {
   serviceCatalog: number
   jobDescriptions: number
   paymentVouchers: number
+  cashAdvances: number
+  cashAdvanceBillings: number
 }
 
 export type VendorCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1481,6 +1805,8 @@ export type VendorCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   serviceCatalog?: boolean | VendorCountOutputTypeCountServiceCatalogArgs
   jobDescriptions?: boolean | VendorCountOutputTypeCountJobDescriptionsArgs
   paymentVouchers?: boolean | VendorCountOutputTypeCountPaymentVouchersArgs
+  cashAdvances?: boolean | VendorCountOutputTypeCountCashAdvancesArgs
+  cashAdvanceBillings?: boolean | VendorCountOutputTypeCountCashAdvanceBillingsArgs
 }
 
 /**
@@ -1542,6 +1868,20 @@ export type VendorCountOutputTypeCountPaymentVouchersArgs<ExtArgs extends runtim
   where?: Prisma.PaymentVoucherWhereInput
 }
 
+/**
+ * VendorCountOutputType without action
+ */
+export type VendorCountOutputTypeCountCashAdvancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CashAdvanceWhereInput
+}
+
+/**
+ * VendorCountOutputType without action
+ */
+export type VendorCountOutputTypeCountCashAdvanceBillingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CashAdvanceBillingWhereInput
+}
+
 
 export type VendorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1561,6 +1901,8 @@ export type VendorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   serviceCatalog?: boolean | Prisma.Vendor$serviceCatalogArgs<ExtArgs>
   jobDescriptions?: boolean | Prisma.Vendor$jobDescriptionsArgs<ExtArgs>
   paymentVouchers?: boolean | Prisma.Vendor$paymentVouchersArgs<ExtArgs>
+  cashAdvances?: boolean | Prisma.Vendor$cashAdvancesArgs<ExtArgs>
+  cashAdvanceBillings?: boolean | Prisma.Vendor$cashAdvanceBillingsArgs<ExtArgs>
   documentNumberConfig?: boolean | Prisma.Vendor$documentNumberConfigArgs<ExtArgs>
   _count?: boolean | Prisma.VendorCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vendor"]>
@@ -1611,6 +1953,8 @@ export type VendorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   serviceCatalog?: boolean | Prisma.Vendor$serviceCatalogArgs<ExtArgs>
   jobDescriptions?: boolean | Prisma.Vendor$jobDescriptionsArgs<ExtArgs>
   paymentVouchers?: boolean | Prisma.Vendor$paymentVouchersArgs<ExtArgs>
+  cashAdvances?: boolean | Prisma.Vendor$cashAdvancesArgs<ExtArgs>
+  cashAdvanceBillings?: boolean | Prisma.Vendor$cashAdvanceBillingsArgs<ExtArgs>
   documentNumberConfig?: boolean | Prisma.Vendor$documentNumberConfigArgs<ExtArgs>
   _count?: boolean | Prisma.VendorCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1628,6 +1972,8 @@ export type $VendorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     serviceCatalog: Prisma.$ServiceCatalogPayload<ExtArgs>[]
     jobDescriptions: Prisma.$JobDescriptionCatalogPayload<ExtArgs>[]
     paymentVouchers: Prisma.$PaymentVoucherPayload<ExtArgs>[]
+    cashAdvances: Prisma.$CashAdvancePayload<ExtArgs>[]
+    cashAdvanceBillings: Prisma.$CashAdvanceBillingPayload<ExtArgs>[]
     documentNumberConfig: Prisma.$DocumentNumberConfigPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -2042,6 +2388,8 @@ export interface Prisma__VendorClient<T, Null = never, ExtArgs extends runtime.T
   serviceCatalog<T extends Prisma.Vendor$serviceCatalogArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$serviceCatalogArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceCatalogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   jobDescriptions<T extends Prisma.Vendor$jobDescriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$jobDescriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JobDescriptionCatalogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   paymentVouchers<T extends Prisma.Vendor$paymentVouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$paymentVouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cashAdvances<T extends Prisma.Vendor$cashAdvancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$cashAdvancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashAdvancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cashAdvanceBillings<T extends Prisma.Vendor$cashAdvanceBillingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$cashAdvanceBillingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CashAdvanceBillingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documentNumberConfig<T extends Prisma.Vendor$documentNumberConfigArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Vendor$documentNumberConfigArgs<ExtArgs>>): Prisma.Prisma__DocumentNumberConfigClient<runtime.Types.Result.GetResult<Prisma.$DocumentNumberConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2653,6 +3001,54 @@ export type Vendor$paymentVouchersArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.PaymentVoucherScalarFieldEnum | Prisma.PaymentVoucherScalarFieldEnum[]
+}
+
+/**
+ * Vendor.cashAdvances
+ */
+export type Vendor$cashAdvancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CashAdvance
+   */
+  select?: Prisma.CashAdvanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CashAdvance
+   */
+  omit?: Prisma.CashAdvanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CashAdvanceInclude<ExtArgs> | null
+  where?: Prisma.CashAdvanceWhereInput
+  orderBy?: Prisma.CashAdvanceOrderByWithRelationInput | Prisma.CashAdvanceOrderByWithRelationInput[]
+  cursor?: Prisma.CashAdvanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CashAdvanceScalarFieldEnum | Prisma.CashAdvanceScalarFieldEnum[]
+}
+
+/**
+ * Vendor.cashAdvanceBillings
+ */
+export type Vendor$cashAdvanceBillingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CashAdvanceBilling
+   */
+  select?: Prisma.CashAdvanceBillingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CashAdvanceBilling
+   */
+  omit?: Prisma.CashAdvanceBillingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CashAdvanceBillingInclude<ExtArgs> | null
+  where?: Prisma.CashAdvanceBillingWhereInput
+  orderBy?: Prisma.CashAdvanceBillingOrderByWithRelationInput | Prisma.CashAdvanceBillingOrderByWithRelationInput[]
+  cursor?: Prisma.CashAdvanceBillingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CashAdvanceBillingScalarFieldEnum | Prisma.CashAdvanceBillingScalarFieldEnum[]
 }
 
 /**

@@ -37,7 +37,7 @@ export default function DashboardPage() {
       label: "ยอดรวม (เดือนนี้)",
       value: formatCurrency(
         recentBillings?.data?.data?.reduce(
-          (sum, b) => b.status !== "CANCELLED" ? sum + Number(b.netTotal) : sum,
+          (sum, b) => b.statusBillingNote !== "CANCELLED" ? sum + Number(b.netTotal) : sum,
           0
         ) || 0
       ),
@@ -48,7 +48,7 @@ export default function DashboardPage() {
       label: "รอชำระ",
       value:
         recentBillings?.data?.data?.filter(
-          (b) => b.status !== "PAID" && b.status !== "CANCELLED"
+          (b) => b.statusBillingNote !== "PAID" && b.statusBillingNote !== "CANCELLED"
         ).length || 0,
       icon: "⏳",
       color: "bg-purple-500",
@@ -159,28 +159,28 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className={`font-semibold ${billing.status === "CANCELLED" ? "text-gray-400 line-through" : "text-gray-900"}`}>
+                    <span className={`font-semibold ${billing.statusBillingNote === "CANCELLED" ? "text-gray-400 line-through" : "text-gray-900"}`}>
                       {formatCurrency(Number(billing.netTotal))}
                     </span>
                     <p
-                      className={`text-xs mt-0.5 ${billing.status === "PAID"
+                      className={`text-xs mt-0.5 ${billing.statusBillingNote === "PAID"
                         ? "text-green-600"
-                        : billing.status === "APPROVED"
+                        : billing.statusBillingNote === "APPROVED"
                           ? "text-emerald-600"
-                          : billing.status === "SUBMITTED"
+                          : billing.statusBillingNote === "SUBMITTED"
                             ? "text-blue-600"
-                            : billing.status === "CANCELLED"
+                            : billing.statusBillingNote === "CANCELLED"
                               ? "text-gray-500"
                               : "text-yellow-600"
                         }`}
                     >
-                      {billing.status === "PAID"
+                      {billing.statusBillingNote === "PAID"
                         ? "ชำระแล้ว"
-                        : billing.status === "APPROVED"
+                        : billing.statusBillingNote === "APPROVED"
                           ? "อนุมัติแล้ว"
-                          : billing.status === "SUBMITTED"
+                          : billing.statusBillingNote === "SUBMITTED"
                             ? "ส่งแล้ว"
-                            : billing.status === "CANCELLED"
+                            : billing.statusBillingNote === "CANCELLED"
                               ? "ยกเลิก"
                               : "รอดำเนินการ"}
                     </p>

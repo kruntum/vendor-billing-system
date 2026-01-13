@@ -13,6 +13,9 @@ import AdminDashboardPage from "@/features/admin/AdminDashboardPage";
 import AdminVendorBillingPage from "@/features/admin/AdminVendorBillingPage";
 import AdminVendorReceiptsPage from "@/features/admin/AdminVendorReceiptsPage";
 import PaymentVoucherPage from "@/features/admin/PaymentVoucherPage";
+import CashAdvancePage from "@/features/cash-advance/CashAdvancePage";
+import CashAdvanceBillingPage from "@/features/cash-advance/CashAdvanceBillingPage";
+import CashAdvanceApprovalPage from "@/features/cash-advance/CashAdvanceApprovalPage";
 
 // Create a root route
 const rootRoute = createRootRoute({
@@ -110,6 +113,24 @@ const paymentVoucherRoute = createRoute({
   component: PaymentVoucherPage,
 });
 
+const cashAdvanceRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/cash-advance",
+  component: CashAdvancePage,
+});
+
+const cashAdvanceBillingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/cash-advance-billing",
+  component: CashAdvanceBillingPage,
+});
+
+const cashAdvanceApprovalRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/cash-advance-approval",
+  component: CashAdvanceApprovalPage,
+});
+
 // Create the route tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -124,6 +145,9 @@ const routeTree = rootRoute.addChildren([
   adminVendorBillingRoute,
   adminVendorReceiptsRoute,
   paymentVoucherRoute,
+  cashAdvanceRoute,
+  cashAdvanceBillingRoute,
+  cashAdvanceApprovalRoute,
   loginRoute,
 ]);
 

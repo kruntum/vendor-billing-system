@@ -7,9 +7,6 @@ FROM oven/bun:latest AS builder
 # ตั้งค่า Working Directory
 WORKDIR /app
 
-# 1. รับค่า DATABASE_URL เป็น Build Argument (คงไว้เผื่อต้องใช้ในอนาคต/กรณีพิเศษ แต่จะไม่ใช้ในการ migrate)
-ARG DATABASE_URL 
-
 # Copy package files
 COPY server/package.json server/bun.lockb* ./
 
@@ -27,8 +24,9 @@ COPY server/src ./src/
 COPY server/tsconfig.json ./
 
 # 2. Generate Prisma Client (ใช้ --bun เพื่อความเข้ากันได้ดีกับ Bun)
-# การ generate client เป็นการทำงานแบบ Offline (ไม่ต้องการ DB connection)
-RUN bunx --bun prisma generate
+# การ generate client เป็นการทำงานแบบ Offline (ไม่ต้องการ DB connection) แต่ Prisma Config ต้องการ DATABASE_URL
+# 🔥 FIX: Bypass check ด้วยการใส่ Dummy URL ในบรรทัดนี้เลย (ชัวร์ที่สุด)
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" bunx --bun prisma generate
 
 # 🔥 CRITICAL 2: Deploy Migrations
 # ลบคำสั่งนี้ออกไป! การ migrate deploy ต้องทำใน Run Time เท่านั้น
@@ -45,7 +43,7 @@ WORKDIR /app
 
 # Copy dependencies และ generated files จาก Builder
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma/schema.prisma ./prisma/schema.prisma
+COPY --from=builder /app/prisma/ ./prisma/
 
 # 🔥 CRITICAL 3: Copy prisma.config.ts มาที่ Runner Stage (ยังจำเป็นสำหรับ Runtime)
 COPY server/prisma.config.ts ./

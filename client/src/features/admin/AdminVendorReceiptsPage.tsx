@@ -28,7 +28,7 @@ import {
 import { toast } from "sonner";
 
 // PDF files: in dev use backend directly, in Docker use Nginx (empty prefix)
-const PDF_BASE_URL = import.meta.env.VITE_PDF_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8801" : "");
+
 
 // Helpers
 const safeFormatDate = (dateString: string | undefined | null, formatStr: string) => {
@@ -135,15 +135,13 @@ export default function AdminVendorReceiptsPage() {
 
     const handleDownloadPdf = async (receiptId: string) => {
         try {
-            const response = await pdfApi.generateReceipt(receiptId);
-            if (response.data.success && response.data.data) {
-                window.open(`${PDF_BASE_URL}${response.data.data.url}`, "_blank");
-                toast.success("เปิด PDF สำเร็จ");
-            } else {
-                toast.error("ไม่สามารถสร้าง PDF ได้");
-            }
+            const response = await pdfApi.getReceiptPreview(receiptId);
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            window.open(`${url}#view=Fit`, "_blank");
         } catch (error) {
-            toast.error("เกิดข้อผิดพลาดในการสร้าง PDF");
+            console.error("Receipt PDF generation error:", error);
+            toast.error("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF ใบเสร็จ");
         }
     };
 
@@ -293,7 +291,7 @@ export default function AdminVendorReceiptsPage() {
                     }}
                     rowKey={(receipt) => receipt.id}
                     emptyMessage="ไม่พบข้อมูลใบเสร็จ"
-                    maxHeight="calc(100vh - 350px)"
+                    maxHeight="calc(100vh - 365px)"
                     showIndex={true}
                 />
 

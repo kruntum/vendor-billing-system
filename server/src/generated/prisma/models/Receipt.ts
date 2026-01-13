@@ -28,6 +28,7 @@ export type ReceiptMinAggregateOutputType = {
   id: string | null
   receiptRef: string | null
   billingNoteId: string | null
+  paymentVoucherId: string | null
   receiptFile: string | null
   receiptDate: Date | null
   statusReceipt: $Enums.StatusReceipt | null
@@ -35,12 +36,17 @@ export type ReceiptMinAggregateOutputType = {
   pdfUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  paymentMethod: $Enums.PaymentMethod | null
+  paymentRef: string | null
+  bankInfo: string | null
+  remark: string | null
 }
 
 export type ReceiptMaxAggregateOutputType = {
   id: string | null
   receiptRef: string | null
   billingNoteId: string | null
+  paymentVoucherId: string | null
   receiptFile: string | null
   receiptDate: Date | null
   statusReceipt: $Enums.StatusReceipt | null
@@ -48,12 +54,17 @@ export type ReceiptMaxAggregateOutputType = {
   pdfUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  paymentMethod: $Enums.PaymentMethod | null
+  paymentRef: string | null
+  bankInfo: string | null
+  remark: string | null
 }
 
 export type ReceiptCountAggregateOutputType = {
   id: number
   receiptRef: number
   billingNoteId: number
+  paymentVoucherId: number
   receiptFile: number
   receiptDate: number
   statusReceipt: number
@@ -61,6 +72,10 @@ export type ReceiptCountAggregateOutputType = {
   pdfUrl: number
   createdAt: number
   updatedAt: number
+  paymentMethod: number
+  paymentRef: number
+  bankInfo: number
+  remark: number
   _all: number
 }
 
@@ -69,6 +84,7 @@ export type ReceiptMinAggregateInputType = {
   id?: true
   receiptRef?: true
   billingNoteId?: true
+  paymentVoucherId?: true
   receiptFile?: true
   receiptDate?: true
   statusReceipt?: true
@@ -76,12 +92,17 @@ export type ReceiptMinAggregateInputType = {
   pdfUrl?: true
   createdAt?: true
   updatedAt?: true
+  paymentMethod?: true
+  paymentRef?: true
+  bankInfo?: true
+  remark?: true
 }
 
 export type ReceiptMaxAggregateInputType = {
   id?: true
   receiptRef?: true
   billingNoteId?: true
+  paymentVoucherId?: true
   receiptFile?: true
   receiptDate?: true
   statusReceipt?: true
@@ -89,12 +110,17 @@ export type ReceiptMaxAggregateInputType = {
   pdfUrl?: true
   createdAt?: true
   updatedAt?: true
+  paymentMethod?: true
+  paymentRef?: true
+  bankInfo?: true
+  remark?: true
 }
 
 export type ReceiptCountAggregateInputType = {
   id?: true
   receiptRef?: true
   billingNoteId?: true
+  paymentVoucherId?: true
   receiptFile?: true
   receiptDate?: true
   statusReceipt?: true
@@ -102,6 +128,10 @@ export type ReceiptCountAggregateInputType = {
   pdfUrl?: true
   createdAt?: true
   updatedAt?: true
+  paymentMethod?: true
+  paymentRef?: true
+  bankInfo?: true
+  remark?: true
   _all?: true
 }
 
@@ -180,7 +210,8 @@ export type ReceiptGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type ReceiptGroupByOutputType = {
   id: string
   receiptRef: string
-  billingNoteId: string
+  billingNoteId: string | null
+  paymentVoucherId: string | null
   receiptFile: string | null
   receiptDate: Date
   statusReceipt: $Enums.StatusReceipt
@@ -188,6 +219,10 @@ export type ReceiptGroupByOutputType = {
   pdfUrl: string | null
   createdAt: Date
   updatedAt: Date
+  paymentMethod: $Enums.PaymentMethod | null
+  paymentRef: string | null
+  bankInfo: string | null
+  remark: string | null
   _count: ReceiptCountAggregateOutputType | null
   _min: ReceiptMinAggregateOutputType | null
   _max: ReceiptMaxAggregateOutputType | null
@@ -214,7 +249,8 @@ export type ReceiptWhereInput = {
   NOT?: Prisma.ReceiptWhereInput | Prisma.ReceiptWhereInput[]
   id?: Prisma.StringFilter<"Receipt"> | string
   receiptRef?: Prisma.StringFilter<"Receipt"> | string
-  billingNoteId?: Prisma.StringFilter<"Receipt"> | string
+  billingNoteId?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  paymentVoucherId?: Prisma.StringNullableFilter<"Receipt"> | string | null
   receiptFile?: Prisma.StringNullableFilter<"Receipt"> | string | null
   receiptDate?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptFilter<"Receipt"> | $Enums.StatusReceipt
@@ -222,14 +258,20 @@ export type ReceiptWhereInput = {
   pdfUrl?: Prisma.StringNullableFilter<"Receipt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
-  billingNote?: Prisma.XOR<Prisma.BillingNoteScalarRelationFilter, Prisma.BillingNoteWhereInput>
+  paymentMethod?: Prisma.EnumPaymentMethodNullableFilter<"Receipt"> | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  bankInfo?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  remark?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  billingNote?: Prisma.XOR<Prisma.BillingNoteNullableScalarRelationFilter, Prisma.BillingNoteWhereInput> | null
+  paymentVoucher?: Prisma.XOR<Prisma.PaymentVoucherNullableScalarRelationFilter, Prisma.PaymentVoucherWhereInput> | null
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
 }
 
 export type ReceiptOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   receiptRef?: Prisma.SortOrder
-  billingNoteId?: Prisma.SortOrder
+  billingNoteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrderInput | Prisma.SortOrder
   receiptFile?: Prisma.SortOrderInput | Prisma.SortOrder
   receiptDate?: Prisma.SortOrder
   statusReceipt?: Prisma.SortOrder
@@ -237,7 +279,12 @@ export type ReceiptOrderByWithRelationInput = {
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankInfo?: Prisma.SortOrderInput | Prisma.SortOrder
+  remark?: Prisma.SortOrderInput | Prisma.SortOrder
   billingNote?: Prisma.BillingNoteOrderByWithRelationInput
+  paymentVoucher?: Prisma.PaymentVoucherOrderByWithRelationInput
   vendor?: Prisma.VendorOrderByWithRelationInput
 }
 
@@ -245,6 +292,7 @@ export type ReceiptWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   receiptRef?: string
   billingNoteId?: string
+  paymentVoucherId?: string
   AND?: Prisma.ReceiptWhereInput | Prisma.ReceiptWhereInput[]
   OR?: Prisma.ReceiptWhereInput[]
   NOT?: Prisma.ReceiptWhereInput | Prisma.ReceiptWhereInput[]
@@ -255,14 +303,20 @@ export type ReceiptWhereUniqueInput = Prisma.AtLeast<{
   pdfUrl?: Prisma.StringNullableFilter<"Receipt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
-  billingNote?: Prisma.XOR<Prisma.BillingNoteScalarRelationFilter, Prisma.BillingNoteWhereInput>
+  paymentMethod?: Prisma.EnumPaymentMethodNullableFilter<"Receipt"> | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  bankInfo?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  remark?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  billingNote?: Prisma.XOR<Prisma.BillingNoteNullableScalarRelationFilter, Prisma.BillingNoteWhereInput> | null
+  paymentVoucher?: Prisma.XOR<Prisma.PaymentVoucherNullableScalarRelationFilter, Prisma.PaymentVoucherWhereInput> | null
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
-}, "id" | "receiptRef" | "billingNoteId">
+}, "id" | "receiptRef" | "billingNoteId" | "paymentVoucherId">
 
 export type ReceiptOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   receiptRef?: Prisma.SortOrder
-  billingNoteId?: Prisma.SortOrder
+  billingNoteId?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrderInput | Prisma.SortOrder
   receiptFile?: Prisma.SortOrderInput | Prisma.SortOrder
   receiptDate?: Prisma.SortOrder
   statusReceipt?: Prisma.SortOrder
@@ -270,6 +324,10 @@ export type ReceiptOrderByWithAggregationInput = {
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankInfo?: Prisma.SortOrderInput | Prisma.SortOrder
+  remark?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReceiptCountOrderByAggregateInput
   _max?: Prisma.ReceiptMaxOrderByAggregateInput
   _min?: Prisma.ReceiptMinOrderByAggregateInput
@@ -281,7 +339,8 @@ export type ReceiptScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ReceiptScalarWhereWithAggregatesInput | Prisma.ReceiptScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Receipt"> | string
   receiptRef?: Prisma.StringWithAggregatesFilter<"Receipt"> | string
-  billingNoteId?: Prisma.StringWithAggregatesFilter<"Receipt"> | string
+  billingNoteId?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
+  paymentVoucherId?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
   receiptFile?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
   receiptDate?: Prisma.DateTimeWithAggregatesFilter<"Receipt"> | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptWithAggregatesFilter<"Receipt"> | $Enums.StatusReceipt
@@ -289,6 +348,10 @@ export type ReceiptScalarWhereWithAggregatesInput = {
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Receipt"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Receipt"> | Date | string
+  paymentMethod?: Prisma.EnumPaymentMethodNullableWithAggregatesFilter<"Receipt"> | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
+  bankInfo?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
+  remark?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
 }
 
 export type ReceiptCreateInput = {
@@ -300,14 +363,20 @@ export type ReceiptCreateInput = {
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  billingNote: Prisma.BillingNoteCreateNestedOneWithoutReceiptInput
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
+  billingNote?: Prisma.BillingNoteCreateNestedOneWithoutReceiptInput
+  paymentVoucher?: Prisma.PaymentVoucherCreateNestedOneWithoutReceiptInput
   vendor: Prisma.VendorCreateNestedOneWithoutReceiptsInput
 }
 
 export type ReceiptUncheckedCreateInput = {
   id?: string
   receiptRef: string
-  billingNoteId: string
+  billingNoteId?: string | null
+  paymentVoucherId?: string | null
   receiptFile?: string | null
   receiptDate: Date | string
   statusReceipt?: $Enums.StatusReceipt
@@ -315,6 +384,10 @@ export type ReceiptUncheckedCreateInput = {
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
 }
 
 export type ReceiptUpdateInput = {
@@ -326,14 +399,20 @@ export type ReceiptUpdateInput = {
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  billingNote?: Prisma.BillingNoteUpdateOneRequiredWithoutReceiptNestedInput
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingNote?: Prisma.BillingNoteUpdateOneWithoutReceiptNestedInput
+  paymentVoucher?: Prisma.PaymentVoucherUpdateOneWithoutReceiptNestedInput
   vendor?: Prisma.VendorUpdateOneRequiredWithoutReceiptsNestedInput
 }
 
 export type ReceiptUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   receiptRef?: Prisma.StringFieldUpdateOperationsInput | string
-  billingNoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingNoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptFieldUpdateOperationsInput | $Enums.StatusReceipt
@@ -341,12 +420,17 @@ export type ReceiptUncheckedUpdateInput = {
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptCreateManyInput = {
   id?: string
   receiptRef: string
-  billingNoteId: string
+  billingNoteId?: string | null
+  paymentVoucherId?: string | null
   receiptFile?: string | null
   receiptDate: Date | string
   statusReceipt?: $Enums.StatusReceipt
@@ -354,6 +438,10 @@ export type ReceiptCreateManyInput = {
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
 }
 
 export type ReceiptUpdateManyMutationInput = {
@@ -365,12 +453,17 @@ export type ReceiptUpdateManyMutationInput = {
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   receiptRef?: Prisma.StringFieldUpdateOperationsInput | string
-  billingNoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingNoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptFieldUpdateOperationsInput | $Enums.StatusReceipt
@@ -378,6 +471,10 @@ export type ReceiptUncheckedUpdateManyInput = {
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptListRelationFilter = {
@@ -399,6 +496,7 @@ export type ReceiptCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   receiptRef?: Prisma.SortOrder
   billingNoteId?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
   receiptDate?: Prisma.SortOrder
   statusReceipt?: Prisma.SortOrder
@@ -406,12 +504,17 @@ export type ReceiptCountOrderByAggregateInput = {
   pdfUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentRef?: Prisma.SortOrder
+  bankInfo?: Prisma.SortOrder
+  remark?: Prisma.SortOrder
 }
 
 export type ReceiptMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   receiptRef?: Prisma.SortOrder
   billingNoteId?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
   receiptDate?: Prisma.SortOrder
   statusReceipt?: Prisma.SortOrder
@@ -419,12 +522,17 @@ export type ReceiptMaxOrderByAggregateInput = {
   pdfUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentRef?: Prisma.SortOrder
+  bankInfo?: Prisma.SortOrder
+  remark?: Prisma.SortOrder
 }
 
 export type ReceiptMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   receiptRef?: Prisma.SortOrder
   billingNoteId?: Prisma.SortOrder
+  paymentVoucherId?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
   receiptDate?: Prisma.SortOrder
   statusReceipt?: Prisma.SortOrder
@@ -432,6 +540,10 @@ export type ReceiptMinOrderByAggregateInput = {
   pdfUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  paymentMethod?: Prisma.SortOrder
+  paymentRef?: Prisma.SortOrder
+  bankInfo?: Prisma.SortOrder
+  remark?: Prisma.SortOrder
 }
 
 export type ReceiptCreateNestedManyWithoutVendorInput = {
@@ -512,6 +624,42 @@ export type EnumStatusReceiptFieldUpdateOperationsInput = {
   set?: $Enums.StatusReceipt
 }
 
+export type NullableEnumPaymentMethodFieldUpdateOperationsInput = {
+  set?: $Enums.PaymentMethod | null
+}
+
+export type ReceiptCreateNestedOneWithoutPaymentVoucherInput = {
+  create?: Prisma.XOR<Prisma.ReceiptCreateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedCreateWithoutPaymentVoucherInput>
+  connectOrCreate?: Prisma.ReceiptCreateOrConnectWithoutPaymentVoucherInput
+  connect?: Prisma.ReceiptWhereUniqueInput
+}
+
+export type ReceiptUncheckedCreateNestedOneWithoutPaymentVoucherInput = {
+  create?: Prisma.XOR<Prisma.ReceiptCreateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedCreateWithoutPaymentVoucherInput>
+  connectOrCreate?: Prisma.ReceiptCreateOrConnectWithoutPaymentVoucherInput
+  connect?: Prisma.ReceiptWhereUniqueInput
+}
+
+export type ReceiptUpdateOneWithoutPaymentVoucherNestedInput = {
+  create?: Prisma.XOR<Prisma.ReceiptCreateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedCreateWithoutPaymentVoucherInput>
+  connectOrCreate?: Prisma.ReceiptCreateOrConnectWithoutPaymentVoucherInput
+  upsert?: Prisma.ReceiptUpsertWithoutPaymentVoucherInput
+  disconnect?: Prisma.ReceiptWhereInput | boolean
+  delete?: Prisma.ReceiptWhereInput | boolean
+  connect?: Prisma.ReceiptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReceiptUpdateToOneWithWhereWithoutPaymentVoucherInput, Prisma.ReceiptUpdateWithoutPaymentVoucherInput>, Prisma.ReceiptUncheckedUpdateWithoutPaymentVoucherInput>
+}
+
+export type ReceiptUncheckedUpdateOneWithoutPaymentVoucherNestedInput = {
+  create?: Prisma.XOR<Prisma.ReceiptCreateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedCreateWithoutPaymentVoucherInput>
+  connectOrCreate?: Prisma.ReceiptCreateOrConnectWithoutPaymentVoucherInput
+  upsert?: Prisma.ReceiptUpsertWithoutPaymentVoucherInput
+  disconnect?: Prisma.ReceiptWhereInput | boolean
+  delete?: Prisma.ReceiptWhereInput | boolean
+  connect?: Prisma.ReceiptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ReceiptUpdateToOneWithWhereWithoutPaymentVoucherInput, Prisma.ReceiptUpdateWithoutPaymentVoucherInput>, Prisma.ReceiptUncheckedUpdateWithoutPaymentVoucherInput>
+}
+
 export type ReceiptCreateWithoutVendorInput = {
   id?: string
   receiptRef: string
@@ -521,19 +669,29 @@ export type ReceiptCreateWithoutVendorInput = {
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  billingNote: Prisma.BillingNoteCreateNestedOneWithoutReceiptInput
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
+  billingNote?: Prisma.BillingNoteCreateNestedOneWithoutReceiptInput
+  paymentVoucher?: Prisma.PaymentVoucherCreateNestedOneWithoutReceiptInput
 }
 
 export type ReceiptUncheckedCreateWithoutVendorInput = {
   id?: string
   receiptRef: string
-  billingNoteId: string
+  billingNoteId?: string | null
+  paymentVoucherId?: string | null
   receiptFile?: string | null
   receiptDate: Date | string
   statusReceipt?: $Enums.StatusReceipt
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
 }
 
 export type ReceiptCreateOrConnectWithoutVendorInput = {
@@ -568,7 +726,8 @@ export type ReceiptScalarWhereInput = {
   NOT?: Prisma.ReceiptScalarWhereInput | Prisma.ReceiptScalarWhereInput[]
   id?: Prisma.StringFilter<"Receipt"> | string
   receiptRef?: Prisma.StringFilter<"Receipt"> | string
-  billingNoteId?: Prisma.StringFilter<"Receipt"> | string
+  billingNoteId?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  paymentVoucherId?: Prisma.StringNullableFilter<"Receipt"> | string | null
   receiptFile?: Prisma.StringNullableFilter<"Receipt"> | string | null
   receiptDate?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptFilter<"Receipt"> | $Enums.StatusReceipt
@@ -576,6 +735,10 @@ export type ReceiptScalarWhereInput = {
   pdfUrl?: Prisma.StringNullableFilter<"Receipt"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
+  paymentMethod?: Prisma.EnumPaymentMethodNullableFilter<"Receipt"> | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  bankInfo?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  remark?: Prisma.StringNullableFilter<"Receipt"> | string | null
 }
 
 export type ReceiptCreateWithoutBillingNoteInput = {
@@ -587,12 +750,18 @@ export type ReceiptCreateWithoutBillingNoteInput = {
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
+  paymentVoucher?: Prisma.PaymentVoucherCreateNestedOneWithoutReceiptInput
   vendor: Prisma.VendorCreateNestedOneWithoutReceiptsInput
 }
 
 export type ReceiptUncheckedCreateWithoutBillingNoteInput = {
   id?: string
   receiptRef: string
+  paymentVoucherId?: string | null
   receiptFile?: string | null
   receiptDate: Date | string
   statusReceipt?: $Enums.StatusReceipt
@@ -600,6 +769,10 @@ export type ReceiptUncheckedCreateWithoutBillingNoteInput = {
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
 }
 
 export type ReceiptCreateOrConnectWithoutBillingNoteInput = {
@@ -627,12 +800,18 @@ export type ReceiptUpdateWithoutBillingNoteInput = {
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentVoucher?: Prisma.PaymentVoucherUpdateOneWithoutReceiptNestedInput
   vendor?: Prisma.VendorUpdateOneRequiredWithoutReceiptsNestedInput
 }
 
 export type ReceiptUncheckedUpdateWithoutBillingNoteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   receiptRef?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptFieldUpdateOperationsInput | $Enums.StatusReceipt
@@ -640,18 +819,111 @@ export type ReceiptUncheckedUpdateWithoutBillingNoteInput = {
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type ReceiptCreateManyVendorInput = {
+export type ReceiptCreateWithoutPaymentVoucherInput = {
   id?: string
   receiptRef: string
-  billingNoteId: string
   receiptFile?: string | null
   receiptDate: Date | string
   statusReceipt?: $Enums.StatusReceipt
   pdfUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
+  billingNote?: Prisma.BillingNoteCreateNestedOneWithoutReceiptInput
+  vendor: Prisma.VendorCreateNestedOneWithoutReceiptsInput
+}
+
+export type ReceiptUncheckedCreateWithoutPaymentVoucherInput = {
+  id?: string
+  receiptRef: string
+  billingNoteId?: string | null
+  receiptFile?: string | null
+  receiptDate: Date | string
+  statusReceipt?: $Enums.StatusReceipt
+  vendorId: string
+  pdfUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
+}
+
+export type ReceiptCreateOrConnectWithoutPaymentVoucherInput = {
+  where: Prisma.ReceiptWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReceiptCreateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedCreateWithoutPaymentVoucherInput>
+}
+
+export type ReceiptUpsertWithoutPaymentVoucherInput = {
+  update: Prisma.XOR<Prisma.ReceiptUpdateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedUpdateWithoutPaymentVoucherInput>
+  create: Prisma.XOR<Prisma.ReceiptCreateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedCreateWithoutPaymentVoucherInput>
+  where?: Prisma.ReceiptWhereInput
+}
+
+export type ReceiptUpdateToOneWithWhereWithoutPaymentVoucherInput = {
+  where?: Prisma.ReceiptWhereInput
+  data: Prisma.XOR<Prisma.ReceiptUpdateWithoutPaymentVoucherInput, Prisma.ReceiptUncheckedUpdateWithoutPaymentVoucherInput>
+}
+
+export type ReceiptUpdateWithoutPaymentVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptRef?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statusReceipt?: Prisma.EnumStatusReceiptFieldUpdateOperationsInput | $Enums.StatusReceipt
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingNote?: Prisma.BillingNoteUpdateOneWithoutReceiptNestedInput
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutReceiptsNestedInput
+}
+
+export type ReceiptUncheckedUpdateWithoutPaymentVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  receiptRef?: Prisma.StringFieldUpdateOperationsInput | string
+  billingNoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statusReceipt?: Prisma.EnumStatusReceiptFieldUpdateOperationsInput | $Enums.StatusReceipt
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type ReceiptCreateManyVendorInput = {
+  id?: string
+  receiptRef: string
+  billingNoteId?: string | null
+  paymentVoucherId?: string | null
+  receiptFile?: string | null
+  receiptDate: Date | string
+  statusReceipt?: $Enums.StatusReceipt
+  pdfUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  paymentMethod?: $Enums.PaymentMethod | null
+  paymentRef?: string | null
+  bankInfo?: string | null
+  remark?: string | null
 }
 
 export type ReceiptUpdateWithoutVendorInput = {
@@ -663,31 +935,46 @@ export type ReceiptUpdateWithoutVendorInput = {
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  billingNote?: Prisma.BillingNoteUpdateOneRequiredWithoutReceiptNestedInput
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billingNote?: Prisma.BillingNoteUpdateOneWithoutReceiptNestedInput
+  paymentVoucher?: Prisma.PaymentVoucherUpdateOneWithoutReceiptNestedInput
 }
 
 export type ReceiptUncheckedUpdateWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   receiptRef?: Prisma.StringFieldUpdateOperationsInput | string
-  billingNoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingNoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptFieldUpdateOperationsInput | $Enums.StatusReceipt
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptUncheckedUpdateManyWithoutVendorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   receiptRef?: Prisma.StringFieldUpdateOperationsInput | string
-  billingNoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingNoteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentVoucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receiptDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   statusReceipt?: Prisma.EnumStatusReceiptFieldUpdateOperationsInput | $Enums.StatusReceipt
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paymentMethod?: Prisma.NullableEnumPaymentMethodFieldUpdateOperationsInput | $Enums.PaymentMethod | null
+  paymentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -696,6 +983,7 @@ export type ReceiptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   receiptRef?: boolean
   billingNoteId?: boolean
+  paymentVoucherId?: boolean
   receiptFile?: boolean
   receiptDate?: boolean
   statusReceipt?: boolean
@@ -703,7 +991,12 @@ export type ReceiptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   pdfUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  billingNote?: boolean | Prisma.BillingNoteDefaultArgs<ExtArgs>
+  paymentMethod?: boolean
+  paymentRef?: boolean
+  bankInfo?: boolean
+  remark?: boolean
+  billingNote?: boolean | Prisma.Receipt$billingNoteArgs<ExtArgs>
+  paymentVoucher?: boolean | Prisma.Receipt$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["receipt"]>
 
@@ -711,6 +1004,7 @@ export type ReceiptSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   receiptRef?: boolean
   billingNoteId?: boolean
+  paymentVoucherId?: boolean
   receiptFile?: boolean
   receiptDate?: boolean
   statusReceipt?: boolean
@@ -718,7 +1012,12 @@ export type ReceiptSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   pdfUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  billingNote?: boolean | Prisma.BillingNoteDefaultArgs<ExtArgs>
+  paymentMethod?: boolean
+  paymentRef?: boolean
+  bankInfo?: boolean
+  remark?: boolean
+  billingNote?: boolean | Prisma.Receipt$billingNoteArgs<ExtArgs>
+  paymentVoucher?: boolean | Prisma.Receipt$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["receipt"]>
 
@@ -726,6 +1025,7 @@ export type ReceiptSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   receiptRef?: boolean
   billingNoteId?: boolean
+  paymentVoucherId?: boolean
   receiptFile?: boolean
   receiptDate?: boolean
   statusReceipt?: boolean
@@ -733,7 +1033,12 @@ export type ReceiptSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   pdfUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  billingNote?: boolean | Prisma.BillingNoteDefaultArgs<ExtArgs>
+  paymentMethod?: boolean
+  paymentRef?: boolean
+  bankInfo?: boolean
+  remark?: boolean
+  billingNote?: boolean | Prisma.Receipt$billingNoteArgs<ExtArgs>
+  paymentVoucher?: boolean | Prisma.Receipt$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["receipt"]>
 
@@ -741,6 +1046,7 @@ export type ReceiptSelectScalar = {
   id?: boolean
   receiptRef?: boolean
   billingNoteId?: boolean
+  paymentVoucherId?: boolean
   receiptFile?: boolean
   receiptDate?: boolean
   statusReceipt?: boolean
@@ -748,32 +1054,41 @@ export type ReceiptSelectScalar = {
   pdfUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  paymentMethod?: boolean
+  paymentRef?: boolean
+  bankInfo?: boolean
+  remark?: boolean
 }
 
-export type ReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "receiptRef" | "billingNoteId" | "receiptFile" | "receiptDate" | "statusReceipt" | "vendorId" | "pdfUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["receipt"]>
+export type ReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "receiptRef" | "billingNoteId" | "paymentVoucherId" | "receiptFile" | "receiptDate" | "statusReceipt" | "vendorId" | "pdfUrl" | "createdAt" | "updatedAt" | "paymentMethod" | "paymentRef" | "bankInfo" | "remark", ExtArgs["result"]["receipt"]>
 export type ReceiptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  billingNote?: boolean | Prisma.BillingNoteDefaultArgs<ExtArgs>
+  billingNote?: boolean | Prisma.Receipt$billingNoteArgs<ExtArgs>
+  paymentVoucher?: boolean | Prisma.Receipt$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
 export type ReceiptIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  billingNote?: boolean | Prisma.BillingNoteDefaultArgs<ExtArgs>
+  billingNote?: boolean | Prisma.Receipt$billingNoteArgs<ExtArgs>
+  paymentVoucher?: boolean | Prisma.Receipt$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
 export type ReceiptIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  billingNote?: boolean | Prisma.BillingNoteDefaultArgs<ExtArgs>
+  billingNote?: boolean | Prisma.Receipt$billingNoteArgs<ExtArgs>
+  paymentVoucher?: boolean | Prisma.Receipt$paymentVoucherArgs<ExtArgs>
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
 }
 
 export type $ReceiptPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Receipt"
   objects: {
-    billingNote: Prisma.$BillingNotePayload<ExtArgs>
+    billingNote: Prisma.$BillingNotePayload<ExtArgs> | null
+    paymentVoucher: Prisma.$PaymentVoucherPayload<ExtArgs> | null
     vendor: Prisma.$VendorPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     receiptRef: string
-    billingNoteId: string
+    billingNoteId: string | null
+    paymentVoucherId: string | null
     receiptFile: string | null
     receiptDate: Date
     statusReceipt: $Enums.StatusReceipt
@@ -781,6 +1096,10 @@ export type $ReceiptPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     pdfUrl: string | null
     createdAt: Date
     updatedAt: Date
+    paymentMethod: $Enums.PaymentMethod | null
+    paymentRef: string | null
+    bankInfo: string | null
+    remark: string | null
   }, ExtArgs["result"]["receipt"]>
   composites: {}
 }
@@ -1175,7 +1494,8 @@ readonly fields: ReceiptFieldRefs;
  */
 export interface Prisma__ReceiptClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  billingNote<T extends Prisma.BillingNoteDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BillingNoteDefaultArgs<ExtArgs>>): Prisma.Prisma__BillingNoteClient<runtime.Types.Result.GetResult<Prisma.$BillingNotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  billingNote<T extends Prisma.Receipt$billingNoteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Receipt$billingNoteArgs<ExtArgs>>): Prisma.Prisma__BillingNoteClient<runtime.Types.Result.GetResult<Prisma.$BillingNotePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  paymentVoucher<T extends Prisma.Receipt$paymentVoucherArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Receipt$paymentVoucherArgs<ExtArgs>>): Prisma.Prisma__PaymentVoucherClient<runtime.Types.Result.GetResult<Prisma.$PaymentVoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   vendor<T extends Prisma.VendorDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VendorDefaultArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1209,6 +1529,7 @@ export interface ReceiptFieldRefs {
   readonly id: Prisma.FieldRef<"Receipt", 'String'>
   readonly receiptRef: Prisma.FieldRef<"Receipt", 'String'>
   readonly billingNoteId: Prisma.FieldRef<"Receipt", 'String'>
+  readonly paymentVoucherId: Prisma.FieldRef<"Receipt", 'String'>
   readonly receiptFile: Prisma.FieldRef<"Receipt", 'String'>
   readonly receiptDate: Prisma.FieldRef<"Receipt", 'DateTime'>
   readonly statusReceipt: Prisma.FieldRef<"Receipt", 'StatusReceipt'>
@@ -1216,6 +1537,10 @@ export interface ReceiptFieldRefs {
   readonly pdfUrl: Prisma.FieldRef<"Receipt", 'String'>
   readonly createdAt: Prisma.FieldRef<"Receipt", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Receipt", 'DateTime'>
+  readonly paymentMethod: Prisma.FieldRef<"Receipt", 'PaymentMethod'>
+  readonly paymentRef: Prisma.FieldRef<"Receipt", 'String'>
+  readonly bankInfo: Prisma.FieldRef<"Receipt", 'String'>
+  readonly remark: Prisma.FieldRef<"Receipt", 'String'>
 }
     
 
@@ -1609,6 +1934,44 @@ export type ReceiptDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Receipts to delete.
    */
   limit?: number
+}
+
+/**
+ * Receipt.billingNote
+ */
+export type Receipt$billingNoteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BillingNote
+   */
+  select?: Prisma.BillingNoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BillingNote
+   */
+  omit?: Prisma.BillingNoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BillingNoteInclude<ExtArgs> | null
+  where?: Prisma.BillingNoteWhereInput
+}
+
+/**
+ * Receipt.paymentVoucher
+ */
+export type Receipt$paymentVoucherArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PaymentVoucher
+   */
+  select?: Prisma.PaymentVoucherSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PaymentVoucher
+   */
+  omit?: Prisma.PaymentVoucherOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentVoucherInclude<ExtArgs> | null
+  where?: Prisma.PaymentVoucherWhereInput
 }
 
 /**
