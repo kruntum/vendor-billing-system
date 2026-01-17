@@ -137,13 +137,19 @@ export const cashAdvanceBillingRoutes = new Elysia({ prefix: "/cash-advance-bill
     .post(
         "/preview",
         async ({ body, user, set }) => {
-            const { cashAdvanceIds } = body;
-            const advances = await prisma.cashAdvance.findMany({
-                where: {
-                    id: { in: cashAdvanceIds },
-                    vendorId: user!.vendorId!,
-                },
-            });
+            if (!user || !user.vendorId) {
+                set.status = 401;
+                return { success: false, error: "Unauthorized: Vendor information missing" };
+            }
+
+            try {
+                const { cashAdvanceIds } = body;
+                const advances = await prisma.cashAdvance.findMany({
+                    where: {
+                        id: { in: cashAdvanceIds },
+                        vendorId: user.vendorId,
+                    },
+                });
 
             if (advances.length !== cashAdvanceIds.length) {
                 set.status = 400;
@@ -152,13 +158,17 @@ export const cashAdvanceBillingRoutes = new Elysia({ prefix: "/cash-advance-bill
 
             const totalAmount = advances.reduce((sum, item) => sum + Number(item.totalAmount), 0);
 
-            return {
-                success: true,
-                data: {
-                    totalAmount,
-                    advances
-                }
-            };
+                return {
+                    success: true,
+                    data: {
+                        totalAmount,
+                        advances
+                    }
+                };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to preview billing" };
+            }
         },
         {
             body: t.Object({
@@ -172,13 +182,19 @@ export const cashAdvanceBillingRoutes = new Elysia({ prefix: "/cash-advance-bill
     .post(
         "/",
         async ({ body, user, set }) => {
-            const { cashAdvanceIds, billingRef: customRef, remark } = body;
+            if (!user || !user.vendorId) {
+                set.status = 401;
+                return { success: false, error: "Unauthorized: Vendor information missing" };
+            }
 
-            // Verify
-            const advances = await prisma.cashAdvance.findMany({
-                where: {
-                    id: { in: cashAdvanceIds },
-                    vendorId: user!.vendorId!,
+            try {
+                const { cashAdvanceIds, billingRef: customRef, remark } = body;
+
+                // Verify
+                const advances = await prisma.cashAdvance.findMany({
+                    where: {
+                        id: { in: cashAdvanceIds },
+                        vendorId: user.vendorId,
                     status: "PENDING", // Must be ready
                     cashAdvanceBillingId: null // Must not be billed
                 },
@@ -189,34 +205,34 @@ export const cashAdvanceBillingRoutes = new Elysia({ prefix: "/cash-advance-bill
                 return { success: false, error: "Some items are not ready (PENDING) or already billed" };
             }
 
-            // Generate Ref
-            let billingRef = customRef;
-            if (!billingRef) {
-                const autoNumber = await generateDocumentNumber(user!.vendorId!, "CASH_ADVANCE_BILLING", new Date());
-                // Note: Need to update generateDocumentNumber types if strictly typed, or cast as any.
-                // Assuming I'll update docnumber route or pass string if loose.
-                // Using fallback for now:
-                if (autoNumber) billingRef = autoNumber;
-                else billingRef = await generateBillingRef(user!.vendorId!);
-            }
+                // Generate Ref
+                let billingRef = customRef;
+                if (!billingRef) {
+                    const autoNumber = await generateDocumentNumber(user.vendorId, "CASH_ADVANCE_BILLING", new Date());
+                    // Note: Need to update generateDocumentNumber types if strictly typed, or cast as any.
+                    // Assuming I'll update docnumber route or pass string if loose.
+                    // Using fallback for now:
+                    if (autoNumber) billingRef = autoNumber;
+                    else billingRef = await generateBillingRef(user.vendorId);
+                }
 
-            // Check existing Ref
-            const existingRef = await prisma.cashAdvanceBilling.findUnique({
-                where: { billingRef },
-            });
-            if (existingRef) {
-                set.status = 400;
-                return { success: false, error: "Billing reference already exists" };
-            }
+                // Check existing Ref
+                const existingRef = await prisma.cashAdvanceBilling.findUnique({
+                    where: { billingRef },
+                });
+                if (existingRef) {
+                    set.status = 400;
+                    return { success: false, error: "Billing reference already exists" };
+                }
 
-            const totalAmount = advances.reduce((sum, item) => sum + Number(item.totalAmount), 0);
+                const totalAmount = advances.reduce((sum, item) => sum + Number(item.totalAmount), 0);
 
-            // Transaction
-            const result = await prisma.$transaction(async (tx) => {
-                const billing = await tx.cashAdvanceBilling.create({
-                    data: {
-                        billingRef,
-                        vendorId: user!.vendorId!,
+                // Transaction
+                const result = await prisma.$transaction(async (tx) => {
+                    const billing = await tx.cashAdvanceBilling.create({
+                        data: {
+                            billingRef,
+                            vendorId: user.vendorId,
                         billingDate: new Date(),
                         totalAmount,
                         status: "PENDING",
@@ -232,10 +248,14 @@ export const cashAdvanceBillingRoutes = new Elysia({ prefix: "/cash-advance-bill
                     },
                 });
 
-                return billing;
-            });
+                    return billing;
+                });
 
-            return { success: true, data: result };
+                return { success: true, data: result };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to create cash advance billing" };
+            }
         },
         {
             body: t.Object({

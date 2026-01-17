@@ -13,13 +13,23 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   // Get all service catalog items for vendor
   .get(
     "/services",
-    async ({ user }) => {
-      const items = await prisma.serviceCatalog.findMany({
-        where: { vendorId: user!.vendorId! },
-        orderBy: { name: "asc" },
-      });
+    async ({ user, set }) => {
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
+      }
 
-      return { success: true, data: items };
+      try {
+        const items = await prisma.serviceCatalog.findMany({
+          where: { vendorId: user.vendorId },
+          orderBy: { name: "asc" },
+        });
+
+        return { success: true, data: items };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to fetch service catalog" };
+      }
     },
     {
       detail: {
@@ -32,15 +42,25 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   // Create service catalog item
   .post(
     "/services",
-    async ({ body, user }) => {
-      const item = await prisma.serviceCatalog.create({
-        data: {
-          vendorId: user!.vendorId!,
-          name: body.name,
-        },
-      });
+    async ({ body, user, set }) => {
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
+      }
 
-      return { success: true, data: item };
+      try {
+        const item = await prisma.serviceCatalog.create({
+          data: {
+            vendorId: user.vendorId,
+            name: body.name,
+          },
+        });
+
+        return { success: true, data: item };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to create service catalog item" };
+      }
     },
     {
       body: t.Object({
@@ -57,24 +77,34 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   .put(
     "/services/:id",
     async ({ params, body, user, set }) => {
-      // Verify ownership
-      const existing = await prisma.serviceCatalog.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-      });
-
-      if (!existing) {
-        set.status = 404;
-        return { success: false, error: "Item not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      const item = await prisma.serviceCatalog.update({
-        where: { id: params.id },
-        data: {
-          name: body.name,
-        },
-      });
+      try {
+        // Verify ownership
+        const existing = await prisma.serviceCatalog.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+        });
 
-      return { success: true, data: item };
+        if (!existing) {
+          set.status = 404;
+          return { success: false, error: "Item not found" };
+        }
+
+        const item = await prisma.serviceCatalog.update({
+          where: { id: params.id },
+          data: {
+            name: body.name,
+          },
+        });
+
+        return { success: true, data: item };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to update service catalog item" };
+      }
     },
     {
       params: t.Object({ id: t.String() }),
@@ -91,18 +121,28 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   .delete(
     "/services/:id",
     async ({ params, user, set }) => {
-      const existing = await prisma.serviceCatalog.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-      });
-
-      if (!existing) {
-        set.status = 404;
-        return { success: false, error: "Item not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      await prisma.serviceCatalog.delete({ where: { id: params.id } });
+      try {
+        const existing = await prisma.serviceCatalog.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+        });
 
-      return { success: true, message: "Item deleted" };
+        if (!existing) {
+          set.status = 404;
+          return { success: false, error: "Item not found" };
+        }
+
+        await prisma.serviceCatalog.delete({ where: { id: params.id } });
+
+        return { success: true, message: "Item deleted" };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to delete service catalog item" };
+      }
     },
     {
       params: t.Object({ id: t.String() }),
@@ -119,13 +159,23 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   // Get all job descriptions for vendor
   .get(
     "/job-descriptions",
-    async ({ user }) => {
-      const items = await prisma.jobDescriptionCatalog.findMany({
-        where: { vendorId: user!.vendorId! },
-        orderBy: { title: "asc" },
-      });
+    async ({ user, set }) => {
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
+      }
 
-      return { success: true, data: items };
+      try {
+        const items = await prisma.jobDescriptionCatalog.findMany({
+          where: { vendorId: user.vendorId },
+          orderBy: { title: "asc" },
+        });
+
+        return { success: true, data: items };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to fetch job description catalog" };
+      }
     },
     {
       detail: {
@@ -137,16 +187,26 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   // Create job description
   .post(
     "/job-descriptions",
-    async ({ body, user }) => {
-      const item = await prisma.jobDescriptionCatalog.create({
-        data: {
-          vendorId: user!.vendorId!,
-          title: body.title,
-          price: body.price,
-        },
-      });
+    async ({ body, user, set }) => {
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
+      }
 
-      return { success: true, data: item };
+      try {
+        const item = await prisma.jobDescriptionCatalog.create({
+          data: {
+            vendorId: user.vendorId,
+            title: body.title,
+            price: body.price,
+          },
+        });
+
+        return { success: true, data: item };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to create job description" };
+      }
     },
     {
       body: t.Object({
@@ -163,24 +223,34 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   .put(
     "/job-descriptions/:id",
     async ({ params, body, user, set }) => {
-      const existing = await prisma.jobDescriptionCatalog.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-      });
-
-      if (!existing) {
-        set.status = 404;
-        return { success: false, error: "Item not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      const item = await prisma.jobDescriptionCatalog.update({
-        where: { id: params.id },
-        data: {
-          title: body.title,
-          price: body.price,
-        },
-      });
+      try {
+        const existing = await prisma.jobDescriptionCatalog.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+        });
 
-      return { success: true, data: item };
+        if (!existing) {
+          set.status = 404;
+          return { success: false, error: "Item not found" };
+        }
+
+        const item = await prisma.jobDescriptionCatalog.update({
+          where: { id: params.id },
+          data: {
+            title: body.title,
+            price: body.price,
+          },
+        });
+
+        return { success: true, data: item };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to update job description" };
+      }
     },
     {
       params: t.Object({ id: t.String() }),
@@ -198,18 +268,28 @@ export const catalogRoutes = new Elysia({ prefix: "/catalogs", tags: ["Catalogs"
   .delete(
     "/job-descriptions/:id",
     async ({ params, user, set }) => {
-      const existing = await prisma.jobDescriptionCatalog.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-      });
-
-      if (!existing) {
-        set.status = 404;
-        return { success: false, error: "Item not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      await prisma.jobDescriptionCatalog.delete({ where: { id: params.id } });
+      try {
+        const existing = await prisma.jobDescriptionCatalog.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+        });
 
-      return { success: true, message: "Item deleted" };
+        if (!existing) {
+          set.status = 404;
+          return { success: false, error: "Item not found" };
+        }
+
+        await prisma.jobDescriptionCatalog.delete({ where: { id: params.id } });
+
+        return { success: true, message: "Item deleted" };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to delete job description" };
+      }
     },
     {
       params: t.Object({ id: t.String() }),

@@ -8,49 +8,59 @@ export const jobRoutes = new Elysia({ prefix: "/jobs", tags: ["Jobs"] })
   // List jobs
   .get(
     "/",
-    async ({ user, query }) => {
-      const { status, page = "1", limit = "20" } = query;
-
-      const where: any = { vendorId: user!.vendorId! };
-      if (status) {
-        where.statusJob = status;
+    async ({ user, query, set }) => {
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      const [jobs, total] = await Promise.all([
-        prisma.job.findMany({
-          where,
-          include: {
-            items: true,
-            billingNote: {
-              select: { id: true, billingRef: true, statusBillingNote: true },
+      try {
+        const { status, page = "1", limit = "20" } = query;
+
+        const where: any = { vendorId: user.vendorId };
+        if (status) {
+          where.statusJob = status;
+        }
+
+        const [jobs, total] = await Promise.all([
+          prisma.job.findMany({
+            where,
+            include: {
+              items: true,
+              billingNote: {
+                select: { id: true, billingRef: true, statusBillingNote: true },
+              },
             },
+            orderBy: { createdAt: "desc" },
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            take: parseInt(limit),
+          }),
+          prisma.job.count({ where }),
+        ]);
+
+        // Calculate totals for each job
+        const jobsWithTotal = jobs.map((job) => ({
+          ...job,
+          totalAmount: job.items.reduce(
+            (sum, item) => sum + Number(item.amount),
+            0
+          ),
+        }));
+
+        return {
+          success: true,
+          data: jobsWithTotal,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total,
+            totalPages: Math.ceil(total / parseInt(limit)),
           },
-          orderBy: { createdAt: "desc" },
-          skip: (parseInt(page) - 1) * parseInt(limit),
-          take: parseInt(limit),
-        }),
-        prisma.job.count({ where }),
-      ]);
-
-      // Calculate totals for each job
-      const jobsWithTotal = jobs.map((job) => ({
-        ...job,
-        totalAmount: job.items.reduce(
-          (sum, item) => sum + Number(item.amount),
-          0
-        ),
-      }));
-
-      return {
-        success: true,
-        data: jobsWithTotal,
-        pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
-          total,
-          totalPages: Math.ceil(total / parseInt(limit)),
-        },
-      };
+        };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to fetch jobs" };
+      }
     },
     {
       query: t.Object({
@@ -69,29 +79,39 @@ export const jobRoutes = new Elysia({ prefix: "/jobs", tags: ["Jobs"] })
   .get(
     "/:id",
     async ({ params, user, set }) => {
-      const job = await prisma.job.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-        include: {
-          items: true,
-          billingNote: true,
-        },
-      });
-
-      if (!job) {
-        set.status = 404;
-        return { success: false, error: "Job not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      return {
-        success: true,
-        data: {
-          ...job,
-          totalAmount: job.items.reduce(
-            (sum, item) => sum + Number(item.amount),
-            0
-          ),
-        },
-      };
+      try {
+        const job = await prisma.job.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+          include: {
+            items: true,
+            billingNote: true,
+          },
+        });
+
+        if (!job) {
+          set.status = 404;
+          return { success: false, error: "Job not found" };
+        }
+
+        return {
+          success: true,
+          data: {
+            ...job,
+            totalAmount: job.items.reduce(
+              (sum, item) => sum + Number(item.amount),
+              0
+            ),
+          },
+        };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to fetch job" };
+      }
     },
     {
       params: t.Object({ id: t.String() }),
@@ -104,10 +124,16 @@ export const jobRoutes = new Elysia({ prefix: "/jobs", tags: ["Jobs"] })
   // Create job with items
   .post(
     "/",
-    async ({ body, user }) => {
-      const job = await prisma.job.create({
-        data: {
-          vendorId: user!.vendorId!,
+    async ({ body, user, set }) => {
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
+      }
+
+      try {
+        const job = await prisma.job.create({
+          data: {
+            vendorId: user.vendorId,
           description: body.description,
           refInvoiceNo: body.refInvoiceNo,
           containerNo: body.containerNo,
@@ -121,10 +147,14 @@ export const jobRoutes = new Elysia({ prefix: "/jobs", tags: ["Jobs"] })
             })),
           },
         },
-        include: { items: true },
-      });
+          include: { items: true },
+        });
 
-      return { success: true, data: job };
+        return { success: true, data: job };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to create job" };
+      }
     },
     {
       body: t.Object({
@@ -153,22 +183,28 @@ export const jobRoutes = new Elysia({ prefix: "/jobs", tags: ["Jobs"] })
   .put(
     "/:id",
     async ({ params, body, user, set }) => {
-      const existing = await prisma.job.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-      });
-
-      if (!existing) {
-        set.status = 404;
-        return { success: false, error: "Job not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      if (existing.statusJob === "BILLED") {
-        set.status = 400;
-        return { success: false, error: "Cannot edit a billed job" };
-      }
+      try {
+        const existing = await prisma.job.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+        });
 
-      // Update job and replace items
-      const job = await prisma.$transaction(async (tx) => {
+        if (!existing) {
+          set.status = 404;
+          return { success: false, error: "Job not found" };
+        }
+
+        if (existing.statusJob === "BILLED") {
+          set.status = 400;
+          return { success: false, error: "Cannot edit a billed job" };
+        }
+
+        // Update job and replace items
+        const job = await prisma.$transaction(async (tx) => {
         // Delete existing items
         await tx.jobItem.deleteMany({ where: { jobId: params.id } });
 
@@ -193,7 +229,11 @@ export const jobRoutes = new Elysia({ prefix: "/jobs", tags: ["Jobs"] })
         });
       });
 
-      return { success: true, data: job };
+        return { success: true, data: job };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to update job" };
+      }
     },
     {
       params: t.Object({ id: t.String() }),
@@ -222,23 +262,33 @@ export const jobRoutes = new Elysia({ prefix: "/jobs", tags: ["Jobs"] })
   .delete(
     "/:id",
     async ({ params, user, set }) => {
-      const existing = await prisma.job.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-      });
-
-      if (!existing) {
-        set.status = 404;
-        return { success: false, error: "Job not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      if (existing.statusJob === "BILLED") {
-        set.status = 400;
-        return { success: false, error: "Cannot delete a billed job" };
+      try {
+        const existing = await prisma.job.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+        });
+
+        if (!existing) {
+          set.status = 404;
+          return { success: false, error: "Job not found" };
+        }
+
+        if (existing.statusJob === "BILLED") {
+          set.status = 400;
+          return { success: false, error: "Cannot delete a billed job" };
+        }
+
+        await prisma.job.delete({ where: { id: params.id } });
+
+        return { success: true, message: "Job deleted" };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to delete job" };
       }
-
-      await prisma.job.delete({ where: { id: params.id } });
-
-      return { success: true, message: "Job deleted" };
     },
     {
       params: t.Object({ id: t.String() }),

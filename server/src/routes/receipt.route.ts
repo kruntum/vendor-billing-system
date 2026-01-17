@@ -147,46 +147,52 @@ export const receiptRoutes = new Elysia({
     .post(
         "/",
         async ({ body, user, set }) => {
-            const { billingNoteId, receiptDate } = body;
-
-            const billing = await prisma.billingNote.findFirst({
-                where: { id: billingNoteId, vendorId: user!.vendorId! },
-                include: { receipt: true },
-            });
-
-            if (!billing) {
-                set.status = 404;
-                return { success: false, error: "Billing note not found" };
+            if (!user || !user.vendorId) {
+                set.status = 401;
+                return { success: false, error: "Unauthorized: Vendor information missing" };
             }
 
-            if (billing.receipt) {
-                set.status = 400;
-                return { success: false, error: "Receipt already exists for this billing note" };
-            }
+            try {
+                const { billingNoteId, receiptDate } = body;
 
-            if (billing.statusBillingNote === "CANCELLED") {
-                set.status = 400;
-                return { success: false, error: "Cannot issue receipt for cancelled billing note" };
-            }
+                const billing = await prisma.billingNote.findFirst({
+                    where: { id: billingNoteId, vendorId: user.vendorId },
+                    include: { receipt: true },
+                });
 
-            // Enforce logic: Must be APPROVED (or PAID for re-issuing)
-            if (billing.statusBillingNote !== "APPROVED" && billing.statusBillingNote !== "PAID") {
-                set.status = 400;
-                return { success: false, error: "Billing note must be APPROVED by Admin before issuing receipt" };
-            }
+                if (!billing) {
+                    set.status = 404;
+                    return { success: false, error: "Billing note not found" };
+                }
 
-            // Generate receipt ref: try auto-numbering first, then fallback
-            const autoNumber = await generateDocumentNumber(user!.vendorId!, "RECEIPT", new Date(receiptDate));
-            const receiptRef = autoNumber || await generateReceiptRef(user!.vendorId!);
+                if (billing.receipt) {
+                    set.status = 400;
+                    return { success: false, error: "Receipt already exists for this billing note" };
+                }
 
-            // Transaction: Create receipt and update billing status
-            const receipt = await prisma.$transaction(async (tx) => {
-                // Create receipt
-                const newReceipt = await tx.receipt.create({
-                    data: {
-                        receiptRef,
-                        billingNoteId,
-                        vendorId: user!.vendorId!,
+                if (billing.statusBillingNote === "CANCELLED") {
+                    set.status = 400;
+                    return { success: false, error: "Cannot issue receipt for cancelled billing note" };
+                }
+
+                // Enforce logic: Must be APPROVED (or PAID for re-issuing)
+                if (billing.statusBillingNote !== "APPROVED" && billing.statusBillingNote !== "PAID") {
+                    set.status = 400;
+                    return { success: false, error: "Billing note must be APPROVED by Admin before issuing receipt" };
+                }
+
+                // Generate receipt ref: try auto-numbering first, then fallback
+                const autoNumber = await generateDocumentNumber(user.vendorId, "RECEIPT", new Date(receiptDate));
+                const receiptRef = autoNumber || await generateReceiptRef(user.vendorId);
+
+                // Transaction: Create receipt and update billing status
+                const receipt = await prisma.$transaction(async (tx) => {
+                    // Create receipt
+                    const newReceipt = await tx.receipt.create({
+                        data: {
+                            receiptRef,
+                            billingNoteId,
+                            vendorId: user.vendorId,
                         receiptDate: new Date(receiptDate),
                         statusReceipt: "PAID", // Default to PAID as it's an issued receipt
                     },
@@ -198,10 +204,14 @@ export const receiptRoutes = new Elysia({
                     data: { statusBillingNote: "PAID" },
                 });
 
-                return newReceipt;
-            });
+                    return newReceipt;
+                });
 
-            return { success: true, data: receipt };
+                return { success: true, data: receipt };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to create receipt" };
+            }
         },
         {
             body: t.Object({

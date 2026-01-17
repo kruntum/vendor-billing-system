@@ -254,41 +254,51 @@ export const billingRoutes = new Elysia({
   .post(
     "/preview",
     async ({ body, user, set }) => {
-      const { jobIds, calculateBeforeVat } = body;
-      // Verify all jobs belong to vendor (allow both PENDING and BILLED for preview/edit)
-      const jobs = await prisma.job.findMany({
-        where: {
-          id: { in: jobIds },
-          vendorId: user!.vendorId!,
-        },
-        include: { items: true },
-      });
-
-      if (jobs.length !== jobIds.length) {
-        set.status = 400;
-        return {
-          success: false,
-          error: "Some jobs are not found or not yours",
-        };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      const calculation = await calculateBillingAmounts(jobIds, user!.vendorId!, calculateBeforeVat);
-
-      return {
-        success: true,
-        data: {
-          jobs: jobs.map(enrichJobWithTotal),
-          calculation: {
-            subtotal: Number(calculation.subtotal),
-            priceBeforeVat: Number(calculation.priceBeforeVat),
-            vatAmount: Number(calculation.vatAmount),
-            whtAmount: Number(calculation.whtAmount),
-            netTotal: Number(calculation.netTotal),
-            vatRate: calculation.vatRate,
-            whtRate: calculation.whtRate,
+      try {
+        const { jobIds, calculateBeforeVat } = body;
+        // Verify all jobs belong to vendor (allow both PENDING and BILLED for preview/edit)
+        const jobs = await prisma.job.findMany({
+          where: {
+            id: { in: jobIds },
+            vendorId: user.vendorId,
           },
-        },
-      };
+          include: { items: true },
+        });
+
+        if (jobs.length !== jobIds.length) {
+          set.status = 400;
+          return {
+            success: false,
+            error: "Some jobs are not found or not yours",
+          };
+        }
+
+        const calculation = await calculateBillingAmounts(jobIds, user.vendorId, calculateBeforeVat);
+
+        return {
+          success: true,
+          data: {
+            jobs: jobs.map(enrichJobWithTotal),
+            calculation: {
+              subtotal: Number(calculation.subtotal),
+              priceBeforeVat: Number(calculation.priceBeforeVat),
+              vatAmount: Number(calculation.vatAmount),
+              whtAmount: Number(calculation.whtAmount),
+              netTotal: Number(calculation.netTotal),
+              vatRate: calculation.vatRate,
+              whtRate: calculation.whtRate,
+            },
+          },
+        };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to preview billing calculation" };
+      }
     },
     {
       body: t.Object({
@@ -306,60 +316,66 @@ export const billingRoutes = new Elysia({
   .post(
     "/",
     async ({ body, user, set }) => {
-      const { jobIds, billingRef: customRef, calculateBeforeVat, remark } = body;
-
-      // Verify all jobs belong to vendor and are pending
-      const jobs = await prisma.job.findMany({
-        where: {
-          id: { in: jobIds },
-          vendorId: user!.vendorId!,
-          statusJob: "PENDING",
-        },
-      });
-
-      if (jobs.length !== jobIds.length) {
-        set.status = 400;
-        return {
-          success: false,
-          error: "Some jobs are not found, already billed, or not yours",
-        };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      // Generate billing ref: try auto-numbering first, then fallback to default
-      let billingRef = customRef;
-      if (!billingRef) {
-        // Try to use auto-numbering system
-        const autoNumber = await generateDocumentNumber(user!.vendorId!, "BILLING", new Date());
-        billingRef = autoNumber || (await generateBillingRef(user!.vendorId!));
-      }
+      try {
+        const { jobIds, billingRef: customRef, calculateBeforeVat, remark } = body;
 
-      // Check if billing ref already exists
-      const existingRef = await prisma.billingNote.findUnique({
-        where: { billingRef },
-      });
+        // Verify all jobs belong to vendor and are pending
+        const jobs = await prisma.job.findMany({
+          where: {
+            id: { in: jobIds },
+            vendorId: user.vendorId,
+            statusJob: "PENDING",
+          },
+        });
 
-      if (existingRef) {
-        set.status = 400;
-        return { success: false, error: "Billing reference already exists" };
-      }
+        if (jobs.length !== jobIds.length) {
+          set.status = 400;
+          return {
+            success: false,
+            error: "Some jobs are not found, already billed, or not yours",
+          };
+        }
 
-      // Get VAT config for snapshot
-      const vatConfig = await prisma.vatConfigByVendor.findUnique({
-        where: { vendorId: user!.vendorId! },
-      });
-      const vatRate = vatConfig ? Number(vatConfig.vatRate) : 7;
-      const whtRate = vatConfig ? Number(vatConfig.whtRate) : 3;
+        // Generate billing ref: try auto-numbering first, then fallback to default
+        let billingRef = customRef;
+        if (!billingRef) {
+          // Try to use auto-numbering system
+          const autoNumber = await generateDocumentNumber(user.vendorId, "BILLING", new Date());
+          billingRef = autoNumber || (await generateBillingRef(user.vendorId));
+        }
 
-      // Calculate amounts
-      const calculation = await calculateBillingAmounts(jobIds, user!.vendorId!, calculateBeforeVat);
+        // Check if billing ref already exists
+        const existingRef = await prisma.billingNote.findUnique({
+          where: { billingRef },
+        });
 
-      // Create billing note and update jobs in transaction
-      const billing = await prisma.$transaction(async (tx) => {
-        // Create billing note
-        const newBilling = await tx.billingNote.create({
-          data: {
-            billingRef,
-            vendorId: user!.vendorId!,
+        if (existingRef) {
+          set.status = 400;
+          return { success: false, error: "Billing reference already exists" };
+        }
+
+        // Get VAT config for snapshot
+        const vatConfig = await prisma.vatConfigByVendor.findUnique({
+          where: { vendorId: user.vendorId },
+        });
+        const vatRate = vatConfig ? Number(vatConfig.vatRate) : 7;
+        const whtRate = vatConfig ? Number(vatConfig.whtRate) : 3;
+
+        // Calculate amounts
+        const calculation = await calculateBillingAmounts(jobIds, user.vendorId, calculateBeforeVat);
+
+        // Create billing note and update jobs in transaction
+        const billing = await prisma.$transaction(async (tx) => {
+          // Create billing note
+          const newBilling = await tx.billingNote.create({
+            data: {
+              billingRef,
+              vendorId: user.vendorId,
             billingDate: new Date(),
             subtotal: calculation.subtotal,
             priceBeforeVat: calculation.priceBeforeVat,
@@ -391,7 +407,11 @@ export const billingRoutes = new Elysia({
         });
       });
 
-      return { success: true, data: enrichBillingWithJobTotals(billing) };
+        return { success: true, data: enrichBillingWithJobTotals(billing) };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to create billing note" };
+      }
     },
     {
       body: t.Object({
@@ -529,47 +549,53 @@ export const billingRoutes = new Elysia({
   .put(
     "/:id",
     async ({ params, body, user, set }) => {
-      const { jobIds, remark, calculateBeforeVat } = body;
-      const billing = await prisma.billingNote.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
-        include: { receipt: true, jobs: true },
-      });
-
-      if (!billing) {
-        set.status = 404;
-        return { success: false, error: "Billing note not found" };
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
       }
 
-      if (billing.receipt) {
-        set.status = 400;
-        return { success: false, error: "Cannot edit billing note with receipt" };
-      }
+      try {
+        const { jobIds, remark, calculateBeforeVat } = body;
+        const billing = await prisma.billingNote.findFirst({
+          where: { id: params.id, vendorId: user.vendorId },
+          include: { receipt: true, jobs: true },
+        });
 
-      if (billing.statusBillingNote === "CANCELLED") {
-        set.status = 400;
-        return { success: false, error: "Cannot edit cancelled billing note" };
-      }
+        if (!billing) {
+          set.status = 404;
+          return { success: false, error: "Billing note not found" };
+        }
 
-      // Verify new jobs belong to vendor and are PENDING (or already in this billing note)
-      const newJobs = await prisma.job.findMany({
-        where: {
-          id: { in: jobIds },
-          vendorId: user!.vendorId!,
-          OR: [
-            { statusJob: "PENDING" },
-            { billingNoteId: billing.id },
-          ],
-        },
-        include: { items: true },
-      });
+        if (billing.receipt) {
+          set.status = 400;
+          return { success: false, error: "Cannot edit billing note with receipt" };
+        }
 
-      if (newJobs.length !== jobIds.length) {
-        set.status = 400;
-        return { success: false, error: "Some jobs are invalid or already billed" };
-      }
+        if (billing.statusBillingNote === "CANCELLED") {
+          set.status = 400;
+          return { success: false, error: "Cannot edit cancelled billing note" };
+        }
 
-      // Calculate amounts
-      const calculation = await calculateBillingAmounts(jobIds, user!.vendorId!, calculateBeforeVat);
+        // Verify new jobs belong to vendor and are PENDING (or already in this billing note)
+        const newJobs = await prisma.job.findMany({
+          where: {
+            id: { in: jobIds },
+            vendorId: user.vendorId,
+            OR: [
+              { statusJob: "PENDING" },
+              { billingNoteId: billing.id },
+            ],
+          },
+          include: { items: true },
+        });
+
+        if (newJobs.length !== jobIds.length) {
+          set.status = 400;
+          return { success: false, error: "Some jobs are invalid or already billed" };
+        }
+
+        // Calculate amounts
+        const calculation = await calculateBillingAmounts(jobIds, user.vendorId, calculateBeforeVat);
 
       // Transaction
       const updatedBilling = await prisma.$transaction(async (tx) => {
@@ -615,7 +641,11 @@ export const billingRoutes = new Elysia({
         });
       });
 
-      return { success: true, data: enrichBillingWithJobTotals(updatedBilling) };
+        return { success: true, data: enrichBillingWithJobTotals(updatedBilling) };
+      } catch (error) {
+        set.status = 500;
+        return { success: false, error: "Failed to update billing note" };
+      }
     },
     {
       params: t.Object({ id: t.String() }),

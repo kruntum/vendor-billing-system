@@ -31,17 +31,22 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
     // List cash advances
     .get(
         "/",
-        async ({ user, query }) => {
-            const { status, page = "1", limit = "20" } = query;
-            const roleName = getRoleName(user!.role);
-            const isVendor = roleName === "VENDOR";
+        async ({ user, query, set }) => {
+            try {
+                const { status, page = "1", limit = "20" } = query;
+                const roleName = getRoleName(user?.role || "");
+                const isVendor = roleName === "VENDOR";
 
-            const where: any = {};
+                const where: any = {};
 
-            // Vendor only sees their own
-            if (isVendor) {
-                where.vendorId = user!.vendorId!;
-            }
+                // Vendor only sees their own
+                if (isVendor) {
+                    if (!user?.vendorId) {
+                        set.status = 401;
+                        return { success: false, error: "Unauthorized: Vendor information missing" };
+                    }
+                    where.vendorId = user.vendorId;
+                }
 
             if (status) {
                 where.status = status;
@@ -72,6 +77,10 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
                     totalPages: Math.ceil(total / parseInt(limit)),
                 },
             };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to fetch cash advances" };
+            }
         },
         {
             query: t.Object({
@@ -91,13 +100,18 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
     .get(
         "/:id",
         async ({ params, user, set }) => {
-            const roleName = getRoleName(user!.role);
-            const isVendor = roleName === "VENDOR";
+            try {
+                const roleName = getRoleName(user?.role || "");
+                const isVendor = roleName === "VENDOR";
 
-            const where: any = { id: params.id };
-            if (isVendor) {
-                where.vendorId = user!.vendorId!;
-            }
+                const where: any = { id: params.id };
+                if (isVendor) {
+                    if (!user?.vendorId) {
+                        set.status = 401;
+                        return { success: false, error: "Unauthorized: Vendor information missing" };
+                    }
+                    where.vendorId = user.vendorId;
+                }
 
             const advance = await prisma.cashAdvance.findFirst({
                 where,
@@ -108,12 +122,16 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
                 },
             });
 
-            if (!advance) {
-                set.status = 404;
-                return { success: false, error: "Cash advance not found" };
-            }
+                if (!advance) {
+                    set.status = 404;
+                    return { success: false, error: "Cash advance not found" };
+                }
 
-            return { success: true, data: advance };
+                return { success: true, data: advance };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to fetch cash advance" };
+            }
         },
         {
             params: t.Object({ id: t.String() }),
@@ -125,24 +143,25 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
     .post(
         "/",
         async ({ body, user, set }) => {
-            const roleName = getRoleName(user!.role);
-            if (roleName !== "VENDOR") {
-                set.status = 403;
-                return { success: false, error: "Only vendors can create cash advances" };
-            }
+            try {
+                const roleName = getRoleName(user?.role || "");
+                if (roleName !== "VENDOR") {
+                    set.status = 403;
+                    return { success: false, error: "Only vendors can create cash advances" };
+                }
 
-            if (!user!.vendorId) {
-                set.status = 400;
-                return { success: false, error: "Vendor not configured" };
-            }
+                if (!user?.vendorId) {
+                    set.status = 401;
+                    return { success: false, error: "Unauthorized: Vendor information missing" };
+                }
 
-            const advanceRef = await generateAdvanceRef(user!.vendorId);
-            const totalAmount = body.items.reduce((sum, item) => sum + item.amount, 0);
+                const advanceRef = await generateAdvanceRef(user.vendorId);
+                const totalAmount = body.items.reduce((sum, item) => sum + item.amount, 0);
 
-            const advance = await prisma.cashAdvance.create({
-                data: {
-                    advanceRef,
-                    vendorId: user!.vendorId,
+                const advance = await prisma.cashAdvance.create({
+                    data: {
+                        advanceRef,
+                        vendorId: user.vendorId,
                     advanceDate: new Date(body.advanceDate),
                     description: body.description,
                     refInvoiceNo: body.refInvoiceNo,
@@ -159,10 +178,14 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
                         })),
                     },
                 },
-                include: { items: true },
-            });
+                    include: { items: true },
+                });
 
-            return { success: true, data: advance };
+                return { success: true, data: advance };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to create cash advance" };
+            }
         },
         {
             body: t.Object({
@@ -189,15 +212,21 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
     .put(
         "/:id",
         async ({ params, body, user, set }) => {
-            const roleName = getRoleName(user!.role);
-            if (roleName !== "VENDOR") {
-                set.status = 403;
-                return { success: false, error: "Only vendors can edit cash advances" };
-            }
+            try {
+                const roleName = getRoleName(user?.role || "");
+                if (roleName !== "VENDOR") {
+                    set.status = 403;
+                    return { success: false, error: "Only vendors can edit cash advances" };
+                }
 
-            const existing = await prisma.cashAdvance.findFirst({
-                where: { id: params.id, vendorId: user!.vendorId! },
-            });
+                if (!user?.vendorId) {
+                    set.status = 401;
+                    return { success: false, error: "Unauthorized: Vendor information missing" };
+                }
+
+                const existing = await prisma.cashAdvance.findFirst({
+                    where: { id: params.id, vendorId: user.vendorId },
+                });
 
             if (!existing) {
                 set.status = 404;
@@ -243,10 +272,14 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
                         },
                     },
                     include: { items: true },
+                    });
                 });
-            });
 
-            return { success: true, data: advance };
+                return { success: true, data: advance };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to update cash advance" };
+            }
         },
         {
             params: t.Object({ id: t.String() }),
@@ -274,33 +307,43 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
     .post(
         "/:id/submit",
         async ({ params, user, set }) => {
-            const roleName = getRoleName(user!.role);
-            if (roleName !== "VENDOR") {
-                set.status = 403;
-                return { success: false, error: "Only vendors can submit cash advances" };
+            try {
+                const roleName = getRoleName(user?.role || "");
+                if (roleName !== "VENDOR") {
+                    set.status = 403;
+                    return { success: false, error: "Only vendors can submit cash advances" };
+                }
+
+                if (!user?.vendorId) {
+                    set.status = 401;
+                    return { success: false, error: "Unauthorized: Vendor information missing" };
+                }
+
+                const existing = await prisma.cashAdvance.findFirst({
+                    where: { id: params.id, vendorId: user.vendorId },
+                });
+
+                if (!existing) {
+                    set.status = 404;
+                    return { success: false, error: "Cash advance not found" };
+                }
+
+                if (existing.status !== "DRAFT") {
+                    set.status = 400;
+                    return { success: false, error: "Can only submit DRAFT cash advances" };
+                }
+
+                const advance = await prisma.cashAdvance.update({
+                    where: { id: params.id },
+                    data: { status: "PENDING" },
+                    include: { items: true },
+                });
+
+                return { success: true, data: advance };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to submit cash advance" };
             }
-
-            const existing = await prisma.cashAdvance.findFirst({
-                where: { id: params.id, vendorId: user!.vendorId! },
-            });
-
-            if (!existing) {
-                set.status = 404;
-                return { success: false, error: "Cash advance not found" };
-            }
-
-            if (existing.status !== "DRAFT") {
-                set.status = 400;
-                return { success: false, error: "Can only submit DRAFT cash advances" };
-            }
-
-            const advance = await prisma.cashAdvance.update({
-                where: { id: params.id },
-                data: { status: "PENDING" },
-                include: { items: true },
-            });
-
-            return { success: true, data: advance };
         },
         {
             params: t.Object({ id: t.String() }),
@@ -312,12 +355,17 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
     .post(
         "/:id/revert",
         async ({ params, user, set }) => {
-            // Check auth (Vendor can revert own, Admin can revert any pending)
-            const roleName = getRoleName(user!.role);
-            const where: any = { id: params.id };
-            if (roleName === "VENDOR") {
-                where.vendorId = user!.vendorId!;
-            }
+            try {
+                // Check auth (Vendor can revert own, Admin can revert any pending)
+                const roleName = getRoleName(user?.role || "");
+                const where: any = { id: params.id };
+                if (roleName === "VENDOR") {
+                    if (!user?.vendorId) {
+                        set.status = 401;
+                        return { success: false, error: "Unauthorized: Vendor information missing" };
+                    }
+                    where.vendorId = user.vendorId;
+                }
 
             const existing = await prisma.cashAdvance.findFirst({ where });
 
@@ -339,8 +387,12 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
                 return { success: true, message: "Reverted to DRAFT" };
             }
 
-            set.status = 400;
-            return { success: false, error: "Not in PENDING status" };
+                set.status = 400;
+                return { success: false, error: "Not in PENDING status" };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to revert cash advance" };
+            }
         },
         {
             params: t.Object({ id: t.String() }),
@@ -352,35 +404,45 @@ export const cashAdvanceRoutes = new Elysia({ prefix: "/cash-advance", tags: ["C
     .delete(
         "/:id",
         async ({ params, user, set }) => {
-            const roleName = getRoleName(user!.role);
-            if (roleName !== "VENDOR") {
-                set.status = 403;
-                return { success: false, error: "Only vendors can delete cash advances" };
+            try {
+                const roleName = getRoleName(user?.role || "");
+                if (roleName !== "VENDOR") {
+                    set.status = 403;
+                    return { success: false, error: "Only vendors can delete cash advances" };
+                }
+
+                if (!user?.vendorId) {
+                    set.status = 401;
+                    return { success: false, error: "Unauthorized: Vendor information missing" };
+                }
+
+                const existing = await prisma.cashAdvance.findFirst({
+                    where: { id: params.id, vendorId: user.vendorId },
+                });
+
+                if (!existing) {
+                    set.status = 404;
+                    return { success: false, error: "Cash advance not found" };
+                }
+
+                if (existing.status === "BILLED") {
+                    set.status = 400;
+                    return { success: false, error: "Cannot delete BILLED cash advances" };
+                }
+
+                // Allow deleting PENDING? Usually only DRAFT.
+                if (existing.status !== "DRAFT") {
+                    set.status = 400;
+                    return { success: false, error: "Can only delete DRAFT cash advances. Revert first if PENDING." };
+                }
+
+                await prisma.cashAdvance.delete({ where: { id: params.id } });
+
+                return { success: true, message: "Cash advance deleted" };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to delete cash advance" };
             }
-
-            const existing = await prisma.cashAdvance.findFirst({
-                where: { id: params.id, vendorId: user!.vendorId! },
-            });
-
-            if (!existing) {
-                set.status = 404;
-                return { success: false, error: "Cash advance not found" };
-            }
-
-            if (existing.status === "BILLED") {
-                set.status = 400;
-                return { success: false, error: "Cannot delete BILLED cash advances" };
-            }
-
-            // Allow deleting PENDING? Usually only DRAFT.
-            if (existing.status !== "DRAFT") {
-                set.status = 400;
-                return { success: false, error: "Can only delete DRAFT cash advances. Revert first if PENDING." };
-            }
-
-            await prisma.cashAdvance.delete({ where: { id: params.id } });
-
-            return { success: true, message: "Cash advance deleted" };
         },
         {
             params: t.Object({ id: t.String() }),
