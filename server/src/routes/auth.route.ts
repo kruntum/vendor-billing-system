@@ -14,11 +14,19 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
   return await Bun.password.verify(password, hash);
 }
 
+// Validate JWT_SECRET on startup
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error(
+    "JWT_SECRET environment variable is required. Please set it in your .env file."
+  );
+}
+
 export const authRoutes = new Elysia({ prefix: "/auth", tags: ["Auth"] })
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET || "fallback-secret-change-in-production",
+      secret: jwtSecret,
       exp: "7d",
     })
   )

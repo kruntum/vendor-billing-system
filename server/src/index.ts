@@ -17,12 +17,55 @@ import { paymentVoucherRoutes } from "./routes/payment-voucher.route";
 import { cashAdvanceRoutes } from "./routes/cash-advance.route";
 import { cashAdvanceBillingRoutes } from "./routes/cash-advance-billing.route";
 
+// Validate required environment variables
+if (process.env.NODE_ENV === "production") {
+  if (!process.env.CLIENT_URL) {
+    throw new Error(
+      "CLIENT_URL environment variable is required in production. Please set it in your .env file."
+    );
+  }
+}
+
 const app = new Elysia()
+  // Global Error Handler
+  .onError(({ code, error, set }) => {
+    // Log error for debugging (in production, use proper logging)
+    if (process.env.NODE_ENV !== "production") {
+      console.error(`[${code}]`, error);
+    }
+
+    // Handle validation errors
+    if (code === "VALIDATION") {
+      set.status = 400;
+      return {
+        success: false,
+        error: error.message || "Validation error",
+      };
+    }
+
+    // Handle not found errors
+    if (code === "NOT_FOUND") {
+      set.status = 404;
+      return {
+        success: false,
+        error: "Resource not found",
+      };
+    }
+
+    // Handle internal server errors
+    set.status = 500;
+    return {
+      success: false,
+      error: process.env.NODE_ENV === "production"
+        ? "Internal server error"
+        : error.message || "Internal server error",
+    };
+  })
   // CORS Configuration
   .use(
     cors({
       origin: process.env.NODE_ENV === "production"
-        ? (process.env.CLIENT_URL || "http://localhost:8802")
+        ? process.env.CLIENT_URL!
         : true,
       credentials: true,
     })

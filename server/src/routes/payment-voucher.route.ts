@@ -10,45 +10,51 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
     // List payment vouchers
     .get(
         "/",
-        async ({ user, query }) => {
-            // Only ADMIN and USER can access
-            if (user?.role !== "ADMIN" && user?.role !== "USER") {
-                return { success: false, error: "Access denied" };
-            }
+        async ({ user, query, set }) => {
+            try {
+                // Only ADMIN and USER can access
+                if (user?.role !== "ADMIN" && user?.role !== "USER") {
+                    set.status = 403;
+                    return { success: false, error: "Access denied" };
+                }
 
-            const where: any = {};
+                const where: any = {};
 
-            // Filter by vendor if specified
-            if (query.vendorId) {
-                where.vendorId = query.vendorId;
-            }
+                // Filter by vendor if specified
+                if (query.vendorId) {
+                    where.vendorId = query.vendorId;
+                }
 
-            // Filter by status if specified
-            if (query.status) {
-                where.status = query.status;
-            }
+                // Filter by status if specified
+                if (query.status) {
+                    where.status = query.status;
+                }
 
-            const vouchers = await prisma.paymentVoucher.findMany({
-                where,
-                include: {
-                    vendor: true,
-                    billingNotes: {
-                        include: {
-                            jobs: {
-                                include: {
-                                    items: true
+                const vouchers = await prisma.paymentVoucher.findMany({
+                    where,
+                    include: {
+                        vendor: true,
+                        billingNotes: {
+                            include: {
+                                jobs: {
+                                    include: {
+                                        items: true
+                                    }
                                 }
                             }
+                        },
+                        createdBy: {
+                            select: { id: true, email: true, name: true }
                         }
                     },
-                    createdBy: {
-                        select: { id: true, email: true, name: true }
-                    }
-                },
-                orderBy: { createdAt: "desc" }
-            });
+                    orderBy: { createdAt: "desc" }
+                });
 
-            return { success: true, data: vouchers };
+                return { success: true, data: vouchers };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to fetch payment vouchers" };
+            }
         },
         {
             query: t.Object({
@@ -62,37 +68,42 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
     .get(
         "/:id",
         async ({ params, user, set }) => {
-            if (!user) {
-                set.status = 401;
-                return { success: false, error: "Unauthorized" };
-            }
+            try {
+                if (!user) {
+                    set.status = 401;
+                    return { success: false, error: "Unauthorized" };
+                }
 
-            const voucher = await prisma.paymentVoucher.findUnique({
-                where: { id: params.id },
-                include: {
-                    vendor: true,
-                    billingNotes: {
-                        include: { jobs: true }
-                    },
-                    createdBy: {
-                        select: { id: true, email: true, name: true }
+                const voucher = await prisma.paymentVoucher.findUnique({
+                    where: { id: params.id },
+                    include: {
+                        vendor: true,
+                        billingNotes: {
+                            include: { jobs: true }
+                        },
+                        createdBy: {
+                            select: { id: true, email: true, name: true }
+                        }
+                    }
+                });
+
+                if (user.role !== "ADMIN" && user.role !== "USER") {
+                    if (!voucher || voucher.vendorId !== user.vendorId) {
+                        set.status = 403;
+                        return { success: false, error: "Access denied" };
                     }
                 }
-            });
 
-            if (user.role !== "ADMIN" && user.role !== "USER") {
-                if (!voucher || voucher.vendorId !== user.vendorId) {
-                    set.status = 403;
-                    return { success: false, error: "Access denied" };
+                if (!voucher) {
+                    set.status = 404;
+                    return { success: false, error: "Payment voucher not found" };
                 }
-            }
 
-            if (!voucher) {
-                set.status = 404;
-                return { success: false, error: "Payment voucher not found" };
+                return { success: true, data: voucher };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to fetch payment voucher" };
             }
-
-            return { success: true, data: voucher };
         },
         {
             params: t.Object({ id: t.String() }),

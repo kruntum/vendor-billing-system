@@ -17,12 +17,20 @@ export interface User {
   vendorId: string | null;
 }
 
+// Validate JWT_SECRET on startup
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  throw new Error(
+    "JWT_SECRET environment variable is required. Please set it in your .env file."
+  );
+}
+
 // Auth Plugin with JWT
 export const authPlugin = new Elysia({ name: "auth" })
   .use(
     jwt({
       name: "jwt",
-      secret: process.env.JWT_SECRET || "fallback-secret-change-in-production",
+      secret: jwtSecret,
       exp: "7d",
     })
   )

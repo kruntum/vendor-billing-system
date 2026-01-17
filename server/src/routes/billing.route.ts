@@ -216,8 +216,13 @@ export const billingRoutes = new Elysia({
   .get(
     "/:id",
     async ({ params, user, set }) => {
+      if (!user || !user.vendorId) {
+        set.status = 401;
+        return { success: false, error: "Unauthorized: Vendor information missing" };
+      }
+
       const billing = await prisma.billingNote.findFirst({
-        where: { id: params.id, vendorId: user!.vendorId! },
+        where: { id: params.id, vendorId: user.vendorId },
         include: {
           jobs: {
             include: { items: true },

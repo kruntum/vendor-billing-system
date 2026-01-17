@@ -9,31 +9,13 @@ export const settingsRoutes = new Elysia({ prefix: "/settings", tags: ["Settings
     .get(
         "/",
         async (ctx) => {
-            const { user, set, request, jwt } = ctx;
+            const { user, set } = ctx;
 
-            console.log("Settings GET - user:", user);
-
-            // DEBUG: Check what's happening
             if (!user || !user.id) {
-                const authHeader = request.headers.get("authorization");
-                let verifyResult = "No token";
-                if (authHeader && authHeader.startsWith("Bearer ")) {
-                    const token = authHeader.substring(7);
-                    const payload = await jwt.verify(token);
-                    verifyResult = payload ? JSON.stringify(payload) : "Verification failed";
-                }
-
-                console.log("Auth Debug:", { authHeader, verifyResult, user });
-
                 set.status = 401;
                 return {
                     success: false,
-                    error: "Unauthorized (Debug)",
-                    debug: {
-                        authHeader,
-                        verifyResult,
-                        user
-                    }
+                    error: "Unauthorized",
                 };
             }
 
@@ -49,8 +31,6 @@ export const settingsRoutes = new Elysia({ prefix: "/settings", tags: ["Settings
                         },
                     },
                 });
-
-                console.log("Settings GET - userData:", userData?.id, "vendor:", userData?.vendor?.id);
 
                 // If user has no vendor, return null vendor (allow them to create one)
                 if (!userData?.vendor) {
