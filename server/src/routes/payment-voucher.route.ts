@@ -186,7 +186,7 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                         remark,
                         paymentMethod: (paymentMethod as PaymentMethod) || PaymentMethod.TRANSFER,
                         paymentInfo,
-                        createdById: user!.id
+                        createdById: user.id
                     },
                     include: {
                         vendor: true,
@@ -205,10 +205,14 @@ export const paymentVoucherRoutes = new Elysia({ prefix: "/payment-voucher", tag
                     }
                 });
 
-                return voucher;
-            });
+                    return voucher;
+                });
 
-            return { success: true, data: result };
+                return { success: true, data: result };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to create payment voucher" };
+            }
         },
         {
             body: t.Object({

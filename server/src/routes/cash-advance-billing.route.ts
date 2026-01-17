@@ -322,56 +322,68 @@ export const cashAdvanceBillingRoutes = new Elysia({ prefix: "/cash-advance-bill
     .post(
         "/:id/pay",
         async ({ params, body, user, set }) => {
-            if (user?.role === "VENDOR") {
+            if (!user || !user.id) {
+                set.status = 401;
+                return { success: false, error: "Unauthorized" };
+            }
+
+            if (user.role === "VENDOR") {
                 set.status = 403;
                 return { success: false, error: "Vendors cannot record payments" };
             }
 
-            const billing = await prisma.cashAdvanceBilling.findUnique({
-                where: { id: params.id },
-            });
-
-            if (!billing) {
-                set.status = 404; return { success: false, error: "Billing not found" };
-            }
-
-            if (billing.status === "PAID") {
-                set.status = 400; return { success: false, error: "Already paid" };
-            }
-
-            // Generate payment ref
-            const today = new Date();
-            const dateStr = format(today, "yyyyMMdd");
-            const count = await prisma.cashAdvancePayment.count({
-                where: { paymentRef: { startsWith: `CPV${dateStr}` } },
-            });
-            const paymentRef = `CPV${dateStr}${String(count + 1).padStart(3, "0")}`;
-
-            const result = await prisma.$transaction(async (tx) => {
-                const payment = await tx.cashAdvancePayment.create({
-                    data: {
-                        paymentRef,
-                        cashAdvanceBillingId: billing.id,
-                        paymentDate: new Date(body.paymentDate),
-                        paymentMethod: body.paymentMethod,
-                        amount: Number(billing.totalAmount),
-                        proofFile: body.proofFile,
-                        chequeNo: body.chequeNo,
-                        bankInfo: body.bankInfo,
-                        remark: body.remark,
-                        approvedById: user!.id,
-                    },
-                });
-
-                await tx.cashAdvanceBilling.update({
+            try {
+                const billing = await prisma.cashAdvanceBilling.findUnique({
                     where: { id: params.id },
-                    data: { status: "PAID" },
                 });
 
-                return payment;
-            });
+                if (!billing) {
+                    set.status = 404;
+                    return { success: false, error: "Billing not found" };
+                }
 
-            return { success: true, data: result };
+                if (billing.status === "PAID") {
+                    set.status = 400;
+                    return { success: false, error: "Already paid" };
+                }
+
+                // Generate payment ref
+                const today = new Date();
+                const dateStr = format(today, "yyyyMMdd");
+                const count = await prisma.cashAdvancePayment.count({
+                    where: { paymentRef: { startsWith: `CPV${dateStr}` } },
+                });
+                const paymentRef = `CPV${dateStr}${String(count + 1).padStart(3, "0")}`;
+
+                const result = await prisma.$transaction(async (tx) => {
+                    const payment = await tx.cashAdvancePayment.create({
+                        data: {
+                            paymentRef,
+                            cashAdvanceBillingId: billing.id,
+                            paymentDate: new Date(body.paymentDate),
+                            paymentMethod: body.paymentMethod,
+                            amount: Number(billing.totalAmount),
+                            proofFile: body.proofFile,
+                            chequeNo: body.chequeNo,
+                            bankInfo: body.bankInfo,
+                            remark: body.remark,
+                            approvedById: user.id,
+                        },
+                    });
+
+                    await tx.cashAdvanceBilling.update({
+                        where: { id: params.id },
+                        data: { status: "PAID" },
+                    });
+
+                    return payment;
+                });
+
+                return { success: true, data: result };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to record payment" };
+            }
         },
         {
             params: t.Object({ id: t.String() }),

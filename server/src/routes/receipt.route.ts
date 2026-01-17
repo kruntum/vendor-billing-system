@@ -110,11 +110,17 @@ export const receiptRoutes = new Elysia({
     .get(
         "/:id",
         async ({ user, params, set }) => {
-            const receipt = await prisma.receipt.findFirst({
-                where: {
-                    id: params.id,
-                    vendorId: user!.vendorId!,
-                },
+            if (!user || !user.vendorId) {
+                set.status = 401;
+                return { success: false, error: "Unauthorized: Vendor information missing" };
+            }
+
+            try {
+                const receipt = await prisma.receipt.findFirst({
+                    where: {
+                        id: params.id,
+                        vendorId: user.vendorId,
+                    },
                 include: {
                     billingNote: {
                         include: {
@@ -127,14 +133,18 @@ export const receiptRoutes = new Elysia({
                         },
                     },
                 },
-            });
+                });
 
-            if (!receipt) {
-                set.status = 404;
-                return { success: false, error: "Receipt not found" };
+                if (!receipt) {
+                    set.status = 404;
+                    return { success: false, error: "Receipt not found" };
+                }
+
+                return { success: true, data: receipt };
+            } catch (error) {
+                set.status = 500;
+                return { success: false, error: "Failed to fetch receipt" };
             }
-
-            return { success: true, data: receipt };
         },
         {
             detail: {
